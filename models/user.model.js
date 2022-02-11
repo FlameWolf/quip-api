@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema(
 	{
 		handle: { type: String, trim: true, required: true, unique: true },
 		password: { type: String, trim: true, required: true, select: false },
+		posts: [{ type: ObjectId, ref: "Post" }],
+		favourites: [{ type: ObjectId, ref: "Post" }],
 		following: [{ type: ObjectId, ref: "User" }],
 		followedBy: [{ type: ObjectId, ref: "User" }]
 	},
