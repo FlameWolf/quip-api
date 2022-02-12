@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
 		posts: [{ type: ObjectId, ref: "Post" }],
 		favourites: [{ type: ObjectId, ref: "Post" }],
 		following: [{ type: ObjectId, ref: "User" }],
-		followedBy: [{ type: ObjectId, ref: "User" }]
+		followers: [{ type: ObjectId, ref: "User" }]
 	},
 	{
 		timestamps: true

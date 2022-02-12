@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const { invalidHandles, rounds, timeout, JWT_SECRET, handleRegExp, passwordRegExp } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, JWT_SECRET, authCookieName } = require("../library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
@@ -22,7 +22,7 @@ const validatePassword = password => {
 	return passwordRegExp.test(password);
 };
 const authSuccess = (res, status, action, handle, id) => {
-	res.cookie("userId", id, { maxAge: getExpiryDate(), httpOnly: false })
+	res.cookie(authCookieName, id, { maxAge: getExpiryDate(), httpOnly: false })
 		.status(status)
 		.json({
 			message: `${action} success`,
@@ -63,7 +63,7 @@ router.post("/sign-in", async (req, res, next) => {
 	const authAction = "Sign in";
 	const handle = req.body.handle;
 	const password = req.body.password;
-	const foundUser = await User.findOne({ handle });
+	const foundUser = await User.findOne({ handle }).select("+password");
 	if (!foundUser) {
 		authFailure(res, 404, authAction, new Error("User not found"));
 		return;
@@ -78,6 +78,11 @@ router.post("/sign-in", async (req, res, next) => {
 	} catch (err) {
 		authFailure(res, 500, authAction, err);
 	}
+});
+router.get("/sign-out", async (req, res, next) => {
+	res.clearCookie(authCookieName).status(200).json({
+		message: "Sign out success"
+	});
 });
 
 module.exports = router;

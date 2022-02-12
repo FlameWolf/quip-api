@@ -2,8 +2,10 @@
 
 const mongoose = require("mongoose");
 const express = require("express");
-const path = require("path");
+const helmet = require("helmet");
+const compression = require("compression");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
@@ -24,9 +26,11 @@ mongoose
 		console.log("Unable to connect to the database");
 	});
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(compression());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
