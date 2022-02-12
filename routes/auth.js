@@ -4,12 +4,12 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, JWT_SECRET, authCookieName } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, jwtSecret, authCookieName } = require("../library");
 const generalController = require("../controllers/general.controller");
 const User = require("../models/user.model");
 
-const createJwt = (handle, id) => {
-	return jwt.sign({ handle, id }, JWT_SECRET, { expiresIn: "7d" });
+const createJwt = (handle, userId) => {
+	return jwt.sign({ handle, userId }, jwtSecret, { expiresIn: "7d" });
 };
 const getExpiryDate = () => {
 	var expiresAt = new Date();
@@ -22,12 +22,12 @@ const validateUsername = username => {
 const validatePassword = password => {
 	return passwordRegExp.test(password);
 };
-const authSuccess = (res, status, action, handle, id) => {
-	res.cookie(authCookieName, id, { maxAge: getExpiryDate(), httpOnly: false });
+const authSuccess = (res, status, action, handle, userId) => {
+	res.cookie(authCookieName, userId, { maxAge: getExpiryDate(), httpOnly: false });
 	generalController.successResponse(res, status, action, {
 		message: `${action} success`,
-		userId: id,
-		token: createJwt(handle, id),
+		userId,
+		token: createJwt(handle, userId),
 		createdAt: Date.now(),
 		expiresIn: timeout
 	});
