@@ -21,7 +21,7 @@ const validateUsername = username => {
 const validatePassword = password => {
 	return passwordRegExp.test(password);
 };
-const handleAuthSuccess = (res, status, action, handle, id) => {
+const authSuccess = (res, status, action, handle, id) => {
 	res.cookie("userId", id, { maxAge: getExpiryDate(), httpOnly: false })
 		.status(status)
 		.json({
@@ -32,7 +32,7 @@ const handleAuthSuccess = (res, status, action, handle, id) => {
 			expiresIn: timeout
 		});
 };
-const handleAuthFailure = (res, status, action, err) => {
+const authFailure = (res, status, action, err) => {
 	res.status(status).json({
 		message: `${action} failed`,
 		error: err.message
@@ -44,7 +44,7 @@ router.post("/sign-up", async (req, res, next) => {
 	const handle = req.body.handle;
 	const password = req.body.password;
 	if (!(validateUsername(handle) && validatePassword(password))) {
-		handleAuthFailure(res, 400, authAction, new Error("Invalid username/password"));
+		authFailure(res, 400, authAction, new Error("Invalid username/password"));
 		return;
 	}
 	try {
@@ -54,9 +54,9 @@ router.post("/sign-up", async (req, res, next) => {
 			password: passwordHash
 		});
 		const user = await model.save();
-		handleAuthSuccess(res, 201, authAction, handle, user._id);
+		authSuccess(res, 201, authAction, handle, user._id);
 	} catch (err) {
-		handleAuthFailure(res, 500, authAction, err);
+		authFailure(res, 500, authAction, err);
 	}
 });
 router.post("/sign-in", async (req, res, next) => {
@@ -65,18 +65,18 @@ router.post("/sign-in", async (req, res, next) => {
 	const password = req.body.password;
 	const foundUser = await User.findOne({ handle });
 	if (!foundUser) {
-		handleAuthFailure(res, 404, authAction, new Error("User not found"));
+		authFailure(res, 404, authAction, new Error("User not found"));
 		return;
 	}
 	try {
 		const authStatus = await bcrypt.compare(password, foundUser.password);
 		if (!authStatus) {
-			handleAuthFailure(res, 403, authAction, new Error("Invalid credentials"));
+			authFailure(res, 403, authAction, new Error("Invalid credentials"));
 			return;
 		}
-		handleAuthSuccess(res, 200, authAction, handle, foundUser._id);
+		authSuccess(res, 200, authAction, handle, foundUser._id);
 	} catch (err) {
-		handleAuthFailure(res, 500, authAction, err);
+		authFailure(res, 500, authAction, err);
 	}
 });
 
