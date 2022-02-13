@@ -11,10 +11,9 @@ const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 
 module.exports = {
-	publicRoutes,
+	invalidHandles,
 	handleRegExp,
 	passwordRegExp,
-	invalidHandles,
 	rounds,
 	timeout,
 	jwtSecret,

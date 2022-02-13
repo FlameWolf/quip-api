@@ -41,6 +41,10 @@ router.post("/sign-up", async (req, res, next) => {
 		generalController.failureResponse(res, 400, authAction, "Invalid username/password");
 		return;
 	}
+	if (await User.findOne({ handle })) {
+		generalController.failureResponse(res, 400, authAction, "Username unavailable");
+		return;
+	}
 	try {
 		const passwordHash = await bcrypt.hash(password, rounds);
 		const model = new User({ handle, password: passwordHash });
