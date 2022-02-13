@@ -10,9 +10,9 @@ const postSchema = new mongoose.Schema(
 		author: { type: ObjectId, ref: "User", required: true },
 		repeatPost: { type: ObjectId, ref: "Post" },
 		replyTo: { type: ObjectId, ref: "Post" },
-		favouritedBy: [{ type: ObjectId, ref: "User" }],
-		repeatedBy: [{ type: ObjectId, ref: "User" }],
-		replies: [{ type: ObjectId, ref: "Post" }],
+		favouritedBy: [{ type: ObjectId, ref: "User", select: false }],
+		repeatedBy: [{ type: ObjectId, ref: "User", select: false }],
+		replies: [{ type: ObjectId, ref: "Post", select: false }],
 		pinned: { type: Boolean }
 	},
 	{
