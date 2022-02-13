@@ -46,6 +46,7 @@ router.get("/favourite/:postId", authenticateRequest, async (req, res, next) => 
 		const response = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } }, { new: true });
 		if (!response) {
 			generalController.failureResponse(res, 404, favouritePostAction, "Post not found");
+			return;
 		}
 		generalController.successResponse(res, 200, favouritePostAction, { post: response });
 	} catch (err) {
