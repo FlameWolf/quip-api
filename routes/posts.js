@@ -5,6 +5,7 @@ const router = express.Router();
 const authenticateRequest = require("../middleware/authenticate-request");
 const generalController = require("../controllers/general.controller");
 const Post = require("../models/post.model");
+const User = require("../models/user.model");
 
 router.post("/create", authenticateRequest, async (req, res, next) => {
 	const createPostAction = "Create post";
@@ -43,12 +44,18 @@ router.get("/favourite/:postId", authenticateRequest, async (req, res, next) => 
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const response = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } }, { new: true });
-		if (!response) {
+		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } }, { new: true });
+		if (!postUpdateResponse) {
 			generalController.failureResponse(res, 404, favouritePostAction, "Post not found");
 			return;
 		}
-		generalController.successResponse(res, 200, favouritePostAction, { post: response });
+		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } }, { new: true });
+		generalController.successResponse(res, 200, favouritePostAction, {
+			result: {
+				...postUpdateResponse,
+				...userUpdateResponse
+			}
+		});
 	} catch (err) {
 		generalController.failureResponse(res, 500, favouritePostAction, err.message);
 	}
@@ -58,8 +65,14 @@ router.get("/unfavourite/:postId", authenticateRequest, async (req, res, next) =
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const response = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } }, { new: true });
-		generalController.successResponse(res, 200, unfavouritePostAction, { post: response });
+		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } }, { new: true });
+		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } }, { new: true });
+		generalController.successResponse(res, 200, unfavouritePostAction, {
+			result: {
+				...postUpdateResponse,
+				...userUpdateResponse
+			}
+		});
 	} catch (err) {
 		generalController.failureResponse(res, 500, unfavouritePostAction, err.message);
 	}
