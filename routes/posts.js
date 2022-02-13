@@ -52,8 +52,8 @@ router.get("/favourite/:postId", authenticateRequest, async (req, res, next) => 
 		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } }, { new: true });
 		generalController.successResponse(res, 200, favouritePostAction, {
 			result: {
-				...postUpdateResponse,
-				...userUpdateResponse
+				post: postUpdateResponse,
+				user: userUpdateResponse
 			}
 		});
 	} catch (err) {
@@ -69,8 +69,8 @@ router.get("/unfavourite/:postId", authenticateRequest, async (req, res, next) =
 		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } }, { new: true });
 		generalController.successResponse(res, 200, unfavouritePostAction, {
 			result: {
-				...postUpdateResponse,
-				...userUpdateResponse
+				post: postUpdateResponse,
+				user: userUpdateResponse
 			}
 		});
 	} catch (err) {
