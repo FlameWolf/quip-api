@@ -58,18 +58,18 @@ router.post("/sign-in", async (req, res, next) => {
 	const authAction = "Sign in";
 	const handle = req.body.handle;
 	const password = req.body.password;
-	const foundUser = await User.findOne({ handle }).select("+password");
-	if (!foundUser) {
+	const user = await User.findOne({ handle }).select("+password");
+	if (!user) {
 		generalController.failureResponse(res, 404, authAction, "User not found");
 		return;
 	}
 	try {
-		const authStatus = await bcrypt.compare(password, foundUser.password);
+		const authStatus = await bcrypt.compare(password, user.password);
 		if (!authStatus) {
 			generalController.failureResponse(res, 403, authAction, "Invalid credentials");
 			return;
 		}
-		authSuccess(res, 200, authAction, handle, foundUser._id);
+		authSuccess(res, 200, authAction, handle, user._id);
 	} catch (err) {
 		generalController.failureResponse(res, 500, authAction, err.message);
 	}

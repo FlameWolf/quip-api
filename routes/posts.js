@@ -11,13 +11,11 @@ router.post("/create", authenticateRequest, async (req, res, next) => {
 	const createPostAction = "Create post";
 	const content = req.body.content;
 	const author = req.userInfo.userId;
-	const repeatPost = req.body.repeatPost;
-	const replyTo = req.body.replyTo;
-	if (!(content || repeatPost)) {
+	if (!content) {
 		generalController.failureResponse(res, 400, createPostAction, "No content");
 		return;
 	}
-	const model = new Post({ content, author, repeatPost, replyTo });
+	const model = new Post({ content, author });
 	try {
 		const response = await model.save();
 		generalController.successResponse(res, 201, createPostAction, { post: response });
@@ -44,12 +42,12 @@ router.get("/favourite/:postId", authenticateRequest, async (req, res, next) => 
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } }, { new: true });
+		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } });
 		if (!postUpdateResponse) {
 			generalController.failureResponse(res, 404, favouritePostAction, "Post not found");
 			return;
 		}
-		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } }, { new: true });
+		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } });
 		generalController.successResponse(res, 200, favouritePostAction, {
 			result: {
 				post: postUpdateResponse,
@@ -65,8 +63,8 @@ router.get("/unfavourite/:postId", authenticateRequest, async (req, res, next) =
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } }, { new: true });
-		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } }, { new: true });
+		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } });
+		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } });
 		generalController.successResponse(res, 200, unfavouritePostAction, {
 			result: {
 				post: postUpdateResponse,
@@ -113,15 +111,46 @@ router.get("/unrepeat/:postId", authenticateRequest, async (req, res, next) => {
 		generalController.failureResponse(res, 500, unrepeatPostAction, err.message);
 	}
 });
+router.post("/reply/:postId", authenticateRequest, async (req, res, next) => {
+	const replyToPostAction = "Reply to post";
+	const content = req.body.content;
+	const replyTo = req.params.postId;
+	const author = req.userInfo.userId;
+	if (!content) {
+		generalController.failureResponse(res, 400, replyToPostAction, "No content");
+		return;
+	}
+	if (!(await Post.findById(replyTo))) {
+		generalController.failureResponse(res, 404, replyToPostAction, "Post not found");
+		return;
+	}
+	const model = new Post({ content, author, replyTo });
+	try {
+		const response = await model.save();
+		const postUpdateResponse = await Post.findByIdAndUpdate(replyTo, { $addToSet: { replies: response._id } });
+		generalController.successResponse(res, 201, replyToPostAction, { post: response });
+	} catch (err) {
+		generalController.failureResponse(res, 500, replyToPostAction, err.message);
+	}
+});
 router.get("/delete/:postId", authenticateRequest, async (req, res, next) => {
 	const deletePostAction = "Delete post";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const response = await Post.deleteOne({
+		const post = await Post.findOne({
 			_id: postId,
 			author: userId
 		});
+		if (!post) {
+			generalController.failureResponse(res, 404, deletePostAction, "Post not found");
+			return;
+		}
+		const parentPostId = post.replyTo;
+		const response = await Post.deleteOne(post);
+		if (response.deletedCount === 1 && parentPostId) {
+			await Post.findByIdAndUpdate(parentPostId, { $pull: { replies: postId } });
+		}
 		generalController.successResponse(res, 200, deletePostAction, response);
 	} catch (err) {
 		generalController.failureResponse(res, 500, deletePostAction, err.message);
