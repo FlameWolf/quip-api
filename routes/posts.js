@@ -10,15 +10,16 @@ const User = require("../models/user.model");
 router.post("/create", authenticateRequest, async (req, res, next) => {
 	const createPostAction = "Create post";
 	const content = req.body.content;
-	const author = req.userInfo.userId;
+	const userId = req.userInfo.userId;
 	if (!content) {
 		generalController.failureResponse(res, 400, createPostAction, "No content");
 		return;
 	}
-	const model = new Post({ content, author });
+	const model = new Post({ content, author: userId });
 	try {
-		const response = await model.save();
-		generalController.successResponse(res, 201, createPostAction, { post: response });
+		const post = await model.save();
+		await User.findByIdAndUpdate(userId, { $addToSet: { posts: post._id } });
+		generalController.successResponse(res, 201, createPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, createPostAction, err.message);
 	}
@@ -27,12 +28,12 @@ router.get("/:postId", async (req, res, next) => {
 	const getPostAction = "Get post";
 	const postId = req.params.postId;
 	try {
-		const response = await Post.findById(postId);
-		if (!response) {
+		const post = await Post.findById(postId);
+		if (!post) {
 			generalController.failureResponse(res, 404, getPostAction, "Post not found");
 			return;
 		}
-		generalController.successResponse(res, 200, getPostAction, { post: response });
+		generalController.successResponse(res, 200, getPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, getPostAction, err.message);
 	}
@@ -42,16 +43,16 @@ router.get("/favourite/:postId", authenticateRequest, async (req, res, next) => 
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } });
-		if (!postUpdateResponse) {
+		const postUpdateResult = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } });
+		if (!postUpdateResult) {
 			generalController.failureResponse(res, 404, favouritePostAction, "Post not found");
 			return;
 		}
-		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } });
+		const userUpdateResult = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } });
 		generalController.successResponse(res, 200, favouritePostAction, {
 			result: {
-				post: postUpdateResponse,
-				user: userUpdateResponse
+				favouritedPost: postUpdateResult,
+				favouritedBy: userUpdateResult
 			}
 		});
 	} catch (err) {
@@ -63,12 +64,12 @@ router.get("/unfavourite/:postId", authenticateRequest, async (req, res, next) =
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const postUpdateResponse = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } });
-		const userUpdateResponse = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } });
+		const postUpdateResult = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } });
+		const userUpdateResult = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } });
 		generalController.successResponse(res, 200, unfavouritePostAction, {
 			result: {
-				post: postUpdateResponse,
-				user: userUpdateResponse
+				unfavouritedPost: postUpdateResult,
+				unfavouritedBy: userUpdateResult
 			}
 		});
 	} catch (err) {
@@ -91,8 +92,9 @@ router.get("/repeat/:postId", authenticateRequest, async (req, res, next) => {
 		if (await Post.find(payload)) {
 			await Post.deleteOne(payload);
 		}
-		const response = await new Post(payload).save();
-		generalController.successResponse(res, 201, repeatPostAction, { post: response });
+		const post = await new Post(payload).save();
+		await User.findByIdAndUpdate(userId, { $addToSet: { posts: post._id } });
+		generalController.successResponse(res, 201, repeatPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, repeatPostAction, err.message);
 	}
@@ -102,11 +104,12 @@ router.get("/unrepeat/:postId", authenticateRequest, async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const response = await Post.deleteOne({
+		const post = await Post.findOneAndDelete({
 			author: userId,
 			repeatPost: postId
 		});
-		generalController.successResponse(res, 201, unrepeatPostAction, response);
+		await User.findByIdAndUpdate(userId, { $pull: { posts: post._id } });
+		generalController.successResponse(res, 200, unrepeatPostAction, post);
 	} catch (err) {
 		generalController.failureResponse(res, 500, unrepeatPostAction, err.message);
 	}
@@ -115,7 +118,7 @@ router.post("/reply/:postId", authenticateRequest, async (req, res, next) => {
 	const replyToPostAction = "Reply to post";
 	const content = req.body.content;
 	const replyTo = req.params.postId;
-	const author = req.userInfo.userId;
+	const userId = req.userInfo.userId;
 	if (!content) {
 		generalController.failureResponse(res, 400, replyToPostAction, "No content");
 		return;
@@ -124,11 +127,12 @@ router.post("/reply/:postId", authenticateRequest, async (req, res, next) => {
 		generalController.failureResponse(res, 404, replyToPostAction, "Post not found");
 		return;
 	}
-	const model = new Post({ content, author, replyTo });
+	const model = new Post({ content, author: userId, replyTo });
 	try {
-		const response = await model.save();
-		const postUpdateResponse = await Post.findByIdAndUpdate(replyTo, { $addToSet: { replies: response._id } });
-		generalController.successResponse(res, 201, replyToPostAction, { post: response });
+		const reply = await model.save();
+		const repliedTo = await Post.findByIdAndUpdate(replyTo, { $addToSet: { replies: reply._id } });
+		await User.findByIdAndUpdate(userId, { $addToSet: { posts: reply._id } });
+		generalController.successResponse(res, 201, replyToPostAction, { reply, repliedTo });
 	} catch (err) {
 		generalController.failureResponse(res, 500, replyToPostAction, err.message);
 	}
@@ -146,12 +150,15 @@ router.get("/delete/:postId", authenticateRequest, async (req, res, next) => {
 			generalController.failureResponse(res, 404, deletePostAction, "Post not found");
 			return;
 		}
-		const parentPostId = post.replyTo;
-		const response = await Post.deleteOne(post);
-		if (response.deletedCount === 1 && parentPostId) {
-			await Post.findByIdAndUpdate(parentPostId, { $pull: { replies: postId } });
+		const result = await Post.deleteOne(post);
+		if (result.deletedCount === 1) {
+			const parentPostId = post.replyTo;
+			await User.findByIdAndUpdate(userId, { $pull: { posts: post._id } });
+			if (parentPostId) {
+				await Post.findByIdAndUpdate(parentPostId, { $pull: { replies: postId } });
+			}
 		}
-		generalController.successResponse(res, 200, deletePostAction, response);
+		generalController.successResponse(res, 200, deletePostAction, result);
 	} catch (err) {
 		generalController.failureResponse(res, 500, deletePostAction, err.message);
 	}

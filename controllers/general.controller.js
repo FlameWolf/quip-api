@@ -4,10 +4,10 @@ const successResponse = (res, status, action, payload) => {
 		...payload
 	});
 };
-const failureResponse = (res, status, action, error) => {
+const failureResponse = (res, status, action, errorMessage) => {
 	res.status(status).json({
 		message: `${action} failed`,
-		error
+		error: errorMessage
 	});
 };
 
