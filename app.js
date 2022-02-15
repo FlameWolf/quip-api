@@ -11,6 +11,8 @@ const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 const postsRouter = require("./routes/posts");
+const searchRouter = require("./routes/search");
+const settingsRouter = require("./routes/settings");
 
 const app = express();
 
@@ -38,5 +40,7 @@ app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
+app.use("/search", searchRouter);
+app.use("/settings", settingsRouter);
 
 module.exports = app;
