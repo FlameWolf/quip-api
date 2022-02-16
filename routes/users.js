@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const authenticateRequest = require("../middleware/authenticate-request");
-const userController = require("../controllers/user.controller");
+const userController = require("../controllers/users.controller");
 
 router.get("/:handle", userController.getUser);
 router.get("/:handle/profile", userController.getUserProfile);

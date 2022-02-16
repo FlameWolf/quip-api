@@ -3,10 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const authenticateRequest = require("../middleware/authenticate-request");
-const generalController = require("../controllers/general.controller");
-const postController = require("../controllers/post.controller");
-const Post = require("../models/post.model");
-const User = require("../models/user.model");
+const postController = require("../controllers/posts.controller");
 
 router.post("/create", authenticateRequest, postController.createPost);
 router.get("/:postId", postController.getPost);
