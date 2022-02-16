@@ -2,12 +2,10 @@
 
 const express = require("express");
 const router = express.Router();
+const indexController = require("../controllers/index.controller");
 
-router.get("/", (req, res, next) => {
-	res.status(200).end();
-});
-router.get("/timeline", (req, res, next) => {
-	res.status(200).end();
-});
+router.get("/", indexController.home);
+router.get("/timeline", indexController.timeline);
+router.get("/timeline/top", indexController.timelineTop);
 
 module.exports = router;
