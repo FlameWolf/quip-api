@@ -1,3 +1,5 @@
+"use strict";
+
 const successResponse = (res, status, action, payload) => {
 	res.status(status).json({
 		message: `${action} success`,
