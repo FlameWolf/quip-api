@@ -1,5 +1,6 @@
 "use strict";
 
+const { contentLengthRegExp, maxContentLength } = require("../library");
 const generalController = require("./general.controller");
 const Post = require("../models/post.model");
 const User = require("../models/user.model");
@@ -10,6 +11,10 @@ const createPost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	if (!content) {
 		generalController.failureResponse(res, 400, createPostAction, "No content");
+		return;
+	}
+	if (content.match(contentLengthRegExp) > maxContentLength) {
+		generalController.failureResponse(res, 400, createPostAction, "Content too long");
 		return;
 	}
 	const model = new Post({ content, author: userId });
@@ -118,6 +123,10 @@ const replyToPost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	if (!content) {
 		generalController.failureResponse(res, 400, replyToPostAction, "No content");
+		return;
+	}
+	if (content.match(contentLengthRegExp) > maxContentLength) {
+		generalController.failureResponse(res, 400, createPostAction, "Content too long");
 		return;
 	}
 	if (!(await Post.findById(replyTo))) {
