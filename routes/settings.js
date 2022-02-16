@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const authenticateRequest = require("../middleware/authenticate-request");
 const generalController = require("../controllers/general.controller");
+const userController = require("../controllers/user.controller");
 const User = require("../models/user.model");
 
 router.post("/mute", authenticateRequest, async (req, res, next) => {
