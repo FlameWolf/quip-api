@@ -21,7 +21,7 @@ const settingsRouter = require("./routes/settings");
 const app = express();
 
 mongoose
-	.connect("mongodb://localhost:27017/?readPreference=primary&ssl=false", {
+	.connect(process.env.DB_CONNECTION, {
 		user: "admin",
 		pass: "3956@tHeNgNgAaKkOlA",
 		dbName: "quip-db"
