@@ -20,7 +20,6 @@ const createPost = async (req, res, next) => {
 	const model = new Post({ content, author: userId });
 	try {
 		const post = await model.save();
-		await User.findByIdAndUpdate(userId, { $addToSet: { posts: post._id } });
 		generalController.successResponse(res, 201, createPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, createPostAction, err.message);
@@ -95,7 +94,6 @@ const repeatPost = async (req, res, next) => {
 			await Post.deleteOne(payload);
 		}
 		const post = await new Post(payload).save();
-		await User.findByIdAndUpdate(userId, { $addToSet: { posts: post._id } });
 		generalController.successResponse(res, 201, repeatPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, repeatPostAction, err.message);
@@ -110,7 +108,6 @@ const unrepeatPost = async (req, res, next) => {
 			author: userId,
 			repeatPost: postId
 		});
-		await User.findByIdAndUpdate(userId, { $pull: { posts: post._id } });
 		generalController.successResponse(res, 200, unrepeatPostAction, post);
 	} catch (err) {
 		generalController.failureResponse(res, 500, unrepeatPostAction, err.message);
@@ -137,7 +134,6 @@ const replyToPost = async (req, res, next) => {
 	try {
 		const reply = await model.save();
 		const repliedTo = await Post.findByIdAndUpdate(replyTo, { $addToSet: { replies: reply._id } });
-		await User.findByIdAndUpdate(userId, { $addToSet: { posts: reply._id } });
 		generalController.successResponse(res, 201, replyToPostAction, { reply, repliedTo });
 	} catch (err) {
 		generalController.failureResponse(res, 500, replyToPostAction, err.message);
@@ -159,7 +155,6 @@ const deletePost = async (req, res, next) => {
 		const result = await Post.deleteOne(post);
 		if (result.deletedCount === 1) {
 			const parentPostId = post.replyTo;
-			await User.findByIdAndUpdate(userId, { $pull: { posts: post._id } });
 			if (parentPostId) {
 				await Post.findByIdAndUpdate(parentPostId, { $pull: { replies: postId } });
 			}

@@ -8,8 +8,8 @@ const postSchema = new mongoose.Schema(
 	{
 		content: { type: String },
 		author: { type: ObjectId, ref: "User", required: true, index: true },
-		repeatPost: { type: ObjectId, ref: "Post" },
-		replyTo: { type: ObjectId, ref: "Post" },
+		repeatPost: { type: ObjectId, ref: "Post", index: true },
+		replyTo: { type: ObjectId, ref: "Post", index: true },
 		favouritedBy: [{ type: ObjectId, ref: "User", select: false }],
 		repeatedBy: [{ type: ObjectId, ref: "User", select: false }],
 		replies: [{ type: ObjectId, ref: "Post", select: false }],
