@@ -6,8 +6,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const favouriteSchema = new mongoose.Schema(
 	{
-		post: { type: ObjectId, ref: "Post" },
-		favouritedBy: { type: ObjectId, ref: "User" }
+		post: { type: ObjectId, ref: "Post", index: true },
+		favouritedBy: { type: ObjectId, ref: "User", index: true }
 	},
 	{
 		timestamps: true
