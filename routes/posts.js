@@ -3,15 +3,16 @@
 const express = require("express");
 const router = express.Router();
 const authenticateRequest = require("../middleware/authenticate-request");
-const postController = require("../controllers/posts.controller");
+const postsController = require("../controllers/posts.controller");
+const favouritesController = require("../controllers/favourites.controller");
 
-router.post("/create", authenticateRequest, postController.createPost);
-router.get("/:postId", postController.getPost);
-router.get("/favourite/:postId", authenticateRequest, postController.favouritePost);
-router.get("/unfavourite/:postId", authenticateRequest, postController.unfavouritePost);
-router.get("/repeat/:postId", authenticateRequest, postController.repeatPost);
-router.get("/unrepeat/:postId", authenticateRequest, postController.unrepeatPost);
-router.post("/reply/:postId", authenticateRequest, postController.replyToPost);
-router.get("/delete/:postId", authenticateRequest, postController.deletePost);
+router.post("/create", authenticateRequest, postsController.createPost);
+router.get("/:postId", postsController.getPost);
+router.get("/favourite/:postId", authenticateRequest, favouritesController.addFavourite);
+router.get("/unfavourite/:postId", authenticateRequest, favouritesController.removeFavourite);
+router.get("/repeat/:postId", authenticateRequest, postsController.repeatPost);
+router.get("/unrepeat/:postId", authenticateRequest, postsController.unrepeatPost);
+router.post("/reply/:postId", authenticateRequest, postsController.replyToPost);
+router.get("/delete/:postId", authenticateRequest, postsController.deletePost);
 
 module.exports = router;
