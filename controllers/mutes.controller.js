@@ -33,7 +33,7 @@ const unmuteUser = (req, res, next) => {
 	const unmuterHandle = req.userInfo.handle;
 	const unmuterUserId = req.userInfo.userId;
 	if (unmuteeHandle === unmuterHandle) {
-		generalController.failureResponse(res, 422, unmuteUserAction, "User cannot mute themselves");
+		generalController.failureResponse(res, 422, unmuteUserAction, "User cannot unmute themselves");
 		return;
 	}
 	try {
