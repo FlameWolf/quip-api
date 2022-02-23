@@ -6,7 +6,7 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const postSchema = new mongoose.Schema(
 	{
-		content: { type: String },
+		content: { type: String, text: true },
 		author: { type: ObjectId, ref: "User", required: true, index: true },
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
