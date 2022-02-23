@@ -9,7 +9,7 @@ const muteWordSchema = new mongoose.Schema({
 	match: { type: String, enum: ["exact", "contains", "startsWith", "endsWith"] },
 	mutedBy: { type: ObjectId, ref: "User", index: true }
 });
-muteWordSchema.index({ word: 1, match: 1, mutedBy: 1 }, { unique: true, uniqueCaseInsensitive: true });
+muteWordSchema.index({ mutedBy: 1, word: 1, match: 1 }, { unique: true, uniqueCaseInsensitive: true });
 muteWordSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("MuteWord", muteWordSchema);

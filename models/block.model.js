@@ -8,7 +8,7 @@ const blockSchema = new mongoose.Schema({
 	user: { type: ObjectId, ref: "User" },
 	blockedBy: { type: ObjectId, ref: "User", index: true }
 });
-blockSchema.index({ user: 1, blockedBy: 1 }, { unique: true, uniqueCaseInsensitive: true });
+blockSchema.index({ blockedBy: 1, user: 1 }, { unique: true, uniqueCaseInsensitive: true });
 blockSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("Block", blockSchema);

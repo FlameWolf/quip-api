@@ -8,7 +8,7 @@ const muteUserSchema = new mongoose.Schema({
 	user: { type: ObjectId, ref: "User" },
 	mutedBy: { type: ObjectId, ref: "User", index: true }
 });
-muteUserSchema.index({ user: 1, mutedBy: 1 }, { unique: true, uniqueCaseInsensitive: true });
+muteUserSchema.index({ mutedBy: 1, user: 1 }, { unique: true, uniqueCaseInsensitive: true });
 muteUserSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("MuteUser", muteUserSchema);
