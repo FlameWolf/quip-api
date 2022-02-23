@@ -42,7 +42,7 @@ const unfollowUser = (req, res, next) => {
 		return;
 	}
 	try {
-		const unfollowee = await usersController.findActiveUserByHandle(unfolloweeHandle);
+		const unfollowee = await usersController.findUserByHandle(unfolloweeHandle);
 		if (!unfollowee) {
 			generalController.failureResponse(res, 404, unfollowUserAction, "User not found");
 			return;
