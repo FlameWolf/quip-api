@@ -8,9 +8,6 @@ const followSchema = new mongoose.Schema(
 	{
 		user: { type: ObjectId, ref: "User", index: true },
 		followedBy: { type: ObjectId, ref: "User", index: true }
-	},
-	{
-		timestamps: true
 	}
 );
 followSchema.index({ user: 1, followedBy: 1 }, { unique: true, uniqueCaseInsensitive: true });

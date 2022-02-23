@@ -8,9 +8,6 @@ const favouriteSchema = new mongoose.Schema(
 	{
 		post: { type: ObjectId, ref: "Post", index: true },
 		favouritedBy: { type: ObjectId, ref: "User", index: true }
-	},
-	{
-		timestamps: true
 	}
 );
 favouriteSchema.index({ post: 1, favouritedBy: 1 }, { unique: true, uniqueCaseInsensitive: true });
