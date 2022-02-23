@@ -39,44 +39,6 @@ const getPost = async (req, res, next) => {
 		generalController.failureResponse(res, 500, getPostAction, err.message);
 	}
 };
-const favouritePost = async (req, res, next) => {
-	const favouritePostAction = "Add favourite";
-	const postId = req.params.postId;
-	const userId = req.userInfo.userId;
-	try {
-		const postUpdateResult = await Post.findByIdAndUpdate(postId, { $addToSet: { favouritedBy: userId } });
-		if (!postUpdateResult) {
-			generalController.failureResponse(res, 404, favouritePostAction, "Post not found");
-			return;
-		}
-		const userUpdateResult = await User.findByIdAndUpdate(userId, { $addToSet: { favourites: postId } });
-		generalController.successResponse(res, 200, favouritePostAction, {
-			result: {
-				favouritedPost: postUpdateResult,
-				favouritedBy: userUpdateResult
-			}
-		});
-	} catch (err) {
-		generalController.failureResponse(res, 500, favouritePostAction, err.message);
-	}
-};
-const unfavouritePost = async (req, res, next) => {
-	const unfavouritePostAction = "Remove favourite";
-	const postId = req.params.postId;
-	const userId = req.userInfo.userId;
-	try {
-		const postUpdateResult = await Post.findByIdAndUpdate(postId, { $pull: { favouritedBy: userId } });
-		const userUpdateResult = await User.findByIdAndUpdate(userId, { $pull: { favourites: postId } });
-		generalController.successResponse(res, 200, unfavouritePostAction, {
-			result: {
-				unfavouritedPost: postUpdateResult,
-				unfavouritedBy: userUpdateResult
-			}
-		});
-	} catch (err) {
-		generalController.failureResponse(res, 500, unfavouritePostAction, err.message);
-	}
-};
 const repeatPost = async (req, res, next) => {
 	const repeatPostAction = "Repeat";
 	const postId = req.params.postId;
@@ -168,8 +130,6 @@ const deletePost = async (req, res, next) => {
 module.exports = {
 	createPost,
 	getPost,
-	favouritePost,
-	unfavouritePost,
 	repeatPost,
 	unrepeatPost,
 	replyToPost,
