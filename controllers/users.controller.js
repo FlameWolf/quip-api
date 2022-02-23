@@ -35,6 +35,36 @@ const getUserProfile = async (req, res, next) => {
 		generalController.failureResponse(res, 500, getUserProfileAction, err.message);
 	}
 };
+const deactivateUser = async (req, res, next) => {
+	const deactivateUserAction = "Deactivate user";
+	const userId = req.userInfo.userId;
+	try {
+		const result = await User.findByIdAndUpdate(userId, { isDeactivated: true });
+		generalController.successResponse(res, 200, deactivateUserAction, result);
+	} catch (err) {
+		generalController.failureResponse(res, 500, deactivateUserAction, err.message);
+	}
+};
+const activateUser = async (req, res, next) => {
+	const activateUserAction = "Activate user";
+	const userId = req.userInfo.userId;
+	try {
+		const result = await User.findByIdAndUpdate(userId, { isDeactivated: false });
+		generalController.successResponse(res, 200, activateUserAction, result);
+	} catch (err) {
+		generalController.failureResponse(res, 500, activateUserAction, err.message);
+	}
+};
+const deleteUser = async (req, res, next) => {
+	const deleteUserAction = "Delete user";
+	const userId = req.userInfo.userId;
+	try {
+		const result = await User.findByIdAndUpdate(userId, { isDeleted: true });
+		generalController.successResponse(res, 200, deleteUserAction, result);
+	} catch (err) {
+		generalController.failureResponse(res, 500, deleteUserAction, err.message);
+	}
+};
 
 module.exports = {
 	findActiveUserById,
@@ -42,5 +72,8 @@ module.exports = {
 	findUserById,
 	findUserByHandle,
 	getUser,
-	getUserProfile
+	getUserProfile,
+	deactivateUser,
+	activateUser,
+	deleteUser
 };
