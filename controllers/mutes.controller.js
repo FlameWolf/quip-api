@@ -48,16 +48,58 @@ const unmuteUser = async (req, res, next) => {
 		generalController.failureResponse(res, 500, unmuteUserAction, err.message);
 	}
 };
-const mutePost = async (req, res, next) => {};
-const unmutePost = async (req, res, next) => {};
-const muteWord = async (req, res, next) => {};
-const unmuteWord = async (req, res, next) => {};
+const mutePost = async (req, res, next) => {
+	const mutePostAction = "Mute post";
+	const postId = req.params.postId;
+	const userId = req.userInfo.userId;
+	try {
+		const muteResult = await new MutePost({ post: postId, mutedBy: userId }).save();
+		generalController.successResponse(res, 200, mutePostAction, muteResult);
+	} catch (err) {
+		generalController.failureResponse(res, 500, mutePostAction, err.message);
+	}
+};
+const unmutePost = async (req, res, next) => {
+	const unmutePostAction = "Unmute post";
+	const postId = req.params.postId;
+	const userId = req.userInfo.userId;
+	try {
+		const muteResult = await MutePost.findOneAndDelete({ post: postId, mutedBy: userId });
+		generalController.successResponse(res, 200, unmutePostAction, muteResult);
+	} catch (err) {
+		generalController.failureResponse(res, 500, unmutePostAction, err.message);
+	}
+};
+const muteWord = async (req, res, next) => {
+	const muteWordAction = "Mute word";
+	const word = req.body.word;
+	const match = req.body.match;
+	const userId = req.userInfo.userId;
+	try {
+		const muteResult = await new MuteWord({ word, match, mutedBy: userId }).save();
+		generalController.successResponse(res, 200, muteWordAction, muteResult);
+	} catch (err) {
+		generalController.failureResponse(res, 500, muteWordAction, err.message);
+	}
+};
+const unmuteWord = async (req, res, next) => {
+	const unmuteWordAction = "Unmute word";
+	const word = req.body.word;
+	const match = req.body.match;
+	const userId = req.userInfo.userId;
+	try {
+		const unmuteResult = await MuteWord.findOneAndDelete({ word, match, mutedBy: userId });
+		generalController.successResponse(res, 200, unmuteWordAction, unmuteResult);
+	} catch (err) {
+		generalController.failureResponse(res, 500, unmuteWordAction, err.message);
+	}
+};
 
 module.exports = {
 	muteUser,
-	mutePost,
-	muteWord,
 	unmuteUser,
+	mutePost,
 	unmutePost,
+	muteWord,
 	unmuteWord
 };
