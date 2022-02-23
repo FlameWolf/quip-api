@@ -6,7 +6,7 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const mutePostSchema = new mongoose.Schema({
 	post: { type: ObjectId, ref: "Post" },
-	mutedBy: { type: ObjectId, ref: "User", index: true }
+	mutedBy: { type: ObjectId, ref: "User" }
 });
 mutePostSchema.index({ mutedBy: 1, post: 1 }, { unique: true, uniqueCaseInsensitive: true });
 mutePostSchema.plugin(uniqueValidator);
