@@ -35,54 +35,6 @@ const getUserProfile = async (req, res, next) => {
 		generalController.failureResponse(res, 500, getUserProfileAction, err.message);
 	}
 };
-const followUser = async (req, res, next) => {
-	const followUserAction = "Follow user";
-	const followeeHandle = req.params.handle;
-	const followerHandle = req.userInfo.handle;
-	const followerUserId = req.userInfo.userId;
-	if (followeeHandle === followerHandle) {
-		generalController.failureResponse(res, 422, followUserAction, "User cannot follow themselves");
-		return;
-	}
-	try {
-		const followee = await findActiveUserByHandle(followeeHandle).select("+blockList");
-		if (!followee) {
-			generalController.failureResponse(res, 404, followUserAction, "User not found");
-			return;
-		}
-		if (followee.blockList?.includes(followerUserId)) {
-			generalController.failureResponse(res, 403, followUserAction, "User has blocked you from following them");
-			return;
-		}
-		const followeeResult = await User.updateOne(followee, { $addToSet: { followers: followerUserId } });
-		const followerResult = await User.findByIdAndUpdate(followerUserId, { $addToSet: { following: followee._id } });
-		generalController.successResponse(res, 200, followUserAction, { followed: followeeResult, followedBy: followerResult });
-	} catch (err) {
-		generalController.failureResponse(res, 500, followUserAction, err.message);
-	}
-};
-const unfollowUser = async (req, res, next) => {
-	const unfollowUserAction = "Unfollow user";
-	const unfolloweeHandle = req.params.handle;
-	const unfollowerHandle = req.userInfo.handle;
-	const unfollowerUserId = req.userInfo.userId;
-	if (unfolloweeHandle === unfollowerHandle) {
-		generalController.failureResponse(res, 422, unfollowUserAction, "User cannot unfollow themselves");
-		return;
-	}
-	try {
-		const unfollowee = await findActiveUserByHandle(unfolloweeHandle);
-		if (!unfollowee) {
-			generalController.failureResponse(res, 404, unfollowUserAction, "User not found");
-			return;
-		}
-		const unfolloweeResult = await User.updateOne(unfollowee, { $pull: { followers: unfollowerUserId } });
-		const unfollowerResult = await User.findByIdAndUpdate(unfollowerUserId, { $pull: { following: unfollowee._id } });
-		generalController.successResponse(res, 200, unfollowUserAction, { unfollowed: unfolloweeResult, unfollowedBy: unfollowerResult });
-	} catch (err) {
-		generalController.failureResponse(res, 500, unfollowUserAction, err.message);
-	}
-};
 const muteUser = async (req, res, next) => {
 	const muteUserAction = "Mute user";
 	const muteeHandle = req.params.handle;
@@ -178,8 +130,6 @@ module.exports = {
 	findUserByHandle,
 	getUser,
 	getUserProfile,
-	followUser,
-	unfollowUser,
 	muteUser,
 	unmuteUser,
 	blockUser,
