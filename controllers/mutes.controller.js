@@ -6,7 +6,7 @@ const MuteUser = require("../models/mute.user.model");
 const MutePost = require("../models/mute.post.model");
 const MuteWord = require("../models/mute.word.model");
 
-const muteUser = (req, res, next) => {
+const muteUser = async (req, res, next) => {
 	const muteUserAction = "Mute user";
 	const muteeHandle = req.params.handle;
 	const muterHandle = req.userInfo.handle;
@@ -27,7 +27,7 @@ const muteUser = (req, res, next) => {
 		generalController.failureResponse(res, 500, muteUserAction, err.message);
 	}
 };
-const unmuteUser = (req, res, next) => {
+const unmuteUser = async (req, res, next) => {
 	const unmuteUserAction = "Unmute user";
 	const unmuteeHandle = req.params.handle;
 	const unmuterHandle = req.userInfo.handle;
@@ -48,10 +48,10 @@ const unmuteUser = (req, res, next) => {
 		generalController.failureResponse(res, 500, unmuteUserAction, err.message);
 	}
 };
-const mutePost = (req, res, next) => {};
-const muteWord = (req, res, next) => {};
-const unmutePost = (req, res, next) => {};
-const unmuteWord = (req, res, next) => {};
+const mutePost = async (req, res, next) => {};
+const unmutePost = async (req, res, next) => {};
+const muteWord = async (req, res, next) => {};
+const unmuteWord = async (req, res, next) => {};
 
 module.exports = {
 	muteUser,

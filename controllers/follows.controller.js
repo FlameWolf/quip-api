@@ -5,7 +5,7 @@ const usersController = require("./users.controller");
 const Block = require("../models/block.model");
 const Follow = require("../models/favourite.model");
 
-const followUser = (req, res, next) => {
+const followUser = async (req, res, next) => {
 	const followUserAction = "Follow user";
 	const followeeHandle = req.params.handle;
 	const followerHandle = req.userInfo.handle;
@@ -32,7 +32,7 @@ const followUser = (req, res, next) => {
 		generalController.failureResponse(res, 500, followUserAction, err.message);
 	}
 };
-const unfollowUser = (req, res, next) => {
+const unfollowUser = async (req, res, next) => {
 	const unfollowUserAction = "Unfollow user";
 	const unfolloweeHandle = req.params.handle;
 	const unfollowerHandle = req.userInfo.handle;

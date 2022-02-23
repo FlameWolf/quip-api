@@ -5,7 +5,7 @@ const usersController = require("./users.controller");
 const Follow = require("../models/follow.model");
 const Block = require("../models/block.model");
 
-const blockUser = (req, res, next) => {
+const blockUser = async (req, res, next) => {
 	const blockUserAction = "Block user";
 	const blockeeHandle = req.params.handle;
 	const blockerHandle = req.userInfo.handle;
@@ -28,7 +28,7 @@ const blockUser = (req, res, next) => {
 		generalController.failureResponse(res, 500, blockUserAction, err.message);
 	}
 };
-const unblockUser = (req, res, next) => {
+const unblockUser = async (req, res, next) => {
 	const unblockUserAction = "Unblock user";
 	const unblockeeHandle = req.params.handle;
 	const unblockerHandle = req.userInfo.handle;

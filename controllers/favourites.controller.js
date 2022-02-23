@@ -3,7 +3,7 @@
 const generalController = require("./general.controller");
 const Favourite = require("../models/favourite.model");
 
-const addFavourite = (req, res, next) => {
+const addFavourite = async (req, res, next) => {
 	const favouritePostAction = "Add favourite";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -18,7 +18,7 @@ const addFavourite = (req, res, next) => {
 		generalController.failureResponse(res, 500, favouritePostAction, err.message);
 	}
 };
-const removeFavourite = (req, res, next) => {
+const removeFavourite = async (req, res, next) => {
 	const unfavouritePostAction = "Remove favourite";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
