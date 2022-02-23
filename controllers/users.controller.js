@@ -35,48 +35,6 @@ const getUserProfile = async (req, res, next) => {
 		generalController.failureResponse(res, 500, getUserProfileAction, err.message);
 	}
 };
-const muteUser = async (req, res, next) => {
-	const muteUserAction = "Mute user";
-	const muteeHandle = req.params.handle;
-	const muterHandle = req.userInfo.handle;
-	const muterUserId = req.userInfo.userId;
-	if (muteeHandle === muterHandle) {
-		generalController.failureResponse(res, 422, followUserAction, "User cannot mute themselves");
-		return;
-	}
-	try {
-		const mutee = await findActiveUserByHandle(muteeHandle);
-		if (!mutee) {
-			generalController.failureResponse(res, 404, muteUserAction, "User not found");
-			return;
-		}
-		const muter = await User.findByIdAndUpdate(muterUserId, { $addToSet: { "muteList.users": mutee._id } });
-		generalController.successResponse(res, 200, muteUserAction, { muted: mutee, mutedBy: muter });
-	} catch (err) {
-		generalController.failureResponse(res, 500, muteUserAction, err.message);
-	}
-};
-const unmuteUser = async (req, res, next) => {
-	const unmuteUserAction = "Unmute user";
-	const unmuteeHandle = req.params.handle;
-	const unmuterHandle = req.userInfo.handle;
-	const unmuterUserId = req.userInfo.userId;
-	if (unmuteeHandle === unmuterHandle) {
-		generalController.failureResponse(res, 422, followUserAction, "User cannot unmute themselves");
-		return;
-	}
-	try {
-		const umnutee = await findActiveUserByHandle(unmuteeHandle);
-		if (!umnutee) {
-			generalController.failureResponse(res, 404, unmuteUserAction, "User not found");
-			return;
-		}
-		const unmuter = await User.findByIdAndUpdate(unmuterUserId, { $pull: { "muteList.users": umnutee._id } });
-		generalController.successResponse(res, 200, unmuteUserAction, { unmuted: umnutee, unmutedBy: unmuter });
-	} catch (err) {
-		generalController.failureResponse(res, 500, unmuteUserAction, err.message);
-	}
-};
 const blockUser = async (req, res, next) => {
 	const blockUserAction = "Block user";
 	const blockeeHandle = req.params.handle;
@@ -130,8 +88,6 @@ module.exports = {
 	findUserByHandle,
 	getUser,
 	getUserProfile,
-	muteUser,
-	unmuteUser,
 	blockUser,
 	unblockUser
 };
