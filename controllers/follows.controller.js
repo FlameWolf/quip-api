@@ -26,7 +26,7 @@ const followUser = (req, res, next) => {
 			generalController.failureResponse(res, 403, followUserAction, "User has blocked you from following them");
 			return;
 		}
-		const followResult = await(new Follow({ user: followeeUserId, followedBy: followerUserId })).save();
+		const followResult = await new Follow({ user: followeeUserId, followedBy: followerUserId }).save();
 		generalController.successResponse(res, 200, followUserAction, followResult);
 	} catch (err) {
 		generalController.failureResponse(res, 500, followUserAction, err.message);
