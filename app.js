@@ -1,9 +1,10 @@
 "use strict";
 
-if (process.env.NODE_ENV !== "production") {
+const isProduction = process.env.NODE_ENV === "production";
+
+if (!isProduction) {
 	require("dotenv").config();
 }
-
 const mongoose = require("mongoose");
 const express = require("express");
 const helmet = require("helmet");
@@ -19,6 +20,9 @@ const searchRouter = require("./routes/search");
 const settingsRouter = require("./routes/settings");
 
 const app = express();
+if (!isProduction) {
+	require("express-oas-generator").init(app, {});
+}
 
 mongoose
 	.connect(process.env.DB_CONNECTION, {

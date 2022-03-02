@@ -11,6 +11,7 @@
 		"cookie-parser": "~1.4.4",
 		"debug": "^4.3.3",
 		"express": "^4.17.3",
+		"express-oas-generator": "^1.0.41",
 		"helmet": "^5.0.2",
 		"jsonwebtoken": "^8.5.1",
 		"mongodb": "^4.3.1",
