@@ -1,5 +1,7 @@
 "use strict";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 /**
  ** Module dependencies.
  **/
@@ -26,6 +28,9 @@ const server = http.createServer(app);
 
 server.on("error", onError);
 server.on("listening", onListening);
+if (!isProduction) {
+	require("express-oas-generator").handleRequests();
+}
 server.listen(port);
 
 /**
@@ -38,8 +43,8 @@ function normalizePort(val) {
 	return isNaN(port) // named pipe
 		? val
 		: port >= 0 // port number
-			? port
-			: false;
+		? port
+		: false;
 }
 
 /**

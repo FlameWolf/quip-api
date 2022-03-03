@@ -21,7 +21,9 @@ const settingsRouter = require("./routes/settings");
 
 const app = express();
 if (!isProduction) {
-	require("express-oas-generator").init(app, {});
+	require("express-oas-generator").handleResponses(app, {
+		mongooseModels: mongoose.modelNames()
+	});
 }
 
 mongoose
