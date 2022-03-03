@@ -15,10 +15,10 @@ const getExpiryDate = () => {
 	return expiresAt.valueOf();
 };
 const validateUsername = username => {
-	return invalidHandles.indexOf(username.trim().toLowerCase()) === -1 && handleRegExp.test(username);
+	return username && invalidHandles.indexOf(username.trim().toLowerCase()) === -1 && handleRegExp.test(username);
 };
 const validatePassword = password => {
-	return passwordRegExp.test(password);
+	return password && passwordRegExp.test(password);
 };
 const authSuccess = (res, status, action, handle, userId) => {
 	res.cookie(authCookieName, userId, { maxAge: getExpiryDate(), httpOnly: false });
