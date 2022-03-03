@@ -9,6 +9,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const authCookieName = "userId";
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
+const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
 	invalidHandles,
@@ -19,5 +20,6 @@ module.exports = {
 	jwtSecret,
 	authCookieName,
 	contentLengthRegExp,
-	maxContentLength
+	maxContentLength,
+	isProduction
 };
