@@ -22,6 +22,7 @@ const settingsRouter = require("./routes/settings.routes");
 const app = express();
 if (!isProduction) {
 	require("express-oas-generator").handleResponses(app, {
+		predefinedSpec: require("./swagger.json"),
 		mongooseModels: mongoose.modelNames()
 	});
 }
