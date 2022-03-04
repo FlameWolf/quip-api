@@ -43,6 +43,93 @@
 					}
 				]
 			}
+		},
+		"/posts/create": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"content": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/posts/reply/{postId}": {
+			"post": {
+				"parameters": [
+					{
+						"name": "postId",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"content": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/settings/mute": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"word": {
+									"type": "string"
+								},
+								"match": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/settings/unmute": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"word": {
+									"type": "string"
+								},
+								"match": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
 		}
 	}
 }
