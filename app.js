@@ -12,12 +12,12 @@ const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 
-const indexRouter = require("./routes/index.routes");
-const authRouter = require("./routes/auth.routes");
-const usersRouter = require("./routes/users.routes");
-const postsRouter = require("./routes/posts.routes");
-const searchRouter = require("./routes/search.routes");
-const settingsRouter = require("./routes/settings.routes");
+const indexRouter = require("./routes/index.router");
+const authRouter = require("./routes/auth.router");
+const usersRouter = require("./routes/users.router");
+const postsRouter = require("./routes/posts.router");
+const searchRouter = require("./routes/search.router");
+const settingsRouter = require("./routes/settings.router");
 
 const app = express();
 if (!isProduction) {
