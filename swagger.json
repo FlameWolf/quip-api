@@ -1,0 +1,48 @@
+{
+	"paths": {
+		"/auth/sign-up": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"handle": {
+									"type": "string"
+								},
+								"password": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/auth/sign-in": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"handle": {
+									"type": "string"
+								},
+								"password": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}
