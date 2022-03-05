@@ -2,12 +2,12 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, jwtSecret, authCookieName } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, authCookieName } = require("../library");
 const generalController = require("./general.controller");
 const User = require("../models/user.model");
 
 const createJwt = (handle, userId) => {
-	return jwt.sign({ handle, userId }, jwtSecret, { expiresIn: "7d" });
+	return jwt.sign({ handle, userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 const getExpiryDate = () => {
 	var expiresAt = new Date();

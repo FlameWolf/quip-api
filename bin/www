@@ -1,7 +1,5 @@
 "use strict";
 
-const { isProduction } = require("../library");
-
 /**
  ** Module dependencies.
  **/
@@ -28,7 +26,7 @@ const server = http.createServer(app);
 
 server.on("error", onError);
 server.on("listening", onListening);
-if (!isProduction) {
+if (process.env.NODE_ENV !== "production") {
 	require("express-oas-generator").handleRequests();
 }
 server.listen(port);

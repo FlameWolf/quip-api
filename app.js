@@ -1,8 +1,8 @@
 "use strict";
 
-const { isProduction } = require("./library");
+const isNotProdEnv = process.env.NODE_ENV !== "production";
 
-if (!isProduction) {
+if (isNotProdEnv) {
 	require("dotenv").config();
 }
 const mongoose = require("mongoose");
@@ -20,7 +20,7 @@ const searchRouter = require("./routes/search.router");
 const settingsRouter = require("./routes/settings.router");
 
 const app = express();
-if (!isProduction) {
+if (isNotProdEnv) {
 	require("express-oas-generator").handleResponses(app, {
 		predefinedSpec: require("./swagger.json"),
 		mongooseModels: mongoose.modelNames()

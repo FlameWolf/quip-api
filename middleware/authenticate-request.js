@@ -1,6 +1,5 @@
 "use strict";
 
-const { jwtSecret } = require("../library");
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
@@ -12,7 +11,7 @@ module.exports = (req, res, next) => {
 		});
 		return;
 	}
-	const payload = jwt.verify(token, jwtSecret);
+	const payload = jwt.verify(token, process.env.JWT_SECRET);
 	req.userInfo = payload;
 	next();
 };

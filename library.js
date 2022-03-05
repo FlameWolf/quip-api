@@ -5,11 +5,9 @@ const handleRegExp = /^[A-Za-z][\w]{3,31}$/;
 const passwordRegExp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 const rounds = 10;
 const timeout = 1000 * 3600 * 24 * 7;
-const jwtSecret = process.env.JWT_SECRET;
 const authCookieName = "userId";
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
-const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
 	invalidHandles,
@@ -17,9 +15,7 @@ module.exports = {
 	passwordRegExp,
 	rounds,
 	timeout,
-	jwtSecret,
 	authCookieName,
 	contentLengthRegExp,
-	maxContentLength,
-	isProduction
+	maxContentLength
 };
