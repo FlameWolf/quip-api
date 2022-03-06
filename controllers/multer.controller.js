@@ -1,16 +1,6 @@
 const multer = require("multer");
+const { mimeTypeMap, mapMimeType } = require("../library");
 
-const mimeTypeMap = [
-	{
-		mimeType: "image/",
-		path: "images"
-	},
-	{
-		mimeType: "video/",
-		path: "videos"
-	}
-];
-const mapMimeType = mimeType => mimeTypeMap.find(value => mimeType.startsWith(value.mimeType));
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => {
 		const mapEntry = mapMimeType(file.mimetype);
