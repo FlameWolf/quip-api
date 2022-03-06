@@ -3,7 +3,6 @@
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate-v2");
 
 const postSchema = new mongoose.Schema(
 	{
@@ -18,12 +17,12 @@ const postSchema = new mongoose.Schema(
 		author: { type: ObjectId, ref: "User", required: true, index: true },
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
+		attachments: { type: ObjectId, ref: "Attachments" },
 		pinned: { type: Boolean }
 	},
 	{
 		timestamps: true
 	}
 );
-postSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Post", postSchema);
