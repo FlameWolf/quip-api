@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
 		if (!isMimeTypeValid(file.mimetype)) {
 			error = new Error("Invalid file type");
 		}
-		callbackFn(error, "images");
+		callbackFn(error, "media");
 	},
 	filename: (httpRequest, file, callbackFn) => {
 		let fileName = file.originalname
