@@ -1,14 +1,20 @@
 const multer = require("multer");
 
-const validMimeTypes = ["image/", "video/"];
-const isMimeTypeValid = mimeType => validMimeTypes.some(x => mimeType.startsWith(x));
+const mimeTypeMap = [
+	{
+		mimeType: "image/",
+		path: "images"
+	},
+	{
+		mimeType: "video/",
+		path: "videos"
+	}
+];
+const mapMimeType = mimeType => mimeTypeMap.find(value => mimeType.startsWith(value.mimeType));
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => {
-		let error = null;
-		if (!isMimeTypeValid(file.mimetype)) {
-			error = new Error("Invalid file type");
-		}
-		callback(error, "media");
+		const mapEntry = mapMimeType(file.mimetype);
+		callback(mapEntry ? null : new Error("Invalid file type"), mapEntry.path);
 	},
 	filename: (req, file, callback) => {
 		let fileName = file.originalname
