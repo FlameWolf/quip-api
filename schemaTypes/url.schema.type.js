@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ValidatorError = mongoose.Error.ValidatorError;
 const isURL = require("validator/lib/isURL");
 
 class UrlSchemaType extends mongoose.SchemaType {
@@ -8,7 +9,7 @@ class UrlSchemaType extends mongoose.SchemaType {
 
 	cast(value) {
 		if (!isURL(value)) {
-			throw new Error(`Url: "${value}" is not a valid URL`);
+			throw new ValidatorError(`${value} is not a valid URL`, UrlSchemaType);
 		}
 		return value;
 	}
