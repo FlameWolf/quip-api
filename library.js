@@ -19,6 +19,26 @@ const mimeTypeMap = [
 	}
 ];
 const mapMimeType = mimeType => mimeTypeMap.find(value => mimeType.startsWith(value.mimeType));
+const validateCoordinates = (coordinates, errorConstructor) => {
+	if (!Array.isArray(coordinates)) {
+		throw new errorConstructor("Point " + coordinates + " must be an array");
+	}
+	if (coordinates.length !== 2) {
+		throw new errorConstructor("Point" + coordinates + " must contain two coordinates");
+	}
+	if (isNaN(coordinates[0]) || isNaN(coordinates[1])) {
+		throw new errorConstructor("Point must have real numbers");
+	}
+	if (typeof coordinates[0] !== "number" || typeof coordinates[1] !== "number") {
+		throw new errorConstructor("Point must have two numbers");
+	}
+	if (coordinates[0] > 180 || coordinates[0] < -180) {
+		throw new errorConstructor("Point" + coordinates[0] + " should be within the boundaries of longitude");
+	}
+	if (coordinates[1] > 90 || coordinates[1] < -90) {
+		throw new errorConstructor("Point" + coordinates[1] + " should be within the boundaries of latitude");
+	}
+};
 
 module.exports = {
 	invalidHandles,
@@ -30,5 +50,6 @@ module.exports = {
 	contentLengthRegExp,
 	maxContentLength,
 	mimeTypeMap,
-	mapMimeType
+	mapMimeType,
+	validateCoordinates
 };
