@@ -19,8 +19,7 @@ const postSchema = new mongoose.Schema(
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: { type: ObjectId, ref: "Attachments" },
-		location: { type: Point, index: "2dsphere" },
-		pinned: { type: Boolean }
+		location: { type: Point, index: "2dsphere" }
 	},
 	{
 		timestamps: true
