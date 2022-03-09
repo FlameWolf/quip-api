@@ -2,7 +2,9 @@
 
 const { handleRegExp, passwordRegExp } = require("../library");
 const mongoose = require("mongoose");
+const isEmail = require("validator/lib/isEmail");
 const uniqueValidator = require("mongoose-unique-validator");
+const { ObjectId } = require("mongodb");
 
 const userSchema = new mongoose.Schema(
 	{
@@ -27,6 +29,24 @@ const userSchema = new mongoose.Schema(
 				message: "Password is not valid"
 			}
 		},
+		email: {
+			type: String,
+			trim: true,
+			validate: {
+				validator: value => isEmail(value),
+				message: "Email is not valid"
+			},
+			index: {
+				partialFilterExpression: {
+					email: {
+						$exists: true,
+						$ne: null
+					}
+				}
+			}
+		},
+		emailVerified: { type: Boolean, default: false },
+		pinnedPost: { type: ObjectId, ref: "Post" },
 		isDeactivated: { type: Boolean, default: false },
 		isDeleted: { type: Boolean, default: false }
 	},
