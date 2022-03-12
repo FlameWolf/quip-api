@@ -43,8 +43,7 @@ const signUp = async (req, res, next) => {
 	}
 	try {
 		const passwordHash = await bcrypt.hash(password, rounds);
-		const model = new User({ handle, password: passwordHash });
-		const user = await model.save();
+		const user = await new User({ handle, password: passwordHash }).save();
 		authSuccess(res, 201, signUpAction, handle, user._id);
 	} catch (err) {
 		generalController.failureResponse(res, 500, signUpAction, err.message);

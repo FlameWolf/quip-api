@@ -5,21 +5,26 @@ const generalController = require("./general.controller");
 const Post = require("../models/post.model");
 const User = require("../models/user.model");
 
+const validateContent = content => {
+	if (!content) {
+		generalController.failureResponse(res, 400, createPostAction, "No content");
+		return false;
+	}
+	if (content.match(contentLengthRegExp) > maxContentLength) {
+		generalController.failureResponse(res, 400, createPostAction, "Content too long");
+		return false;
+	}
+	return true;
+};
 const createPost = async (req, res, next) => {
 	const createPostAction = "Create post";
 	const content = req.body.content;
 	const userId = req.userInfo.userId;
-	if (!content) {
-		generalController.failureResponse(res, 400, createPostAction, "No content");
+	if (!validateContent(content)) {
 		return;
 	}
-	if (content.match(contentLengthRegExp) > maxContentLength) {
-		generalController.failureResponse(res, 400, createPostAction, "Content too long");
-		return;
-	}
-	const model = new Post({ content, author: userId });
 	try {
-		const post = await model.save();
+		const post = await new Post({ content, author: userId }).save();
 		generalController.successResponse(res, 201, createPostAction, { post });
 	} catch (err) {
 		generalController.failureResponse(res, 500, createPostAction, err.message);
@@ -55,8 +60,8 @@ const repeatPost = async (req, res, next) => {
 		if (await Post.find(payload)) {
 			await Post.deleteOne(payload);
 		}
-		const post = await new Post(payload).save();
-		generalController.successResponse(res, 201, repeatPostAction, { post });
+		const repeated = await new Post(payload).save();
+		generalController.successResponse(res, 201, repeatPostAction, { repeated });
 	} catch (err) {
 		generalController.failureResponse(res, 500, repeatPostAction, err.message);
 	}
@@ -66,11 +71,11 @@ const unrepeatPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const post = await Post.findOneAndDelete({
+		const unrepeated = await Post.findOneAndDelete({
 			author: userId,
 			repeatPost: postId
 		});
-		generalController.successResponse(res, 200, unrepeatPostAction, post);
+		generalController.successResponse(res, 200, unrepeatPostAction, { unrepeated });
 	} catch (err) {
 		generalController.failureResponse(res, 500, unrepeatPostAction, err.message);
 	}
@@ -80,23 +85,16 @@ const replyToPost = async (req, res, next) => {
 	const content = req.body.content;
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
-	if (!content) {
-		generalController.failureResponse(res, 400, replyToPostAction, "No content");
-		return;
-	}
-	if (content.match(contentLengthRegExp) > maxContentLength) {
-		generalController.failureResponse(res, 400, createPostAction, "Content too long");
+	if (!validateContent(content)) {
 		return;
 	}
 	if (!(await Post.findById(replyTo))) {
 		generalController.failureResponse(res, 404, replyToPostAction, "Post not found");
 		return;
 	}
-	const model = new Post({ content, author: userId, replyTo });
 	try {
-		const reply = await model.save();
-		const repliedTo = await Post.findByIdAndUpdate(replyTo, { $addToSet: { replies: reply._id } });
-		generalController.successResponse(res, 201, replyToPostAction, { reply, repliedTo });
+		const reply = await new Post({ content, author: userId, replyTo }).save();
+		generalController.successResponse(res, 201, replyToPostAction, { reply });
 	} catch (err) {
 		generalController.failureResponse(res, 500, replyToPostAction, err.message);
 	}
@@ -114,14 +112,8 @@ const deletePost = async (req, res, next) => {
 			generalController.failureResponse(res, 404, deletePostAction, "Post not found");
 			return;
 		}
-		const result = await Post.deleteOne(post);
-		if (result.deletedCount === 1) {
-			const parentPostId = post.replyTo;
-			if (parentPostId) {
-				await Post.findByIdAndUpdate(parentPostId, { $pull: { replies: postId } });
-			}
-		}
-		generalController.successResponse(res, 200, deletePostAction, result);
+		const deleted = await Post.deleteOne(post);
+		generalController.successResponse(res, 200, deletePostAction, { deleted });
 	} catch (err) {
 		generalController.failureResponse(res, 500, deletePostAction, err.message);
 	}

@@ -22,8 +22,8 @@ const blockUser = async (req, res, next) => {
 		}
 		const blockeeUserId = blockee._id;
 		await Follow.findOneAndDelete({ user: blockeeUserId, followedBy: blockerUserId });
-		const blockResult = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
-		generalController.successResponse(res, 200, blockUserAction, blockResult);
+		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
+		generalController.successResponse(res, 200, blockUserAction, { blocked });
 	} catch (err) {
 		generalController.failureResponse(res, 500, blockUserAction, err.message);
 	}
@@ -43,8 +43,8 @@ const unblockUser = async (req, res, next) => {
 			generalController.failureResponse(res, 404, unblockUserAction, "User not found");
 			return;
 		}
-		const unblockResult = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
-		generalController.successResponse(res, 200, unblockUserAction, unblockResult);
+		const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
+		generalController.successResponse(res, 200, unblockUserAction, { unblocked });
 	} catch (err) {
 		generalController.failureResponse(res, 500, unblockUserAction, err.message);
 	}

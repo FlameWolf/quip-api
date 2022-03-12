@@ -26,8 +26,8 @@ const followUser = async (req, res, next) => {
 			generalController.failureResponse(res, 403, followUserAction, "User has blocked you from following them");
 			return;
 		}
-		const followResult = await new Follow({ user: followeeUserId, followedBy: followerUserId }).save();
-		generalController.successResponse(res, 200, followUserAction, followResult);
+		const followed = await new Follow({ user: followeeUserId, followedBy: followerUserId }).save();
+		generalController.successResponse(res, 200, followUserAction, { followed });
 	} catch (err) {
 		generalController.failureResponse(res, 500, followUserAction, err.message);
 	}
@@ -47,8 +47,8 @@ const unfollowUser = async (req, res, next) => {
 			generalController.failureResponse(res, 404, unfollowUserAction, "User not found");
 			return;
 		}
-		const unfollowResult = await Follow.findOneAndDelete({ user: unfollowee._id, followedBy: unfollowerUserId });
-		generalController.successResponse(res, 200, unfollowUserAction, unfollowResult);
+		const unfollowed = await Follow.findOneAndDelete({ user: unfollowee._id, followedBy: unfollowerUserId });
+		generalController.successResponse(res, 200, unfollowUserAction, { unfollowed });
 	} catch (err) {
 		generalController.failureResponse(res, 500, unfollowUserAction, err.message);
 	}
