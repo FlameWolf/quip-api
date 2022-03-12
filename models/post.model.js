@@ -21,7 +21,11 @@ const postSchema = new mongoose.Schema(
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" }
 	},
 	{
-		timestamps: true
+		timestamps: true,
+		collation: {
+			locale: "en",
+			strength: 2
+		}
 	}
 );
 

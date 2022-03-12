@@ -51,7 +51,11 @@ const userSchema = new mongoose.Schema(
 		isDeleted: { type: Boolean, default: false }
 	},
 	{
-		timestamps: true
+		timestamps: true,
+		collation: {
+			locale: "en",
+			strength: 2
+		}
 	}
 );
 userSchema.plugin(uniqueValidator);
