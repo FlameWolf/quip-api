@@ -29,6 +29,7 @@ class PointSchemaType extends mongoose.SchemaType {
 		if (coordinates[1] > 90 || coordinates[1] < -90) {
 			throw new ValidatorError("Latitude must be within the range -90 to 90");
 		}
+		return value;
 	}
 }
 
