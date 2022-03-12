@@ -32,8 +32,7 @@ const authSuccess = (res, status, action, handle, userId) => {
 };
 const signUp = async (req, res, next) => {
 	const signUpAction = "Sign up";
-	const handle = req.body.handle;
-	const password = req.body.password;
+	const { handle, password } = req.body;
 	if (!(validateUsername(handle) && validatePassword(password))) {
 		generalController.failureResponse(res, 400, signUpAction, "Invalid username/password");
 		return;
@@ -53,8 +52,7 @@ const signUp = async (req, res, next) => {
 };
 const signIn = async (req, res, next) => {
 	const signInAction = "Sign in";
-	const handle = req.body.handle;
-	const password = req.body.password;
+	const { handle, password } = req.body;
 	const user = await User.findOne({ handle }).select("+password");
 	if (!user) {
 		generalController.failureResponse(res, 404, signInAction, "User not found");

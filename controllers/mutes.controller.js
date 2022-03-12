@@ -72,8 +72,7 @@ const unmutePost = async (req, res, next) => {
 };
 const muteWord = async (req, res, next) => {
 	const muteWordAction = "Mute word";
-	const word = req.body.word;
-	const match = req.body.match;
+	const { word, match } = req.body;
 	const userId = req.userInfo.userId;
 	try {
 		const muteResult = await new MutedWord({ word, match, mutedBy: userId }).save();
@@ -84,8 +83,7 @@ const muteWord = async (req, res, next) => {
 };
 const unmuteWord = async (req, res, next) => {
 	const unmuteWordAction = "Unmute word";
-	const word = req.body.word;
-	const match = req.body.match;
+	const { word, match } = req.body;
 	const userId = req.userInfo.userId;
 	try {
 		const unmuteResult = await MutedWord.findOneAndDelete({ word, match, mutedBy: userId });
