@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
-const ValidatorError = mongoose.Error.ValidatorError;
+const CastError = mongoose.Error.CastError;
 const isURL = require("validator/lib/isURL");
 
-class UrlSchemaType extends mongoose.SchemaType {
+class Url extends mongoose.SchemaType {
 	constructor(key, options) {
 		super(key, options, "Url");
 	}
 
 	cast(value) {
 		if (!isURL(value)) {
-			throw new ValidatorError(`${value} is not a valid URL`, UrlSchemaType);
+			throw new CastError(this.constructor.name, value, "");
 		}
 		return value;
 	}
 }
 
-module.exports = UrlSchemaType;
+module.exports = Url;

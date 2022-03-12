@@ -3,7 +3,6 @@
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const Point = require("../schemaTypes/point.schema.type");
 
 const postSchema = new mongoose.Schema(
 	{
@@ -19,7 +18,7 @@ const postSchema = new mongoose.Schema(
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: { type: ObjectId, ref: "Attachments" },
-		location: { type: Point, index: "2dsphere" }
+		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" }
 	},
 	{
 		timestamps: true

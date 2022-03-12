@@ -5,7 +5,11 @@ const isNotProdEnv = process.env.NODE_ENV !== "production";
 if (isNotProdEnv) {
 	require("dotenv").config();
 }
+
 const mongoose = require("mongoose");
+mongoose.SchemaTypes.Point = require("./schemaTypes/point");
+mongoose.SchemaTypes.Url = require("./schemaTypes/url");
+
 const express = require("express");
 const helmet = require("helmet");
 const compression = require("compression");

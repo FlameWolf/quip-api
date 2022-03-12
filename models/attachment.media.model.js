@@ -1,12 +1,11 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const Url = require("../schemaTypes/url.schema.type");
 
 const attachmentMediaSchema = new mongoose.Schema({
 	type: new mongoose.Schema({
-		src: { type: Url, required: true },
-		previewSrc: { type: Url }
+		src: { type: mongoose.SchemaTypes.Url, required: true },
+		previewSrc: { type: mongoose.SchemaTypes.Url }
 	})
 });
 

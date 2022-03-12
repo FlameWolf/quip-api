@@ -21,15 +21,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"handle": {
-									"type": "string"
-								},
-								"password": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/User"
 						}
 					}
 				]
@@ -43,15 +35,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"handle": {
-									"type": "string"
-								},
-								"password": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/User"
 						}
 					}
 				]
@@ -65,12 +49,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"content": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/Post"
 						}
 					}
 				]
@@ -89,12 +68,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"content": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/Post"
 						}
 					}
 				]
@@ -108,15 +82,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"word": {
-									"type": "string"
-								},
-								"match": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/MutedWord"
 						}
 					}
 				]
@@ -130,15 +96,7 @@
 						"in": "body",
 						"required": true,
 						"schema": {
-							"type": "object",
-							"properties": {
-								"word": {
-									"type": "string"
-								},
-								"match": {
-									"type": "string"
-								}
-							}
+							"$ref": "#/definitions/MutedWord"
 						}
 					}
 				]
