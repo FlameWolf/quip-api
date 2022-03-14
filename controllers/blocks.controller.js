@@ -2,6 +2,7 @@
 
 const generalController = require("./general.controller");
 const usersController = require("./users.controller");
+const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 const Block = require("../models/block.model");
 
@@ -21,7 +22,10 @@ const blockUser = async (req, res, next) => {
 			return;
 		}
 		const blockeeUserId = blockee._id;
-		await Follow.findOneAndDelete({ user: blockeeUserId, followedBy: blockerUserId });
+		await FollowRequest.deleteOne({ user: blockeeUserId, requestedBy: blockerUserId });
+		await FollowRequest.deleteOne({ user: blockerUserId, requestedBy: blockeeUserId });
+		await Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId });
+		await Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId });
 		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
 		generalController.successResponse(res, 200, blockUserAction, { blocked });
 	} catch (err) {

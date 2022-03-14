@@ -3,6 +3,7 @@
 const generalController = require("./general.controller");
 const usersController = require("./users.controller");
 const Block = require("../models/block.model");
+const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
 const followUser = async (req, res, next) => {
@@ -26,8 +27,20 @@ const followUser = async (req, res, next) => {
 			generalController.failureResponse(res, 403, followUserAction, "User has blocked you from following them");
 			return;
 		}
-		const followed = await new Follow({ user: followeeUserId, followedBy: followerUserId }).save();
-		generalController.successResponse(res, 200, followUserAction, { followed });
+		const isFolloweeProtected = followee.protected;
+		const model = isFolloweeProtected
+			? new FollowRequest({
+				user: followeeUserId,
+				requestedBy: followerUserId
+			})
+			: new Follow({
+				user: followeeUserId,
+				followedBy: followerUserId
+			});
+		const result = await model.save();
+		generalController.successResponse(res, 200, followUserAction, {
+			[isFolloweeProtected ? "followed" : "requested"]: result
+		});
 	} catch (err) {
 		generalController.failureResponse(res, 500, followUserAction, err.message);
 	}
