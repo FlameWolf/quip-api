@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
 		},
 		emailVerified: { type: Boolean },
 		pinnedPost: { type: ObjectId, ref: "Post" },
-		private: { type: Boolean },
+		protected: { type: Boolean },
 		deactivated: { type: Boolean },
 		deleted: { type: Boolean }
 	},
