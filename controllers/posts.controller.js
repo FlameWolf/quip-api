@@ -3,7 +3,6 @@
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const generalController = require("./general.controller");
 const Post = require("../models/post.model");
-const User = require("../models/user.model");
 
 const validateContent = content => {
 	if (!content) {

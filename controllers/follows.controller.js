@@ -3,7 +3,7 @@
 const generalController = require("./general.controller");
 const usersController = require("./users.controller");
 const Block = require("../models/block.model");
-const Follow = require("../models/favourite.model");
+const Follow = require("../models/follow.model");
 
 const followUser = async (req, res, next) => {
 	const followUserAction = "Follow user";
