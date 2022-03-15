@@ -56,9 +56,7 @@ const repeatPost = async (req, res, next) => {
 			generalController.failureResponse(res, 404, repeatPostAction, "Post not found");
 			return;
 		}
-		if (await Post.find(payload)) {
-			await Post.deleteOne(payload);
-		}
+		await Post.deleteOne(payload);
 		const repeated = await new Post(payload).save();
 		generalController.successResponse(res, 201, repeatPostAction, { repeated });
 	} catch (err) {
@@ -111,7 +109,7 @@ const deletePost = async (req, res, next) => {
 			generalController.failureResponse(res, 404, deletePostAction, "Post not found");
 			return;
 		}
-		const deleted = await Post.deleteOne(post);
+		const deleted = await Post.findOneAndDelete(post);
 		generalController.successResponse(res, 200, deletePostAction, { deleted });
 	} catch (err) {
 		generalController.failureResponse(res, 500, deletePostAction, err.message);
