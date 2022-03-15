@@ -39,7 +39,7 @@ const acceptFollowRequest = async (req, res, next) => {
 };
 const acceptSelectedFollowRequests = async (req, res, next) => {
 	const acceptSelectedFollowRequestsAction = "Accept selected follow requests";
-	const followRequestIds = req.params.requestIds;
+	const followRequestIds = req.body.requestIds;
 	const acceptorUserId = req.userInfo.userId;
 	try {
 		for (let id of followRequestIds) {
@@ -82,7 +82,7 @@ const rejectFollowRequest = async (req, res, next) => {
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
 	const rejectSelectedFollowRequestsAction = "Reject selected follow requests";
-	const followRequestIds = req.params.requestIds;
+	const followRequestIds = req.body.requestIds;
 	const rejectorUserId = req.userInfo.userId;
 	try {
 		for (let id of followRequestIds) {
