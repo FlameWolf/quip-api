@@ -101,6 +101,50 @@
 					}
 				]
 			}
+		},
+		"/settings/accept_reqs": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"requestIds": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/settings/reject_reqs": {
+			"post": {
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"requestIds": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				]
+			}
 		}
 	}
 }
