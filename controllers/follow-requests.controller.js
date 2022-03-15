@@ -2,8 +2,6 @@
 
 const pageSize = 65536;
 const generalController = require("./general.controller");
-const usersController = require("./users.controller");
-const Block = require("../models/block.model");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
