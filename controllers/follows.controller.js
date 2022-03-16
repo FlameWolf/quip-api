@@ -22,7 +22,7 @@ const followUser = async (req, res, next) => {
 			return;
 		}
 		const followeeUserId = followee._id;
-		const blocked = Block.findOne({ user: followerUserId, blockedBy: followeeUserId });
+		const blocked = await Block.findOne({ user: followerUserId, blockedBy: followeeUserId });
 		if (blocked) {
 			generalController.failureResponse(res, 403, followUserAction, "User has blocked you from following them");
 			return;
@@ -30,13 +30,13 @@ const followUser = async (req, res, next) => {
 		const isFolloweeProtected = followee.protected;
 		const model = isFolloweeProtected
 			? new FollowRequest({
-				user: followeeUserId,
-				requestedBy: followerUserId
-			})
+					user: followeeUserId,
+					requestedBy: followerUserId
+			  })
 			: new Follow({
-				user: followeeUserId,
-				followedBy: followerUserId
-			});
+					user: followeeUserId,
+					followedBy: followerUserId
+			  });
 		const result = await model.save();
 		generalController.successResponse(res, 200, followUserAction, {
 			[isFolloweeProtected ? "followed" : "requested"]: result
