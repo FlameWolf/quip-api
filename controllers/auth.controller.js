@@ -23,7 +23,6 @@ const validatePassword = password => {
 const authSuccess = (res, status, action, handle, userId) => {
 	res.cookie(authCookieName, userId, { maxAge: getExpiryDate(), httpOnly: false });
 	generalController.successResponse(res, status, action, {
-		message: `${action} success`,
 		userId,
 		token: createJwt(handle, userId),
 		createdAt: Date.now(),
