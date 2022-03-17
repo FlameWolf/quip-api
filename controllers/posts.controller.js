@@ -35,6 +35,10 @@ const getPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
 		const post = await Post.findById(postId).populate("author attachments");
+		if (post.attachments?.post) {
+			await post.attachments.populate("post");
+			await post.attachments.post?.populate("author");
+		}
 		if (!post) {
 			generalController.failureResponse(res, 404, getPostAction, "Post not found");
 			return;
