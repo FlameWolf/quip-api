@@ -35,18 +35,28 @@ const getPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
 		const post = await Post.findById(postId);
-		await post.populate({
-			path: "author"
-		});
-		await post.populate({
-			path: "attachments",
-			populate: {
-				path: "post",
-				populate: {
-					path: "author"
-				}
+		await post.populate([
+			{
+				path: "author"
+			},
+			{
+				path: "attachments",
+				populate: [
+					{
+						path: "post",
+						populate: {
+							path: "author"
+						}
+					},
+					{
+						path: "image"
+					},
+					{
+						path: "video"
+					}
+				]
 			}
-		});
+		]);
 		if (!post) {
 			generalController.failureResponse(res, 404, getPostAction, "Post not found");
 			return;
