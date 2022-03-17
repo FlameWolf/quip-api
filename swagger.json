@@ -55,6 +55,25 @@
 				]
 			}
 		},
+		"/posts/quote/{postId}": {
+			"post": {
+				"parameters": [
+					{
+						"name": "postId",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/Post"
+						}
+					}
+				]
+			}
+		},
 		"/posts/reply/{postId}": {
 			"post": {
 				"parameters": [
