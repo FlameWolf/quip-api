@@ -34,7 +34,7 @@ const getPost = async (req, res, next) => {
 	const getPostAction = "Get post";
 	const postId = req.params.postId;
 	try {
-		const post = await Post.findById(postId);
+		const post = await Post.findById(postId).populate("author attachments");
 		if (!post) {
 			generalController.failureResponse(res, 404, getPostAction, "Post not found");
 			return;
@@ -58,12 +58,13 @@ const quotePost = async (req, res, next) => {
 		return;
 	}
 	try {
+		const attachments = await new Attachments({
+			post: postId
+		}).save();
 		const post = await new Post({
 			content,
 			author: userId,
-			attachments: new Attachments({
-				post: postId
-			})
+			attachments
 		}).save();
 		generalController.successResponse(res, 201, quotePostAction, { post });
 	} catch (err) {
