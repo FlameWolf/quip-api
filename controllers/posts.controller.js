@@ -49,10 +49,7 @@ const getPost = async (req, res, next) => {
 						}
 					},
 					{
-						path: "image"
-					},
-					{
-						path: "video"
+						path: "media"
 					}
 				]
 			}
