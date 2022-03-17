@@ -1,5 +1,6 @@
 "use strict";
 
+const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 
 const attachmentsSchema = new mongoose.Schema({

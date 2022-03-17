@@ -3,6 +3,7 @@
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const generalController = require("./general.controller");
 const Post = require("../models/post.model");
+const Attachments = require("../models/attachments.model");
 
 const validateContent = content => {
 	if (!content) {
@@ -60,9 +61,9 @@ const quotePost = async (req, res, next) => {
 		const post = await new Post({
 			content,
 			author: userId,
-			attachments: {
+			attachments: new Attachments({
 				post: postId
-			}
+			})
 		}).save();
 		generalController.successResponse(res, 201, quotePostAction, { post });
 	} catch (err) {
