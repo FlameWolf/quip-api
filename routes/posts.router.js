@@ -12,6 +12,7 @@ router.post("/create", authenticateRequest, multerController.extractMediaFile.si
 router.get("/:postId", postsController.getPost);
 router.get("/favourite/:postId", authenticateRequest, favouritesController.addFavourite);
 router.get("/unfavourite/:postId", authenticateRequest, favouritesController.removeFavourite);
+router.post("/quote/:postId", postsController.quotePost);
 router.get("/repeat/:postId", authenticateRequest, postsController.repeatPost);
 router.get("/unrepeat/:postId", authenticateRequest, postsController.unrepeatPost);
 router.post("/reply/:postId", authenticateRequest, multerController.extractMediaFile.single("media-attachment"), postsController.replyToPost);
