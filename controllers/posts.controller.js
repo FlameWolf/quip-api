@@ -5,13 +5,13 @@ const generalController = require("./general.controller");
 const Post = require("../models/post.model");
 const Attachments = require("../models/attachments.model");
 
-const validateContent = content => {
+const validateContent = (content, res, action) => {
 	if (!content) {
-		generalController.failureResponse(res, 400, createPostAction, "No content");
+		generalController.failureResponse(res, 400, action, "No content");
 		return false;
 	}
 	if (content.match(contentLengthRegExp) > maxContentLength) {
-		generalController.failureResponse(res, 400, createPostAction, "Content too long");
+		generalController.failureResponse(res, 400, action, "Content too long");
 		return false;
 	}
 	return true;
@@ -20,7 +20,7 @@ const createPost = async (req, res, next) => {
 	const createPostAction = "Create post";
 	const content = req.body.content;
 	const userId = req.userInfo.userId;
-	if (!validateContent(content)) {
+	if (!validateContent(content, res, createPostAction)) {
 		return;
 	}
 	try {
@@ -73,7 +73,7 @@ const quotePost = async (req, res, next) => {
 		generalController.failureResponse(res, 404, quotePostAction, "Post not found");
 		return;
 	}
-	if (!validateContent(content)) {
+	if (!validateContent(content, res, quotePostAction)) {
 		return;
 	}
 	try {
@@ -129,7 +129,7 @@ const replyToPost = async (req, res, next) => {
 	const content = req.body.content;
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
-	if (!validateContent(content)) {
+	if (!validateContent(content, res, replyToPostAction)) {
 		return;
 	}
 	if (!(await Post.findById(replyTo))) {
