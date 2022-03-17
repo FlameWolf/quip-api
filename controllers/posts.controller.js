@@ -43,6 +43,32 @@ const getPost = async (req, res, next) => {
 		generalController.failureResponse(res, 500, getPostAction, err.message);
 	}
 };
+const quotePost = async (req, res, next) => {
+	const quotePostAction = "Quote post";
+	const postId = req.params.postId;
+	const content = req.body.content;
+	const userId = req.userInfo.userId;
+	const postToQuote = await Post.findById(postId);
+	if (!postToQuote) {
+		generalController.failureResponse(res, 404, quotePostAction, "Post not found");
+		return;
+	}
+	if (!validateContent(content)) {
+		return;
+	}
+	try {
+		const post = await new Post({
+			content,
+			author: userId,
+			attachments: {
+				post: postId
+			}
+		}).save();
+		generalController.successResponse(res, 201, quotePostAction, { post });
+	} catch (err) {
+		generalController.failureResponse(res, 500, quotePostAction, err.message);
+	}
+};
 const repeatPost = async (req, res, next) => {
 	const repeatPostAction = "Repeat";
 	const postId = req.params.postId;
@@ -119,6 +145,7 @@ const deletePost = async (req, res, next) => {
 module.exports = {
 	createPost,
 	getPost,
+	quotePost,
 	repeatPost,
 	unrepeatPost,
 	replyToPost,
