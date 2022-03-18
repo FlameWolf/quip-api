@@ -11,7 +11,6 @@ module.exports = (req, res, next) => {
 		});
 		return;
 	}
-	const payload = jwt.verify(token, process.env.JWT_SECRET);
-	req.userInfo = payload;
+	req.userInfo = jwt.verify(token, process.env.JWT_SECRET);
 	next();
 };
