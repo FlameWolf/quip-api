@@ -3,7 +3,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { invalidHandles, handleRegExp, passwordRegExp, rounds, timeout, authCookieName } = require("../library");
-const generalController = require("./general.controller");
 const User = require("../models/user.model");
 
 const createJwt = (handle, userId) => {
@@ -30,7 +29,6 @@ const authSuccess = (res, statusCode, handle, userId) => {
 	});
 };
 const signUp = async (req, res, next) => {
-	const signUpAction = "Sign up";
 	const { handle, password } = req.body;
 	if (!(validateUsername(handle) && validatePassword(password))) {
 		res.status(400).send("Invalid username/password");
@@ -49,7 +47,6 @@ const signUp = async (req, res, next) => {
 	}
 };
 const signIn = async (req, res, next) => {
-	const signInAction = "Sign in";
 	const { handle, password } = req.body;
 	const user = await User.findOne({ handle }).select("+password");
 	if (!user) {
@@ -68,7 +65,6 @@ const signIn = async (req, res, next) => {
 	}
 };
 const signOut = async (req, res, next) => {
-	const signOutAction = "Sign out";
 	res.clearCookie(authCookieName);
 	res.sendStatus(200);
 };

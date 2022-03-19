@@ -1,7 +1,6 @@
 "use strict";
 
 const { contentLengthRegExp, maxContentLength } = require("../library");
-const generalController = require("./general.controller");
 const Post = require("../models/post.model");
 const Attachments = require("../models/attachments.model");
 
@@ -14,7 +13,6 @@ const validateContent = content => {
 	}
 };
 const createPost = async (req, res, next) => {
-	const createPostAction = "Create post";
 	const content = req.body.content;
 	const userId = req.userInfo.userId;
 	try {
@@ -31,7 +29,6 @@ const createPost = async (req, res, next) => {
 	}
 };
 const getPost = async (req, res, next) => {
-	const getPostAction = "Get post";
 	const postId = req.params.postId;
 	try {
 		const post = await Post.findById(postId);
@@ -68,7 +65,6 @@ const getPost = async (req, res, next) => {
 	}
 };
 const quotePost = async (req, res, next) => {
-	const quotePostAction = "Quote post";
 	const postId = req.params.postId;
 	const content = req.body.content;
 	const userId = req.userInfo.userId;
@@ -98,7 +94,6 @@ const quotePost = async (req, res, next) => {
 	}
 };
 const repeatPost = async (req, res, next) => {
-	const repeatPostAction = "Repeat";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	const payload = {
@@ -118,7 +113,6 @@ const repeatPost = async (req, res, next) => {
 	}
 };
 const unrepeatPost = async (req, res, next) => {
-	const unrepeatPostAction = "Undo repeat";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
@@ -132,7 +126,6 @@ const unrepeatPost = async (req, res, next) => {
 	}
 };
 const replyToPost = async (req, res, next) => {
-	const replyToPostAction = "Reply to post";
 	const content = req.body.content;
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -154,7 +147,6 @@ const replyToPost = async (req, res, next) => {
 	}
 };
 const deletePost = async (req, res, next) => {
-	const deletePostAction = "Delete post";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {

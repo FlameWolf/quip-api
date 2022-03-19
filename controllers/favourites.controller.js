@@ -1,10 +1,8 @@
 "use strict";
 
-const generalController = require("./general.controller");
 const Favourite = require("../models/favourite.model");
 
 const addFavourite = async (req, res, next) => {
-	const favouritePostAction = "Add favourite";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
@@ -18,7 +16,6 @@ const addFavourite = async (req, res, next) => {
 	}
 };
 const removeFavourite = async (req, res, next) => {
-	const unfavouritePostAction = "Remove favourite";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {

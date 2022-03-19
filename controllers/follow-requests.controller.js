@@ -1,7 +1,6 @@
 "use strict";
 
 const pageSize = 65536;
-const generalController = require("./general.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
@@ -25,7 +24,6 @@ const rejectHandler = async (followRequestId, rejectorUserId = undefined) => {
 	return followRequest;
 };
 const acceptFollowRequest = async (req, res, next) => {
-	const acceptFollowRequestAction = "Accept follow request";
 	const followRequestId = req.params.requestId;
 	const acceptorUserId = req.userInfo.userId;
 	try {
@@ -36,7 +34,6 @@ const acceptFollowRequest = async (req, res, next) => {
 	}
 };
 const acceptSelectedFollowRequests = async (req, res, next) => {
-	const acceptSelectedFollowRequestsAction = "Accept selected follow requests";
 	const followRequestIds = req.body.requestIds;
 	const acceptorUserId = req.userInfo.userId;
 	try {
@@ -49,7 +46,6 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 	}
 };
 const acceptAllFollowRequests = async (req, res, next) => {
-	const acceptAllFollowRequestsAction = "Accept all follow requests";
 	const acceptorUserId = req.userInfo.userId;
 	let acceptedRequestsCount = 0;
 	let requestsCount = 0;
@@ -68,7 +64,6 @@ const acceptAllFollowRequests = async (req, res, next) => {
 	}
 };
 const rejectFollowRequest = async (req, res, next) => {
-	const rejectFollowRequestAction = "Reject follow request";
 	const followRequestId = req.params.requestId;
 	const rejectorUserId = req.userInfo.userId;
 	try {
@@ -79,7 +74,6 @@ const rejectFollowRequest = async (req, res, next) => {
 	}
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
-	const rejectSelectedFollowRequestsAction = "Reject selected follow requests";
 	const followRequestIds = req.body.requestIds;
 	const rejectorUserId = req.userInfo.userId;
 	try {
@@ -92,7 +86,6 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 	}
 };
 const rejectAllFollowRequests = async (req, res, next) => {
-	const rejectAllFollowRequestsAction = "Reject all follow requests";
 	const rejectorUserId = req.userInfo.userId;
 	let rejectedRequestsCount = 0;
 	let requestsCount = 0;

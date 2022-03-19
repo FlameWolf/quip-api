@@ -1,13 +1,11 @@
 "use strict";
 
-const generalController = require("./general.controller");
 const usersController = require("./users.controller");
 const Block = require("../models/block.model");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
 const followUser = async (req, res, next) => {
-	const followUserAction = "Follow user";
 	const followeeHandle = req.params.handle;
 	const followerHandle = req.userInfo.handle;
 	const followerUserId = req.userInfo.userId;
@@ -46,7 +44,6 @@ const followUser = async (req, res, next) => {
 	}
 };
 const unfollowUser = async (req, res, next) => {
-	const unfollowUserAction = "Unfollow user";
 	const unfolloweeHandle = req.params.handle;
 	const unfollowerHandle = req.userInfo.handle;
 	const unfollowerUserId = req.userInfo.userId;

@@ -1,6 +1,5 @@
 "use strict";
 
-const generalController = require("./general.controller");
 const User = require("../models/user.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
@@ -8,7 +7,6 @@ const findActiveUserByHandle = async handle => await User.findOne({ handle, deac
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
 const getUser = async (req, res, next) => {
-	const getUserProfileAction = "Get user profile";
 	const handle = req.params.handle;
 	try {
 		const user = await findActiveUserByHandle(handle);
@@ -22,7 +20,6 @@ const getUser = async (req, res, next) => {
 	}
 };
 const getUserProfile = async (req, res, next) => {
-	const getUserProfileAction = "Get user profile";
 	const handle = req.params.handle;
 	try {
 		const user = await findActiveUserByHandle(handle);
@@ -36,7 +33,6 @@ const getUserProfile = async (req, res, next) => {
 	}
 };
 const deactivateUser = async (req, res, next) => {
-	const deactivateUserAction = "Deactivate user";
 	const userId = req.userInfo.userId;
 	try {
 		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true });
@@ -46,7 +42,6 @@ const deactivateUser = async (req, res, next) => {
 	}
 };
 const activateUser = async (req, res, next) => {
-	const activateUserAction = "Activate user";
 	const userId = req.userInfo.userId;
 	try {
 		const activated = await User.findByIdAndUpdate(userId, { deactivated: false });
@@ -56,7 +51,6 @@ const activateUser = async (req, res, next) => {
 	}
 };
 const deleteUser = async (req, res, next) => {
-	const deleteUserAction = "Delete user";
 	const userId = req.userInfo.userId;
 	try {
 		const deleted = await User.findByIdAndUpdate(userId, { deleted: true });

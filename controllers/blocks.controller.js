@@ -1,13 +1,11 @@
 "use strict";
 
-const generalController = require("./general.controller");
 const usersController = require("./users.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 const Block = require("../models/block.model");
 
 const blockUser = async (req, res, next) => {
-	const blockUserAction = "Block user";
 	const blockeeHandle = req.params.handle;
 	const blockerHandle = req.userInfo.handle;
 	const blockerUserId = req.userInfo.userId;
@@ -33,7 +31,6 @@ const blockUser = async (req, res, next) => {
 	}
 };
 const unblockUser = async (req, res, next) => {
-	const unblockUserAction = "Unblock user";
 	const unblockeeHandle = req.params.handle;
 	const unblockerHandle = req.userInfo.handle;
 	const unblockerUserId = req.userInfo.userId;

@@ -1,13 +1,11 @@
 "use strict";
 
-const generalController = require("./general.controller");
 const usersController = require("./users.controller");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 
 const muteUser = async (req, res, next) => {
-	const muteUserAction = "Mute user";
 	const muteeHandle = req.params.handle;
 	const muterHandle = req.userInfo.handle;
 	const muterUserId = req.userInfo.userId;
@@ -28,7 +26,6 @@ const muteUser = async (req, res, next) => {
 	}
 };
 const unmuteUser = async (req, res, next) => {
-	const unmuteUserAction = "Unmute user";
 	const unmuteeHandle = req.params.handle;
 	const unmuterHandle = req.userInfo.handle;
 	const unmuterUserId = req.userInfo.userId;
@@ -49,7 +46,6 @@ const unmuteUser = async (req, res, next) => {
 	}
 };
 const mutePost = async (req, res, next) => {
-	const mutePostAction = "Mute post";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
@@ -60,7 +56,6 @@ const mutePost = async (req, res, next) => {
 	}
 };
 const unmutePost = async (req, res, next) => {
-	const unmutePostAction = "Unmute post";
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
@@ -71,7 +66,6 @@ const unmutePost = async (req, res, next) => {
 	}
 };
 const muteWord = async (req, res, next) => {
-	const muteWordAction = "Mute word";
 	const { word, match } = req.body;
 	const userId = req.userInfo.userId;
 	try {
@@ -82,7 +76,6 @@ const muteWord = async (req, res, next) => {
 	}
 };
 const unmuteWord = async (req, res, next) => {
-	const unmuteWordAction = "Unmute word";
 	const { word, match } = req.body;
 	const userId = req.userInfo.userId;
 	try {
