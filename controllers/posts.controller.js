@@ -13,7 +13,8 @@ const validateContent = content => {
 	}
 };
 const createPost = async (req, res, next) => {
-	const content = req.body.content;
+	const { content, "media-description": mediaDescription } = req.body;
+	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content);
