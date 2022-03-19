@@ -12,57 +12,100 @@
 			"Bearer": []
 		}
 	],
+	"requestBodies": {
+		"Credentials": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"handle": {
+								"type": "string"
+							},
+							"password": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"Post": {
+			"content": {
+				"multipart/form-data": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"content": {
+								"type": "string",
+								"format": "textarea"
+							},
+							"media": {
+								"type": "file"
+							},
+							"media-description": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"WordMute": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"word": {
+								"type": "string"
+							},
+							"match": {
+								"type": "string",
+								"enum": ["exact", "contains", "startsWith", "endsWith"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"FollowRequests": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"requestIds": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
 	"paths": {
 		"/auth/sign-up": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/User"
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/Credentials"
+				}
 			}
 		},
 		"/auth/sign-in": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/User"
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/Credentials"
+				}
 			}
 		},
 		"/posts/create": {
 			"post": {
 				"requestBody": {
-					"content": {
-						"multipart/form-data": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"content": {
-										"type": "string",
-										"format": "textarea"
-									},
-									"media": {
-										"type": "file"
-									},
-									"media-description": {
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
+					"$ref": "#/requestBodies/Post"
 				}
 			}
 		},
@@ -76,25 +119,7 @@
 					}
 				],
 				"requestBody": {
-					"content": {
-						"multipart/form-data": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"content": {
-										"type": "string",
-										"format": "textarea"
-									},
-									"media": {
-										"type": "file"
-									},
-									"media-description": {
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
+					"$ref": "#/requestBodies/Post"
 				}
 			}
 		},
@@ -108,98 +133,36 @@
 					}
 				],
 				"requestBody": {
-					"content": {
-						"multipart/form-data": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"content": {
-										"type": "string",
-										"format": "textarea"
-									},
-									"media": {
-										"type": "file"
-									},
-									"media-description": {
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
+					"$ref": "#/requestBodies/Post"
 				}
 			}
 		},
 		"/settings/mute": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/MutedWord"
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/WordMute"
+				}
 			}
 		},
 		"/settings/unmute": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/MutedWord"
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/WordMute"
+				}
 			}
 		},
 		"/settings/accept_reqs": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"type": "object",
-							"properties": {
-								"requestIds": {
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/FollowRequests"
+				}
 			}
 		},
 		"/settings/reject_reqs": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"type": "object",
-							"properties": {
-								"requestIds": {
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
-				]
+				"requestBody": {
+					"$ref": "#/requestBodies/FollowRequests"
+				}
 			}
 		}
 	}
