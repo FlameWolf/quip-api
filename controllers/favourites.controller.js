@@ -11,8 +11,8 @@ const addFavourite = async (req, res, next) => {
 			favouritedBy: userId
 		}).save();
 		res.status(200).json({ favourited });
-	} catch (error) {
-		res.status(500).json({ error });
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const removeFavourite = async (req, res, next) => {
@@ -24,8 +24,8 @@ const removeFavourite = async (req, res, next) => {
 			favouritedBy: userId
 		});
 		res.status(200).json({ unfavourited });
-	} catch (error) {
-		res.status(500).json({ error });
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

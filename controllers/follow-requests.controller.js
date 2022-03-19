@@ -29,8 +29,8 @@ const acceptFollowRequest = async (req, res, next) => {
 	try {
 		const accepted = await acceptHandler(followRequestId, acceptorUserId);
 		res.status(200).json({ accepted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const acceptSelectedFollowRequests = async (req, res, next) => {
@@ -41,8 +41,8 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 			await acceptHandler(id, acceptorUserId);
 		}
 		res.status(200).json({ acceptedRequestIds: followRequestIds });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const acceptAllFollowRequests = async (req, res, next) => {
@@ -59,8 +59,8 @@ const acceptAllFollowRequests = async (req, res, next) => {
 			acceptedRequestsCount += requestsCount;
 		} while (requestsCount === pageSize);
 		res.status(200).json({ acceptedRequestsCount });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const rejectFollowRequest = async (req, res, next) => {
@@ -69,8 +69,8 @@ const rejectFollowRequest = async (req, res, next) => {
 	try {
 		const rejected = await rejectHandler(followRequestId, rejectorUserId);
 		res.status(200).json({ rejected });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
@@ -81,8 +81,8 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 			await rejectHandler(id, rejectorUserId);
 		}
 		res.status(200).json({ rejectedRequestIds: followRequestIds });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const rejectAllFollowRequests = async (req, res, next) => {
@@ -99,8 +99,8 @@ const rejectAllFollowRequests = async (req, res, next) => {
 			rejectedRequestsCount += requestsCount;
 		} while (requestsCount === pageSize);
 		res.status(200).json({ rejectedRequestsCount });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

@@ -26,8 +26,8 @@ const blockUser = async (req, res, next) => {
 		await Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId });
 		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
 		res.status(200).json({ blocked });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unblockUser = async (req, res, next) => {
@@ -46,8 +46,8 @@ const unblockUser = async (req, res, next) => {
 		}
 		const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
 		res.status(200).json({ unblocked });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

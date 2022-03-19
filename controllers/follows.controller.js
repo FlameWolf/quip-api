@@ -39,8 +39,8 @@ const followUser = async (req, res, next) => {
 		res.status(200).json({
 			[isFolloweeProtected ? "followed" : "requested"]: result
 		});
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unfollowUser = async (req, res, next) => {
@@ -59,8 +59,8 @@ const unfollowUser = async (req, res, next) => {
 		}
 		const unfollowed = await Follow.findOneAndDelete({ user: unfollowee._id, followedBy: unfollowerUserId });
 		res.status(200).json({ unfollowed });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

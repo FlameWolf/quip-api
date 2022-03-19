@@ -15,8 +15,8 @@ const getUser = async (req, res, next) => {
 			return;
 		}
 		res.status(200).json({ user });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const getUserProfile = async (req, res, next) => {
@@ -28,8 +28,8 @@ const getUserProfile = async (req, res, next) => {
 			return;
 		}
 		res.status(200).json({ user });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const deactivateUser = async (req, res, next) => {
@@ -37,8 +37,8 @@ const deactivateUser = async (req, res, next) => {
 	try {
 		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true });
 		res.status(200).json({ deactivated });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const activateUser = async (req, res, next) => {
@@ -46,8 +46,8 @@ const activateUser = async (req, res, next) => {
 	try {
 		const activated = await User.findByIdAndUpdate(userId, { deactivated: false });
 		res.status(200).json({ activated });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const deleteUser = async (req, res, next) => {
@@ -55,8 +55,8 @@ const deleteUser = async (req, res, next) => {
 	try {
 		const deleted = await User.findByIdAndUpdate(userId, { deleted: true });
 		res.status(200).json({ deleted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

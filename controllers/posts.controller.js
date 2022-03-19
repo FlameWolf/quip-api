@@ -18,15 +18,15 @@ const createPost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content);
-	} catch (error) {
-		res.status(400).send(error);
+	} catch (err) {
+		res.status(400).send(err);
 		return;
 	}
 	try {
 		const post = await new Post({ content, author: userId }).save();
 		res.status(201).json({ post });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const getPost = async (req, res, next) => {
@@ -61,8 +61,8 @@ const getPost = async (req, res, next) => {
 			return;
 		}
 		res.status(200).json({ post });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const quotePost = async (req, res, next) => {
@@ -76,8 +76,8 @@ const quotePost = async (req, res, next) => {
 	}
 	try {
 		validateContent(content);
-	} catch (error) {
-		res.status(400).send(error);
+	} catch (err) {
+		res.status(400).send(err);
 		return;
 	}
 	try {
@@ -90,8 +90,8 @@ const quotePost = async (req, res, next) => {
 			attachments
 		}).save();
 		res.status(201).json({ post });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -109,8 +109,8 @@ const repeatPost = async (req, res, next) => {
 		await Post.deleteOne(payload);
 		const repeated = await new Post(payload).save();
 		res.status(201).json({ repeated });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unrepeatPost = async (req, res, next) => {
@@ -122,8 +122,8 @@ const unrepeatPost = async (req, res, next) => {
 			repeatPost: postId
 		});
 		res.status(200).json({ unrepeated });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const replyToPost = async (req, res, next) => {
@@ -132,8 +132,8 @@ const replyToPost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content);
-	} catch (error) {
-		res.status(400).send(error);
+	} catch (err) {
+		res.status(400).send(err);
 		return;
 	}
 	if (!(await Post.findById(replyTo))) {
@@ -143,8 +143,8 @@ const replyToPost = async (req, res, next) => {
 	try {
 		const reply = await new Post({ content, author: userId, replyTo }).save();
 		res.status(201).json({ reply });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const deletePost = async (req, res, next) => {
@@ -161,8 +161,8 @@ const deletePost = async (req, res, next) => {
 		}
 		const deleted = await Post.findOneAndDelete(post);
 		res.status(200).json({ deleted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

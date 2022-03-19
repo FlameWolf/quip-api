@@ -21,8 +21,8 @@ const muteUser = async (req, res, next) => {
 		}
 		const muted = await new MutedUser({ user: mutee._id, mutedBy: muterUserId }).save();
 		res.status(200).json({ muted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unmuteUser = async (req, res, next) => {
@@ -41,8 +41,8 @@ const unmuteUser = async (req, res, next) => {
 		}
 		const unmuted = await MutedUser.findOneAndDelete({ user: unmutee._id, mutedBy: unmuterUserId });
 		res.status(200).json({ unmuted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const mutePost = async (req, res, next) => {
@@ -51,8 +51,8 @@ const mutePost = async (req, res, next) => {
 	try {
 		const muted = await new MutedPost({ post: postId, mutedBy: userId }).save();
 		res.status(200).json({ muted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unmutePost = async (req, res, next) => {
@@ -61,8 +61,8 @@ const unmutePost = async (req, res, next) => {
 	try {
 		const unmuted = await MutedPost.findOneAndDelete({ post: postId, mutedBy: userId });
 		res.status(200).json({ unmuted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const muteWord = async (req, res, next) => {
@@ -71,8 +71,8 @@ const muteWord = async (req, res, next) => {
 	try {
 		const muted = await new MutedWord({ word, match, mutedBy: userId }).save();
 		res.status(200).json({ muted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 const unmuteWord = async (req, res, next) => {
@@ -81,8 +81,8 @@ const unmuteWord = async (req, res, next) => {
 	try {
 		const unmuted = await MutedWord.findOneAndDelete({ word, match, mutedBy: userId });
 		res.status(200).json({ unmuted });
-	} catch (error) {
-		res.status(500).send(error);
+	} catch (err) {
+		res.status(500).send(err);
 	}
 };
 

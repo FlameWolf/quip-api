@@ -1,16 +1,18 @@
 "use strict";
 
 const jwt = require("jsonwebtoken");
+const { TokenExpiredError } = jwt;
 
 module.exports = (req, res, next) => {
-	const token = req.headers.authorization?.trim().replace(/^bearer\s+/i, "");
-	if (!token) {
-		res.status(401).json({
-			message: "Request failed",
-			error: "Authentication token not found"
-		});
+	try {
+		const authToken = req.headers.authorization?.replace(/^bearer\s+/i, "");
+		if (!authToken) {
+			throw new Error("Authentication token not found");
+		}
+		req.userInfo = jwt.verify(authToken, process.env.JWT_AUTH_SECRET);
+	} catch (err) {
+		res.status(401).send(err instanceof TokenExpiredError ? "Authentication token expired" : err);
 		return;
 	}
-	req.userInfo = jwt.verify(token, process.env.JWT_SECRET);
 	next();
 };
