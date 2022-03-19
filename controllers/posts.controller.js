@@ -5,29 +5,29 @@ const generalController = require("./general.controller");
 const Post = require("../models/post.model");
 const Attachments = require("../models/attachments.model");
 
-const validateContent = (content, res, action) => {
+const validateContent = content => {
 	if (!content) {
-		generalController.failureResponse(res, 400, action, "No content");
-		return false;
+		throw new Error("No content");
 	}
 	if (content.match(contentLengthRegExp) > maxContentLength) {
-		generalController.failureResponse(res, 400, action, "Content too long");
-		return false;
+		throw new Error("Content too long");
 	}
-	return true;
 };
 const createPost = async (req, res, next) => {
 	const createPostAction = "Create post";
 	const content = req.body.content;
 	const userId = req.userInfo.userId;
-	if (!validateContent(content, res, createPostAction)) {
+	try {
+		validateContent(content);
+	} catch (err) {
+		generalController.sendResponse(res, 400, createPostAction, err);
 		return;
 	}
 	try {
 		const post = await new Post({ content, author: userId }).save();
-		generalController.successResponse(res, 201, createPostAction, { post });
+		generalController.sendResponse(res, 201, createPostAction, { post });
 	} catch (err) {
-		generalController.failureResponse(res, 500, createPostAction, err.message);
+		generalController.sendResponse(res, 500, createPostAction, err);
 	}
 };
 const getPost = async (req, res, next) => {
@@ -55,12 +55,12 @@ const getPost = async (req, res, next) => {
 			}
 		]);
 		if (!post) {
-			generalController.failureResponse(res, 404, getPostAction, "Post not found");
+			generalController.sendResponse(res, 404, getPostAction, "Post not found");
 			return;
 		}
-		generalController.successResponse(res, 200, getPostAction, { post });
+		generalController.sendResponse(res, 200, getPostAction, { post });
 	} catch (err) {
-		generalController.failureResponse(res, 500, getPostAction, err.message);
+		generalController.sendResponse(res, 500, getPostAction, err);
 	}
 };
 const quotePost = async (req, res, next) => {
@@ -70,10 +70,13 @@ const quotePost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const postToQuote = await Post.findById(postId);
 	if (!postToQuote) {
-		generalController.failureResponse(res, 404, quotePostAction, "Post not found");
+		generalController.sendResponse(res, 404, quotePostAction, "Post not found");
 		return;
 	}
-	if (!validateContent(content, res, quotePostAction)) {
+	try {
+		validateContent(content);
+	} catch (err) {
+		generalController.sendResponse(res, 400, quotePostAction, err);
 		return;
 	}
 	try {
@@ -85,9 +88,9 @@ const quotePost = async (req, res, next) => {
 			author: userId,
 			attachments
 		}).save();
-		generalController.successResponse(res, 201, quotePostAction, { post });
+		generalController.sendResponse(res, 201, quotePostAction, { post });
 	} catch (err) {
-		generalController.failureResponse(res, 500, quotePostAction, err.message);
+		generalController.sendResponse(res, 500, quotePostAction, err);
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -100,14 +103,14 @@ const repeatPost = async (req, res, next) => {
 	};
 	try {
 		if (!(await Post.findById(postId))) {
-			generalController.failureResponse(res, 404, repeatPostAction, "Post not found");
+			generalController.sendResponse(res, 404, repeatPostAction, "Post not found");
 			return;
 		}
 		await Post.deleteOne(payload);
 		const repeated = await new Post(payload).save();
-		generalController.successResponse(res, 201, repeatPostAction, { repeated });
+		generalController.sendResponse(res, 201, repeatPostAction, { repeated });
 	} catch (err) {
-		generalController.failureResponse(res, 500, repeatPostAction, err.message);
+		generalController.sendResponse(res, 500, repeatPostAction, err);
 	}
 };
 const unrepeatPost = async (req, res, next) => {
@@ -119,9 +122,9 @@ const unrepeatPost = async (req, res, next) => {
 			author: userId,
 			repeatPost: postId
 		});
-		generalController.successResponse(res, 200, unrepeatPostAction, { unrepeated });
+		generalController.sendResponse(res, 200, unrepeatPostAction, { unrepeated });
 	} catch (err) {
-		generalController.failureResponse(res, 500, unrepeatPostAction, err.message);
+		generalController.sendResponse(res, 500, unrepeatPostAction, err);
 	}
 };
 const replyToPost = async (req, res, next) => {
@@ -129,18 +132,21 @@ const replyToPost = async (req, res, next) => {
 	const content = req.body.content;
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
-	if (!validateContent(content, res, replyToPostAction)) {
+	try {
+		validateContent(content);
+	} catch (err) {
+		generalController.sendResponse(res, 400, replyToPostAction, err);
 		return;
 	}
 	if (!(await Post.findById(replyTo))) {
-		generalController.failureResponse(res, 404, replyToPostAction, "Post not found");
+		generalController.sendResponse(res, 404, replyToPostAction, "Post not found");
 		return;
 	}
 	try {
 		const reply = await new Post({ content, author: userId, replyTo }).save();
-		generalController.successResponse(res, 201, replyToPostAction, { reply });
+		generalController.sendResponse(res, 201, replyToPostAction, { reply });
 	} catch (err) {
-		generalController.failureResponse(res, 500, replyToPostAction, err.message);
+		generalController.sendResponse(res, 500, replyToPostAction, err);
 	}
 };
 const deletePost = async (req, res, next) => {
@@ -153,13 +159,13 @@ const deletePost = async (req, res, next) => {
 			author: userId
 		});
 		if (!post) {
-			generalController.failureResponse(res, 404, deletePostAction, "Post not found");
+			generalController.sendResponse(res, 404, deletePostAction, "Post not found");
 			return;
 		}
 		const deleted = await Post.findOneAndDelete(post);
-		generalController.successResponse(res, 200, deletePostAction, { deleted });
+		generalController.sendResponse(res, 200, deletePostAction, { deleted });
 	} catch (err) {
-		generalController.failureResponse(res, 500, deletePostAction, err.message);
+		generalController.sendResponse(res, 500, deletePostAction, err);
 	}
 };
 

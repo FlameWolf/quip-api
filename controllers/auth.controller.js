@@ -22,7 +22,7 @@ const validatePassword = password => {
 };
 const authSuccess = (res, status, action, handle, userId) => {
 	res.cookie(authCookieName, userId, { maxAge: getExpiryDate(), httpOnly: false });
-	generalController.successResponse(res, status, action, {
+	generalController.sendResponse(res, status, action, {
 		userId,
 		token: createJwt(handle, userId),
 		createdAt: Date.now(),
@@ -33,11 +33,11 @@ const signUp = async (req, res, next) => {
 	const signUpAction = "Sign up";
 	const { handle, password } = req.body;
 	if (!(validateUsername(handle) && validatePassword(password))) {
-		generalController.failureResponse(res, 400, signUpAction, "Invalid username/password");
+		generalController.sendResponse(res, 400, signUpAction, "Invalid username/password");
 		return;
 	}
 	if (await User.findOne({ handle })) {
-		generalController.failureResponse(res, 400, signUpAction, "Username unavailable");
+		generalController.sendResponse(res, 400, signUpAction, "Username unavailable");
 		return;
 	}
 	try {
@@ -45,7 +45,7 @@ const signUp = async (req, res, next) => {
 		const user = await new User({ handle, password: passwordHash }).save();
 		authSuccess(res, 201, signUpAction, handle, user._id);
 	} catch (err) {
-		generalController.failureResponse(res, 500, signUpAction, err.message);
+		generalController.sendResponse(res, 500, signUpAction, err);
 	}
 };
 const signIn = async (req, res, next) => {
@@ -53,24 +53,24 @@ const signIn = async (req, res, next) => {
 	const { handle, password } = req.body;
 	const user = await User.findOne({ handle }).select("+password");
 	if (!user) {
-		generalController.failureResponse(res, 404, signInAction, "User not found");
+		generalController.sendResponse(res, 404, signInAction, "User not found");
 		return;
 	}
 	try {
 		const authStatus = await bcrypt.compare(password, user.password);
 		if (!authStatus) {
-			generalController.failureResponse(res, 403, signInAction, "Invalid credentials");
+			generalController.sendResponse(res, 403, signInAction, "Invalid credentials");
 			return;
 		}
 		authSuccess(res, 200, signInAction, handle, user._id);
 	} catch (err) {
-		generalController.failureResponse(res, 500, signInAction, err.message);
+		generalController.sendResponse(res, 500, signInAction, err);
 	}
 };
 const signOut = async (req, res, next) => {
 	const signOutAction = "Sign out";
 	res.clearCookie(authCookieName);
-	generalController.successResponse(res, 200, signOutAction);
+	generalController.sendResponse(res, 200, signOutAction);
 };
 
 module.exports = { signUp, signIn, signOut };

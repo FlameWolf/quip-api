@@ -12,13 +12,13 @@ const blockUser = async (req, res, next) => {
 	const blockerHandle = req.userInfo.handle;
 	const blockerUserId = req.userInfo.userId;
 	if (blockeeHandle === blockerHandle) {
-		generalController.failureResponse(res, 422, followUserAction, "User cannot block themselves");
+		generalController.sendResponse(res, 422, followUserAction, "User cannot block themselves");
 		return;
 	}
 	try {
 		const blockee = await usersController.findActiveUserByHandle(blockeeHandle);
 		if (!blockee) {
-			generalController.failureResponse(res, 404, blockUserAction, "User not found");
+			generalController.sendResponse(res, 404, blockUserAction, "User not found");
 			return;
 		}
 		const blockeeUserId = blockee._id;
@@ -27,9 +27,9 @@ const blockUser = async (req, res, next) => {
 		await Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId });
 		await Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId });
 		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
-		generalController.successResponse(res, 200, blockUserAction, { blocked });
+		generalController.sendResponse(res, 200, blockUserAction, { blocked });
 	} catch (err) {
-		generalController.failureResponse(res, 500, blockUserAction, err.message);
+		generalController.sendResponse(res, 500, blockUserAction, err);
 	}
 };
 const unblockUser = async (req, res, next) => {
@@ -38,19 +38,19 @@ const unblockUser = async (req, res, next) => {
 	const unblockerHandle = req.userInfo.handle;
 	const unblockerUserId = req.userInfo.userId;
 	if (unblockeeHandle === unblockerHandle) {
-		generalController.failureResponse(res, 422, unblockUserAction, "User cannot unblock themselves");
+		generalController.sendResponse(res, 422, unblockUserAction, "User cannot unblock themselves");
 		return;
 	}
 	try {
 		const unblockee = await usersController.findUserByHandle(unblockeeHandle);
 		if (!unblockee) {
-			generalController.failureResponse(res, 404, unblockUserAction, "User not found");
+			generalController.sendResponse(res, 404, unblockUserAction, "User not found");
 			return;
 		}
 		const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
-		generalController.successResponse(res, 200, unblockUserAction, { unblocked });
+		generalController.sendResponse(res, 200, unblockUserAction, { unblocked });
 	} catch (err) {
-		generalController.failureResponse(res, 500, unblockUserAction, err.message);
+		generalController.sendResponse(res, 500, unblockUserAction, err);
 	}
 };
 

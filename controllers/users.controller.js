@@ -13,12 +13,12 @@ const getUser = async (req, res, next) => {
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
-			generalController.failureResponse(res, 404, getUserProfileAction, "User not found");
+			generalController.sendResponse(res, 404, getUserProfileAction, "User not found");
 			return;
 		}
-		generalController.successResponse(res, 200, getUserProfileAction, { user });
+		generalController.sendResponse(res, 200, getUserProfileAction, { user });
 	} catch (err) {
-		generalController.failureResponse(res, 500, getUserProfileAction, err.message);
+		generalController.sendResponse(res, 500, getUserProfileAction, err);
 	}
 };
 const getUserProfile = async (req, res, next) => {
@@ -27,12 +27,12 @@ const getUserProfile = async (req, res, next) => {
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
-			generalController.failureResponse(res, 404, getUserProfileAction, "User not found");
+			generalController.sendResponse(res, 404, getUserProfileAction, "User not found");
 			return;
 		}
-		generalController.successResponse(res, 200, getUserProfileAction, { user });
+		generalController.sendResponse(res, 200, getUserProfileAction, { user });
 	} catch (err) {
-		generalController.failureResponse(res, 500, getUserProfileAction, err.message);
+		generalController.sendResponse(res, 500, getUserProfileAction, err);
 	}
 };
 const deactivateUser = async (req, res, next) => {
@@ -40,9 +40,9 @@ const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const result = await User.findByIdAndUpdate(userId, { deactivated: true });
-		generalController.successResponse(res, 200, deactivateUserAction, result);
+		generalController.sendResponse(res, 200, deactivateUserAction, result);
 	} catch (err) {
-		generalController.failureResponse(res, 500, deactivateUserAction, err.message);
+		generalController.sendResponse(res, 500, deactivateUserAction, err);
 	}
 };
 const activateUser = async (req, res, next) => {
@@ -50,9 +50,9 @@ const activateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const result = await User.findByIdAndUpdate(userId, { deactivated: false });
-		generalController.successResponse(res, 200, activateUserAction, result);
+		generalController.sendResponse(res, 200, activateUserAction, result);
 	} catch (err) {
-		generalController.failureResponse(res, 500, activateUserAction, err.message);
+		generalController.sendResponse(res, 500, activateUserAction, err);
 	}
 };
 const deleteUser = async (req, res, next) => {
@@ -60,9 +60,9 @@ const deleteUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const result = await User.findByIdAndUpdate(userId, { deleted: true });
-		generalController.successResponse(res, 200, deleteUserAction, result);
+		generalController.sendResponse(res, 200, deleteUserAction, result);
 	} catch (err) {
-		generalController.failureResponse(res, 500, deleteUserAction, err.message);
+		generalController.sendResponse(res, 500, deleteUserAction, err);
 	}
 };
 
