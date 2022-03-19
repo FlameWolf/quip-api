@@ -12,19 +12,19 @@ const muteUser = async (req, res, next) => {
 	const muterHandle = req.userInfo.handle;
 	const muterUserId = req.userInfo.userId;
 	if (muteeHandle === muterHandle) {
-		generalController.sendResponse(res, 422, muteUserAction, "User cannot mute themselves");
+		res.status(422).send("User cannot mute themselves");
 		return;
 	}
 	try {
 		const mutee = await usersController.findActiveUserByHandle(muteeHandle);
 		if (!mutee) {
-			generalController.sendResponse(res, 404, muteUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const muted = await new MutedUser({ user: mutee._id, mutedBy: muterUserId }).save();
-		generalController.sendResponse(res, 200, muteUserAction, { muted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, muteUserAction, err);
+		res.status(200).json({ muted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const unmuteUser = async (req, res, next) => {
@@ -33,19 +33,19 @@ const unmuteUser = async (req, res, next) => {
 	const unmuterHandle = req.userInfo.handle;
 	const unmuterUserId = req.userInfo.userId;
 	if (unmuteeHandle === unmuterHandle) {
-		generalController.sendResponse(res, 422, unmuteUserAction, "User cannot unmute themselves");
+		res.status(422).send("User cannot unmute themselves");
 		return;
 	}
 	try {
 		const unmutee = await usersController.findUserByHandle(unmuteeHandle);
 		if (!unmutee) {
-			generalController.sendResponse(res, 404, unmuteUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const unmuted = await MutedUser.findOneAndDelete({ user: unmutee._id, mutedBy: unmuterUserId });
-		generalController.sendResponse(res, 200, unmuteUserAction, { unmuted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unmuteUserAction, err);
+		res.status(200).json({ unmuted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const mutePost = async (req, res, next) => {
@@ -54,9 +54,9 @@ const mutePost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const muted = await new MutedPost({ post: postId, mutedBy: userId }).save();
-		generalController.sendResponse(res, 200, mutePostAction, { muted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, mutePostAction, err);
+		res.status(200).json({ muted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const unmutePost = async (req, res, next) => {
@@ -65,9 +65,9 @@ const unmutePost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const unmuted = await MutedPost.findOneAndDelete({ post: postId, mutedBy: userId });
-		generalController.sendResponse(res, 200, unmutePostAction, { unmuted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unmutePostAction, err);
+		res.status(200).json({ unmuted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const muteWord = async (req, res, next) => {
@@ -76,9 +76,9 @@ const muteWord = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const muted = await new MutedWord({ word, match, mutedBy: userId }).save();
-		generalController.sendResponse(res, 200, muteWordAction, { muted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, muteWordAction, err);
+		res.status(200).json({ muted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const unmuteWord = async (req, res, next) => {
@@ -87,9 +87,9 @@ const unmuteWord = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const unmuted = await MutedWord.findOneAndDelete({ word, match, mutedBy: userId });
-		generalController.sendResponse(res, 200, unmuteWordAction, { unmuted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unmuteWordAction, err);
+		res.status(200).json({ unmuted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 

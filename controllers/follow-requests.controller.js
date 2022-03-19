@@ -30,9 +30,9 @@ const acceptFollowRequest = async (req, res, next) => {
 	const acceptorUserId = req.userInfo.userId;
 	try {
 		const accepted = await acceptHandler(followRequestId, acceptorUserId);
-		generalController.sendResponse(res, 200, acceptFollowRequestAction, { accepted });
-	} catch (err) {
-		generalController.sendResponse(res, 500, acceptFollowRequestAction, err);
+		res.status(200).json({ accepted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const acceptSelectedFollowRequests = async (req, res, next) => {
@@ -43,9 +43,9 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 		for (let id of followRequestIds) {
 			await acceptHandler(id, acceptorUserId);
 		}
-		generalController.sendResponse(res, 200, acceptSelectedFollowRequestsAction, { acceptedRequestIds: followRequestIds });
-	} catch (err) {
-		generalController.sendResponse(res, 500, acceptSelectedFollowRequestsAction, err);
+		res.status(200).json({ acceptedRequestIds: followRequestIds });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const acceptAllFollowRequests = async (req, res, next) => {
@@ -62,9 +62,9 @@ const acceptAllFollowRequests = async (req, res, next) => {
 			requestsCount = followRequests.length;
 			acceptedRequestsCount += requestsCount;
 		} while (requestsCount === pageSize);
-		generalController.sendResponse(res, 200, acceptAllFollowRequestsAction, { acceptedRequestsCount });
-	} catch (err) {
-		generalController.sendResponse(res, 500, acceptAllFollowRequestsAction, err);
+		res.status(200).json({ acceptedRequestsCount });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const rejectFollowRequest = async (req, res, next) => {
@@ -73,9 +73,9 @@ const rejectFollowRequest = async (req, res, next) => {
 	const rejectorUserId = req.userInfo.userId;
 	try {
 		const rejected = await rejectHandler(followRequestId, rejectorUserId);
-		generalController.sendResponse(res, 200, rejectFollowRequestAction, { rejected });
-	} catch (err) {
-		generalController.sendResponse(res, 500, rejectFollowRequestAction, err);
+		res.status(200).json({ rejected });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
@@ -86,9 +86,9 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 		for (let id of followRequestIds) {
 			await rejectHandler(id, rejectorUserId);
 		}
-		generalController.sendResponse(res, 200, rejectSelectedFollowRequestsAction, { rejectedRequestIds: followRequestIds });
-	} catch (err) {
-		generalController.sendResponse(res, 500, rejectSelectedFollowRequestsAction, err);
+		res.status(200).json({ rejectedRequestIds: followRequestIds });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const rejectAllFollowRequests = async (req, res, next) => {
@@ -105,9 +105,9 @@ const rejectAllFollowRequests = async (req, res, next) => {
 			requestsCount = followRequests.length;
 			rejectedRequestsCount += requestsCount;
 		} while (requestsCount === pageSize);
-		generalController.sendResponse(res, 200, rejectAllFollowRequestsAction, { rejectedRequestsCount });
-	} catch (err) {
-		generalController.sendResponse(res, 500, rejectAllFollowRequestsAction, err);
+		res.status(200).json({ rejectedRequestsCount });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 

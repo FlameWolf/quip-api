@@ -13,12 +13,12 @@ const getUser = async (req, res, next) => {
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
-			generalController.sendResponse(res, 404, getUserProfileAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
-		generalController.sendResponse(res, 200, getUserProfileAction, { user });
-	} catch (err) {
-		generalController.sendResponse(res, 500, getUserProfileAction, err);
+		res.status(200).json({ user });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const getUserProfile = async (req, res, next) => {
@@ -27,42 +27,42 @@ const getUserProfile = async (req, res, next) => {
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
-			generalController.sendResponse(res, 404, getUserProfileAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
-		generalController.sendResponse(res, 200, getUserProfileAction, { user });
-	} catch (err) {
-		generalController.sendResponse(res, 500, getUserProfileAction, err);
+		res.status(200).json({ user });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const deactivateUser = async (req, res, next) => {
 	const deactivateUserAction = "Deactivate user";
 	const userId = req.userInfo.userId;
 	try {
-		const result = await User.findByIdAndUpdate(userId, { deactivated: true });
-		generalController.sendResponse(res, 200, deactivateUserAction, result);
-	} catch (err) {
-		generalController.sendResponse(res, 500, deactivateUserAction, err);
+		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true });
+		res.status(200).json({ deactivated });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const activateUser = async (req, res, next) => {
 	const activateUserAction = "Activate user";
 	const userId = req.userInfo.userId;
 	try {
-		const result = await User.findByIdAndUpdate(userId, { deactivated: false });
-		generalController.sendResponse(res, 200, activateUserAction, result);
-	} catch (err) {
-		generalController.sendResponse(res, 500, activateUserAction, err);
+		const activated = await User.findByIdAndUpdate(userId, { deactivated: false });
+		res.status(200).json({ activated });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const deleteUser = async (req, res, next) => {
 	const deleteUserAction = "Delete user";
 	const userId = req.userInfo.userId;
 	try {
-		const result = await User.findByIdAndUpdate(userId, { deleted: true });
-		generalController.sendResponse(res, 200, deleteUserAction, result);
-	} catch (err) {
-		generalController.sendResponse(res, 500, deleteUserAction, err);
+		const deleted = await User.findByIdAndUpdate(userId, { deleted: true });
+		res.status(200).json({ deleted });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 

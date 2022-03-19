@@ -12,13 +12,13 @@ const blockUser = async (req, res, next) => {
 	const blockerHandle = req.userInfo.handle;
 	const blockerUserId = req.userInfo.userId;
 	if (blockeeHandle === blockerHandle) {
-		generalController.sendResponse(res, 422, followUserAction, "User cannot block themselves");
+		res.status(422).send("User cannot block themselves");
 		return;
 	}
 	try {
 		const blockee = await usersController.findActiveUserByHandle(blockeeHandle);
 		if (!blockee) {
-			generalController.sendResponse(res, 404, blockUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const blockeeUserId = blockee._id;
@@ -27,9 +27,9 @@ const blockUser = async (req, res, next) => {
 		await Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId });
 		await Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId });
 		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
-		generalController.sendResponse(res, 200, blockUserAction, { blocked });
-	} catch (err) {
-		generalController.sendResponse(res, 500, blockUserAction, err);
+		res.status(200).json({ blocked });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const unblockUser = async (req, res, next) => {
@@ -38,19 +38,19 @@ const unblockUser = async (req, res, next) => {
 	const unblockerHandle = req.userInfo.handle;
 	const unblockerUserId = req.userInfo.userId;
 	if (unblockeeHandle === unblockerHandle) {
-		generalController.sendResponse(res, 422, unblockUserAction, "User cannot unblock themselves");
+		res.status(422).send("User cannot unblock themselves");
 		return;
 	}
 	try {
 		const unblockee = await usersController.findUserByHandle(unblockeeHandle);
 		if (!unblockee) {
-			generalController.sendResponse(res, 404, unblockUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
-		generalController.sendResponse(res, 200, unblockUserAction, { unblocked });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unblockUserAction, err);
+		res.status(200).json({ unblocked });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 

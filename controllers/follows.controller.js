@@ -12,37 +12,37 @@ const followUser = async (req, res, next) => {
 	const followerHandle = req.userInfo.handle;
 	const followerUserId = req.userInfo.userId;
 	if (followeeHandle === followerHandle) {
-		generalController.sendResponse(res, 422, followUserAction, "User cannot follow themselves");
+		res.status(422).send("User cannot follow themselves");
 		return;
 	}
 	try {
 		const followee = await usersController.findActiveUserByHandle(followeeHandle);
 		if (!followee) {
-			generalController.sendResponse(res, 404, followUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const followeeUserId = followee._id;
 		const blocked = await Block.findOne({ user: followerUserId, blockedBy: followeeUserId });
 		if (blocked) {
-			generalController.sendResponse(res, 403, followUserAction, "User has blocked you from following them");
+			res.status(403).send("User has blocked you from following them");
 			return;
 		}
 		const isFolloweeProtected = followee.protected;
 		const model = isFolloweeProtected
 			? new FollowRequest({
-					user: followeeUserId,
-					requestedBy: followerUserId
-			  })
+				user: followeeUserId,
+				requestedBy: followerUserId
+			})
 			: new Follow({
-					user: followeeUserId,
-					followedBy: followerUserId
-			  });
+				user: followeeUserId,
+				followedBy: followerUserId
+			});
 		const result = await model.save();
-		generalController.sendResponse(res, 200, followUserAction, {
+		res.status(200).json({
 			[isFolloweeProtected ? "followed" : "requested"]: result
 		});
-	} catch (err) {
-		generalController.sendResponse(res, 500, followUserAction, err);
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 const unfollowUser = async (req, res, next) => {
@@ -51,19 +51,19 @@ const unfollowUser = async (req, res, next) => {
 	const unfollowerHandle = req.userInfo.handle;
 	const unfollowerUserId = req.userInfo.userId;
 	if (unfolloweeHandle === unfollowerHandle) {
-		generalController.sendResponse(res, 422, unfollowUserAction, "User cannot unfollow themselves");
+		res.status(422).send("User cannot unfollow themselves");
 		return;
 	}
 	try {
 		const unfollowee = await usersController.findUserByHandle(unfolloweeHandle);
 		if (!unfollowee) {
-			generalController.sendResponse(res, 404, unfollowUserAction, "User not found");
+			res.status(404).send("User not found");
 			return;
 		}
 		const unfollowed = await Follow.findOneAndDelete({ user: unfollowee._id, followedBy: unfollowerUserId });
-		generalController.sendResponse(res, 200, unfollowUserAction, { unfollowed });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unfollowUserAction, err);
+		res.status(200).json({ unfollowed });
+	} catch (error) {
+		res.status(500).send(error);
 	}
 };
 

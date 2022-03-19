@@ -12,9 +12,9 @@ const addFavourite = async (req, res, next) => {
 			post: postId,
 			favouritedBy: userId
 		}).save();
-		generalController.sendResponse(res, 200, favouritePostAction, { favourited });
-	} catch (err) {
-		generalController.sendResponse(res, 500, favouritePostAction, err);
+		res.status(200).json({ favourited });
+	} catch (error) {
+		res.status(500).json({ error });
 	}
 };
 const removeFavourite = async (req, res, next) => {
@@ -26,9 +26,9 @@ const removeFavourite = async (req, res, next) => {
 			post: postId,
 			favouritedBy: userId
 		});
-		generalController.sendResponse(res, 200, unfavouritePostAction, { unfavourited });
-	} catch (err) {
-		generalController.sendResponse(res, 500, unfavouritePostAction, err);
+		res.status(200).json({ unfavourited });
+	} catch (error) {
+		res.status(500).json({ error });
 	}
 };
 
