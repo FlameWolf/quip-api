@@ -43,16 +43,27 @@
 		},
 		"/posts/create": {
 			"post": {
-				"parameters": [
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/Post"
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string",
+										"format": "textarea"
+									},
+									"media": {
+										"type": "file"
+									},
+									"media-description": {
+										"type": "string"
+									}
+								}
+							}
 						}
 					}
-				]
+				}
 			}
 		},
 		"/posts/quote/{postId}": {
@@ -62,16 +73,29 @@
 						"name": "postId",
 						"required": true,
 						"type": "string"
-					},
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/Post"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string",
+										"format": "textarea"
+									},
+									"media": {
+										"type": "file"
+									},
+									"media-description": {
+										"type": "string"
+									}
+								}
+							}
 						}
 					}
-				]
+				}
 			}
 		},
 		"/posts/reply/{postId}": {
@@ -81,16 +105,29 @@
 						"name": "postId",
 						"required": true,
 						"type": "string"
-					},
-					{
-						"name": "body",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/Post"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string",
+										"format": "textarea"
+									},
+									"media": {
+										"type": "file"
+									},
+									"media-description": {
+										"type": "string"
+									}
+								}
+							}
 						}
 					}
-				]
+				}
 			}
 		},
 		"/settings/mute": {
