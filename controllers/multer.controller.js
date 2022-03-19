@@ -1,10 +1,11 @@
 const multer = require("multer");
+const path = require("path");
 const { mimeTypeMap, mapMimeType } = require("../library");
 
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => {
 		const mapEntry = mapMimeType(file.mimetype);
-		callback(mapEntry ? null : new Error("Invalid file type"), mapEntry.path);
+		callback(mapEntry ? null : new Error("Invalid file type"), path.join("public", mapEntry.path));
 	},
 	filename: (req, file, callback) => {
 		let fileName = file.originalname
