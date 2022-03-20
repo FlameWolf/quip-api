@@ -3,14 +3,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { TokenExpiredError } = jwt;
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenExpiration, refreshTokenExpiration, authCookieName } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife, authCookieName } = require("../library");
 const User = require("../models/user.model");
 
 const generateAuthToken = (handle, userId) => {
-	return jwt.sign({ handle, userId }, process.env.JWT_AUTH_SECRET, { expiresIn: authTokenExpiration });
+	return jwt.sign({ handle, userId }, process.env.JWT_AUTH_SECRET, { expiresIn: authTokenLife });
 };
 const generateRefreshToken = (handle, userId) => {
-	return jwt.sign({ handle, userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: refreshTokenExpiration });
+	return jwt.sign({ handle, userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: refreshTokenLife });
 };
 const validateUsername = username => {
 	return username && invalidHandles.indexOf(username.trim().toLowerCase()) === -1 && handleRegExp.test(username);
@@ -23,7 +23,7 @@ const authSuccess = (handle, userId) => ({
 	authToken: generateAuthToken(handle, userId),
 	refreshToken: generateRefreshToken(handle, userId),
 	createdAt: Date.now(),
-	expiresIn: authTokenExpiration
+	expiresIn: authTokenLife
 });
 const signUp = async (req, res, next) => {
 	const { handle, password } = req.body;
