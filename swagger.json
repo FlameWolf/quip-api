@@ -102,6 +102,36 @@
 				}
 			}
 		},
+		"/auth/refresh-auth-token": {
+			"get": {
+				"parameters": [
+					{
+						"name": "refresh-token",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "handle",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "user-id",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/posts/create": {
 			"post": {
 				"requestBody": {
