@@ -4,9 +4,10 @@ const invalidHandles = ["auth", "home", "search", "user", "users", "post", "post
 const handleRegExp = /^[A-Za-z][\w]{3,31}$/;
 const passwordRegExp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 const rounds = 10;
-const authTokenExpiration = 1000 * 3600 * 24 * 7;
-const refreshTokenExpiration = 1000 * 3600 * 24 * 360;
-const authCookieName = "userId";
+const authTokenLife = 1000 * 3600 * 24 * 7;
+const refreshTokenLife = 1000 * 3600 * 24 * 360;
+const authCookieName = "Z0KrvBidik";
+const refreshCookieName = "aO8Rtbl4qI";
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxMutedWordLength = 256;
@@ -27,9 +28,10 @@ module.exports = {
 	handleRegExp,
 	passwordRegExp,
 	rounds,
-	authTokenExpiration,
-	refreshTokenExpiration,
+	authTokenLife,
+	refreshTokenLife,
 	authCookieName,
+	refreshCookieName,
 	contentLengthRegExp,
 	maxContentLength,
 	maxMutedWordLength,
