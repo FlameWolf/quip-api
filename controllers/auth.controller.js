@@ -3,7 +3,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { TokenExpiredError } = jwt;
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife, authCookieName } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife } = require("../library");
 const User = require("../models/user.model");
 
 const generateAuthToken = (handle, userId) => {
@@ -80,7 +80,6 @@ const refreshAuthToken = async (req, res, next) => {
 	next();
 };
 const signOut = async (req, res, next) => {
-	res.clearCookie(authCookieName);
 	res.sendStatus(200);
 };
 
