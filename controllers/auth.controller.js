@@ -63,7 +63,7 @@ const signIn = async (req, res, next) => {
 };
 const refreshAuthToken = async (req, res, next) => {
 	try {
-		const { "refresh-token": refreshToken, handle, userId } = req.headers;
+		const { "refresh-token": refreshToken, handle, "user-id": userId } = req.headers;
 		if (!refreshToken) {
 			throw new Error("Refresh token not found");
 		}
