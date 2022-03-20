@@ -61,7 +61,7 @@ const signIn = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
-const refreshToken = async (req, res, next) => {
+const refreshAuthToken = async (req, res, next) => {
 	try {
 		const { "refresh-token": refreshToken, handle, userId } = req.headers;
 		if (!refreshToken) {
@@ -84,4 +84,4 @@ const signOut = async (req, res, next) => {
 	res.sendStatus(200);
 };
 
-module.exports = { signUp, signIn, refreshToken, signOut };
+module.exports = { signUp, signIn, refreshAuthToken, signOut };
