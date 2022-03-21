@@ -107,10 +107,11 @@
 				"parameters": [
 					{
 						"name": "refresh-token",
-						"in": "header",
+						"in": "cookie",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"type": "string",
+							"enum": ["Value will be read from the \"refresh-token\" cookie"]
 						}
 					},
 					{

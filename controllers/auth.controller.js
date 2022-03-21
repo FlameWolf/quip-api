@@ -62,7 +62,8 @@ const signIn = async (req, res, next) => {
 };
 const refreshAuthToken = async (req, res, next) => {
 	try {
-		const { "refresh-token": refreshToken, handle, "user-id": userId } = req.headers;
+		const { "refresh-token": refreshToken } = req.cookies;
+		const { handle, "user-id": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 		if (userInfo.handle === handle && userInfo.userId === userId) {
 			res.status(200).json(authSuccess(handle, userId));
