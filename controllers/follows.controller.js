@@ -37,7 +37,7 @@ const followUser = async (req, res, next) => {
 			});
 		const result = await model.save();
 		res.status(200).json({
-			[isFolloweeProtected ? "followed" : "requested"]: result
+			[isFolloweeProtected ? "requested" : "followed"]: result
 		});
 	} catch (err) {
 		res.status(500).send(err);
