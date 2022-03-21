@@ -2,7 +2,6 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { TokenExpiredError } = jwt;
 const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife } = require("../library");
 const User = require("../models/user.model");
 
@@ -64,9 +63,6 @@ const signIn = async (req, res, next) => {
 const refreshAuthToken = async (req, res, next) => {
 	try {
 		const { "refresh-token": refreshToken, handle, "user-id": userId } = req.headers;
-		if (!refreshToken) {
-			throw new Error("Refresh token not found");
-		}
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 		if (userInfo.handle === handle && userInfo.userId === userId) {
 			res.status(200).json(authSuccess(handle, userId));
@@ -74,7 +70,7 @@ const refreshAuthToken = async (req, res, next) => {
 			throw new Error("Refresh token invalid");
 		}
 	} catch (err) {
-		res.status(401).send(err instanceof TokenExpiredError ? "Refresh token expired" : err);
+		res.status(401).send(err);
 		return;
 	}
 	next();
