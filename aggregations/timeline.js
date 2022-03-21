@@ -1,6 +1,6 @@
 const { ObjectId } = require("bson");
 
-const timelineAggregationPipeline = (userId, lastPostId) => [
+const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	{
 		$lookup: {
 			from: "follows",
@@ -106,20 +106,27 @@ const timelineAggregationPipeline = (userId, lastPostId) => [
 	{
 		$match: {
 			$expr: {
-				$eq: [
+				$or: [
 					{
-						$filter: {
-							input: "$mutedWords",
-							cond: {
-								$regexMatch: {
-									input: "$content",
-									regex: "$$this",
-									options: "i"
-								}
-							}
-						}
+						$ne: ["$mutedWords", undefined]
 					},
-					[]
+					{
+						$eq: [
+							{
+								$filter: {
+									input: "$mutedWords",
+									cond: {
+										$regexMatch: {
+											input: "$content",
+											regex: "$$this",
+											options: "i"
+										}
+									}
+								}
+							},
+							[]
+						]
+					}
 				]
 			}
 		}
