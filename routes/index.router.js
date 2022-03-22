@@ -7,6 +7,6 @@ const indexController = require("../controllers/index.controller");
 
 router.get("/", indexController.home);
 router.get("/timeline", authenticateRequest, indexController.timeline);
-router.get("/timeline/top", indexController.timelineTop);
+router.get("/topmost/:period?", indexController.topmost);
 
 module.exports = router;
