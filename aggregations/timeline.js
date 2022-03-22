@@ -62,7 +62,14 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	{
 		$match: {
 			$expr: {
-				$in: ["$author", "$following"]
+				$or: [
+					{
+						$in: ["$author", "$following"]
+					},
+					{
+						$eq: ["$author", "$userId"]
+					}
+				]
 			}
 		}
 	},
@@ -241,7 +248,7 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 		}
 	},
 	{
-		$unset: ["mutedWords"]
+		$unset: ["mutedWords", "userId"]
 	},
 	{
 		$sort: {
@@ -270,8 +277,24 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 			from: "users",
 			localField: "author",
 			foreignField: "_id",
+			pipeline: [
+				{
+					$match: {
+						deactivated: false,
+						deleted: false
+					}
+				},
+				{
+					$project: {
+						handle: 1
+					}
+				}
+			],
 			as: "author"
 		}
+	},
+	{
+		$unwind: "$author"
 	},
 	{
 		$lookup: {
