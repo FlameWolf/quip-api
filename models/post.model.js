@@ -18,7 +18,7 @@ const postSchema = new mongoose.Schema(
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: { type: ObjectId, ref: "Attachments" },
-		private: { type: Boolean },
+		private: { type: Boolean, default: false },
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" }
 	},
 	{

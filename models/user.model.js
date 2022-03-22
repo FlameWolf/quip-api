@@ -45,11 +45,11 @@ const userSchema = new mongoose.Schema(
 				}
 			}
 		},
-		emailVerified: { type: Boolean },
+		emailVerified: { type: Boolean, default: false },
 		pinnedPost: { type: ObjectId, ref: "Post" },
-		protected: { type: Boolean },
-		deactivated: { type: Boolean },
-		deleted: { type: Boolean }
+		protected: { type: Boolean, default: false },
+		deactivated: { type: Boolean, default: false },
+		deleted: { type: Boolean, default: false }
 	},
 	{
 		timestamps: true,
