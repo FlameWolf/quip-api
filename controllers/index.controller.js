@@ -2,12 +2,8 @@
 
 const timelineAggregationPipeline = require("../aggregations/timeline");
 const topmostAggregationPipeline = require("../aggregations/topmost");
-const User = require("../models/user.model");
 const Post = require("../models/post.model");
 
-const home = async (req, res, next) => {
-	res.status(200).end();
-};
 const timeline = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const lastPostId = req.query.lastPostId;
@@ -30,4 +26,4 @@ const topmost = async (req, res, next) => {
 	}
 };
 
-module.exports = { home, timeline, topmost };
+module.exports = { timeline, topmost };
