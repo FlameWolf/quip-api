@@ -3,13 +3,38 @@ const { ObjectId } = require("bson");
 const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	{
 		$lookup: {
-			from: "follows",
+			from: "users",
 			pipeline: [
 				{
 					$match: {
-						followedBy: ObjectId(userId)
+						_id: ObjectId(userId)
 					}
 				},
+				{
+					$project: {
+						_id: 1
+					}
+				}
+			],
+			as: "user"
+		}
+	},
+	{
+		$addFields: {
+			userId: {
+				$arrayElemAt: ["$user._id", 0]
+			}
+		}
+	},
+	{
+		$unset: "user"
+	},
+	{
+		$lookup: {
+			from: "follows",
+			localField: "userId",
+			foreignField: "followedBy",
+			pipeline: [
 				{
 					$group: {
 						_id: undefined,
@@ -25,7 +50,12 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	{
 		$addFields: {
 			following: {
-				$arrayElemAt: ["$following.result", 0]
+				$ifNull: [
+					{
+						$arrayElemAt: ["$following.result", 0]
+					},
+					[]
+				]
 			}
 		}
 	},
@@ -41,13 +71,94 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	},
 	{
 		$lookup: {
-			from: "mutedwords",
+			from: "mutedusers",
+			localField: "userId",
+			foreignField: "mutedBy",
 			pipeline: [
 				{
-					$match: {
-						mutedBy: ObjectId(userId)
+					$group: {
+						_id: undefined,
+						result: {
+							$addToSet: "$user"
+						}
 					}
-				},
+				}
+			],
+			as: "mutedUsers"
+		}
+	},
+	{
+		$addFields: {
+			mutedUsers: {
+				$ifNull: [
+					{
+						$arrayElemAt: ["$mutedUsers.result", 0]
+					},
+					[]
+				]
+			}
+		}
+	},
+	{
+		$match: {
+			$expr: {
+				$not: {
+					$in: ["$author", "$mutedUsers"]
+				}
+			}
+		}
+	},
+	{
+		$unset: "mutedUsers"
+	},
+	{
+		$lookup: {
+			from: "mutedposts",
+			localField: "userId",
+			foreignField: "mutedBy",
+			pipeline: [
+				{
+					$group: {
+						_id: undefined,
+						result: {
+							$addToSet: "$post"
+						}
+					}
+				}
+			],
+			as: "mutedPosts"
+		}
+	},
+	{
+		$addFields: {
+			mutedPosts: {
+				$ifNull: [
+					{
+						$arrayElemAt: ["$mutedPosts.result", 0]
+					},
+					[]
+				]
+			}
+		}
+	},
+	{
+		$match: {
+			$expr: {
+				$not: {
+					$in: ["$_id", "$mutedPosts"]
+				}
+			}
+		}
+	},
+	{
+		$unset: "mutedPosts"
+	},
+	{
+		$lookup: {
+			from: "mutedwords",
+			localField: "userId",
+			foreignField: "mutedBy",
+			pipeline: [
 				{
 					$project: {
 						_id: 0,
@@ -99,34 +210,32 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	{
 		$addFields: {
 			mutedWords: {
-				$arrayElemAt: ["$mutedWords.result", 0]
+				$ifNull: [
+					{
+						$arrayElemAt: ["$mutedWords.result", 0]
+					},
+					[]
+				]
 			}
 		}
 	},
 	{
 		$match: {
 			$expr: {
-				$or: [
+				$eq: [
 					{
-						$ne: ["$mutedWords", undefined]
-					},
-					{
-						$eq: [
-							{
-								$filter: {
-									input: "$mutedWords",
-									cond: {
-										$regexMatch: {
-											input: "$content",
-											regex: "$$this",
-											options: "i"
-										}
-									}
+						$filter: {
+							input: "$mutedWords",
+							cond: {
+								$regexMatch: {
+									input: "$content",
+									regex: "$$this",
+									options: "i"
 								}
-							},
-							[]
-						]
-					}
+							}
+						}
+					},
+					[]
 				]
 			}
 		}
@@ -155,6 +264,46 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	},
 	{
 		$limit: 20
+	},
+	{
+		$lookup: {
+			from: "users",
+			localField: "author",
+			foreignField: "_id",
+			as: "author"
+		}
+	},
+	{
+		$lookup: {
+			from: "attachments",
+			localField: "attachments",
+			foreignField: "_id",
+			pipeline: [
+				{
+					$lookup: {
+						from: "mediafiles",
+						localField: "mediaFile",
+						foreignField: "_id",
+						as: "mediaFile"
+					}
+				},
+				{
+					$addFields: {
+						mediaFile: {
+							$arrayElemAt: ["$mediaFile", 0]
+						}
+					}
+				}
+			],
+			as: "attachments"
+		}
+	},
+	{
+		$addFields: {
+			attachments: {
+				$arrayElemAt: ["$attachments", 0]
+			}
+		}
 	}
 ];
 
