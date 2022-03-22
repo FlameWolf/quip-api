@@ -36,6 +36,25 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 			foreignField: "followedBy",
 			pipeline: [
 				{
+					$lookup: {
+						from: "users",
+						localField: "user",
+						foreignField: "_id",
+						pipeline: [
+							{
+								$match: {
+									deactivated: false,
+									deleted: false
+								}
+							}
+						],
+						as: "activeUser"
+					}
+				},
+				{
+					$unwind: "$activeUser"
+				},
+				{
 					$group: {
 						_id: undefined,
 						result: {
@@ -278,12 +297,6 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 			localField: "author",
 			foreignField: "_id",
 			pipeline: [
-				{
-					$match: {
-						deactivated: false,
-						deleted: false
-					}
-				},
 				{
 					$project: {
 						handle: 1
