@@ -1,6 +1,7 @@
 const { ObjectId } = require("bson");
+const { maxObjectIdString } = require("../library");
 
-const timelineAggregationPipeline = (userId, lastPostId = "") => [
+const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	{
 		$lookup: {
 			from: "users",
@@ -276,15 +277,8 @@ const timelineAggregationPipeline = (userId, lastPostId = "") => [
 	},
 	{
 		$match: {
-			$expr: {
-				$or: [
-					{
-						$eq: [lastPostId, ""]
-					},
-					{
-						$lt: ["$_id", lastPostId]
-					}
-				]
+			_id: {
+				$lt: ObjectId(lastPostId || maxObjectIdString)
 			}
 		}
 	},
