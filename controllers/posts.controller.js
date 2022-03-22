@@ -51,7 +51,7 @@ const getPost = async (req, res, next) => {
 						}
 					},
 					{
-						path: "media"
+						path: "mediaFile"
 					}
 				]
 			}

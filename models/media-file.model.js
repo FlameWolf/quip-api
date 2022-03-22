@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose");
 
-const attachmentMediaSchema = new mongoose.Schema({
+const mediaFileSchema = new mongoose.Schema({
 	type: {
 		type: String,
 		enum: ["image", "video"],
@@ -13,4 +13,4 @@ const attachmentMediaSchema = new mongoose.Schema({
 	description: { type: String }
 });
 
-module.exports = mongoose.model("AttachmentMedia", attachmentMediaSchema);
+module.exports = mongoose.model("MediaFile", mediaFileSchema);
