@@ -414,13 +414,13 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 			}
 		},
 		{
+			$unset: ["favouriteCount", "replyCount", "repeatCount"]
+		},
+		{
 			$sort: {
 				score: -1,
 				createdAt: -1
 			}
-		},
-		{
-			$unset: ["favouriteCount", "replyCount", "repeatCount"]
 		},
 		{
 			$match: lastPostId ? {
