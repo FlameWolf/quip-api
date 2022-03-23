@@ -275,17 +275,15 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 		}
 	},
 	{
-		$match: lastPostId
-			? {
-				_id: {
-					$lt: ObjectId(lastPostId)
-				}
+		$match: lastPostId ? {
+			_id: {
+				$lt: ObjectId(lastPostId)
 			}
-			: {
-				$expr: {
-					$eq: [1, 1]
-				}
+		} : {
+			$expr: {
+				$eq: [1, 1]
 			}
+		}
 	},
 	{
 		$limit: 20

@@ -26,12 +26,12 @@ const followUser = async (req, res, next) => {
 			return;
 		}
 		const isFolloweeProtected = followee.protected;
-		const model = isFolloweeProtected
-			? new FollowRequest({
+		const model = isFolloweeProtected ?
+			new FollowRequest({
 				user: followeeUserId,
 				requestedBy: followerUserId
-			})
-			: new Follow({
+			}) :
+			new Follow({
 				user: followeeUserId,
 				followedBy: followerUserId
 			});
