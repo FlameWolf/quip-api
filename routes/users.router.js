@@ -9,7 +9,6 @@ const mutesController = require("../controllers/mutes.controller");
 const blocksController = require("../controllers/blocks.controller");
 
 router.get("/:handle", usersController.getUser);
-router.get("/:handle/profile", usersController.getUserProfile);
 router.get("/follow/:handle", authenticateRequest, followsController.followUser);
 router.get("/unfollow/:handle", authenticateRequest, followsController.unfollowUser);
 router.get("/mute/:handle", authenticateRequest, mutesController.muteUser);
