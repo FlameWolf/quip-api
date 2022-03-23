@@ -17,6 +17,6 @@ router.post("/reject_reqs", authenticateRequest, followRequestsController.reject
 router.get("/reject_all_reqs", authenticateRequest, followRequestsController.rejectAllFollowRequests);
 router.get("/deactivate", authenticateRequest, usersController.deactivateUser);
 router.get("/activate", authenticateRequest, usersController.activateUser);
-router.get("/delete", authenticateRequest, usersController.deleteUser);
+router.delete("/delete", authenticateRequest, usersController.deleteUser);
 
 module.exports = router;

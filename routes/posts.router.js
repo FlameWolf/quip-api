@@ -18,6 +18,6 @@ router.get("/unrepeat/:postId", authenticateRequest, postsController.unrepeatPos
 router.post("/reply/:postId", authenticateRequest, multerController.extractMediaFile.single("media"), postsController.replyToPost);
 router.get("/mute/:postId", authenticateRequest, mutesController.mutePost);
 router.get("/unmute/:postId", authenticateRequest, mutesController.unmutePost);
-router.get("/delete/:postId", authenticateRequest, postsController.deletePost);
+router.delete("/delete/:postId", authenticateRequest, postsController.deletePost);
 
 module.exports = router;
