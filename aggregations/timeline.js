@@ -306,9 +306,6 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 		}
 	},
 	{
-		$unwind: "$author"
-	},
-	{
 		$lookup: {
 			from: "attachments",
 			localField: "attachments",
