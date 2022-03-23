@@ -1,7 +1,7 @@
 "use strict";
 
-const timelineAggregationPipeline = require("../aggregations/timeline");
-const topmostAggregationPipeline = require("../aggregations/topmost");
+const timelineAggregationPipeline = require("../db/aggregations/timeline");
+const topmostAggregationPipeline = require("../db/aggregations/topmost");
 const Post = require("../models/post.model");
 
 const timeline = async (req, res, next) => {
