@@ -43,11 +43,6 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 			$unwind: "$author"
 		},
 		{
-			$sort: {
-				createdAt: -1
-			}
-		},
-		{
 			$match: matchConditions.length
 				? { ...matchConditions }
 				: {
@@ -55,6 +50,11 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 						$eq: [1, 1]
 					}
 				}
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
 		},
 		{
 			$limit: 20
