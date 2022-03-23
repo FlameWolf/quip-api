@@ -19,19 +19,6 @@ const getUser = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
-const getUserProfile = async (req, res, next) => {
-	const handle = req.params.handle;
-	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		res.status(200).json({ user });
-	} catch (err) {
-		res.status(500).send(err);
-	}
-};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -66,7 +53,6 @@ module.exports = {
 	findUserById,
 	findUserByHandle,
 	getUser,
-	getUserProfile,
 	deactivateUser,
 	activateUser,
 	deleteUser
