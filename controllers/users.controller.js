@@ -24,6 +24,36 @@ const getUser = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const getUserPosts = async (req, res, next) => {
+	const handle = req.params.handle;
+	const { includeRepeats, includeReplies, lastPostId } = req.query;
+	try {
+		const user = await findActiveUserByHandle(handle);
+		if (!user) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const posts = await findPostsByUserId(user._id, includeRepeats, includeReplies, lastPostId);
+		res.status(200).json({ posts });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+const getUserFavourites = async (req, res, next) => {
+	const handle = req.params.handle;
+	const lastPostId = req.query.lastPostId;
+	try {
+		const user = await findActiveUserByHandle(handle);
+		if (!user) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const favourites = await findFavouritesByUserId(user._id, lastPostId);
+		res.status(200).json({ favourites });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -60,6 +90,8 @@ module.exports = {
 	findPostsByUserId,
 	findFavouritesByUserId,
 	getUser,
+	getUserPosts,
+	getUserFavourites,
 	deactivateUser,
 	activateUser,
 	deleteUser
