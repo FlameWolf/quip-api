@@ -1,11 +1,14 @@
 "use strict";
 
+const postsAggregationPipeline = require("../db/pipelines/posts");
 const User = require("../models/user.model");
+const Post = require("../models/post.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
+const findPostsByUserId = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => await Post.aggregate(postsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
 	try {
@@ -52,6 +55,7 @@ module.exports = {
 	findActiveUserByHandle,
 	findUserById,
 	findUserByHandle,
+	findPostsByUserId,
 	getUser,
 	deactivateUser,
 	activateUser,
