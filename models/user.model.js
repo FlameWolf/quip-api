@@ -1,8 +1,7 @@
 "use strict";
 
-const { handleRegExp, passwordRegExp } = require("../library");
+const { handleRegExp, passwordRegExp, emailRegExp } = require("../library");
 const mongoose = require("mongoose");
-const isEmail = require("validator/lib/isEmail");
 const uniqueValidator = require("mongoose-unique-validator");
 const { ObjectId } = require("mongodb");
 
@@ -33,7 +32,7 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 			validate: {
-				validator: value => isEmail(value),
+				validator: value => emailRegExp.test(value),
 				message: "Email is not valid"
 			},
 			index: {
