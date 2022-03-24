@@ -1,19 +1,32 @@
 const multer = require("multer");
 const path = require("path");
-const { mimeTypeMap, mapMimeType } = require("../library");
+const validMimeTypes = ["image", "video"];
+const { megaByte } = require("../library");
 
-const storage = multer.diskStorage({
-	destination: (req, file, callback) => {
-		const mapEntry = mapMimeType(file.mimetype);
-		callback(mapEntry ? null : new Error("Invalid file type"), path.join("public", mapEntry.path));
+const sanitise = (value, maxLength = undefined) =>
+	value
+		.trim()
+		.substring(0, maxLength)
+		.replace(/\W+(?=.*\.[^.]*$)/g, "_")
+		.replace(/\.\w+$/, "");
+
+exports.extractMediaFile = multer({
+	fileFilter: (req, file, cb) => {
+		const [type, subtype] = file.mimetype.split("/");
+		req.fileType = type;
+		req.fileSubtype = subtype;
+		const isValid = validMimeTypes.some(mimeType => mimeType === type);
+		isValid ? cb(null, true) : cb(new Error("Invalid file type"));
 	},
-	filename: (req, file, callback) => {
-		let fileName = file.originalname
-			.trim()
-			.replace(/\W+(?=.*\.[^.]*$)/g, "-")
-			.replace(/\.\w+$/, "");
-		callback(null, `${fileName}-${Date.now().valueOf()}.${file.mimetype.split("/")[1]}`);
-	}
+	limits: {
+		fileSize: megaByte * 5
+	},
+	storage: multer.diskStorage({
+		destination: (req, file, cb) => {
+			cb(null, path.join("public", `${req.fileType}s`));
+		},
+		filename: (req, file, cb) => {
+			cb(null, `${sanitise(file.originalname, 16)}_${Date.now().valueOf()}.${sanitise(req.fileSubtype, 8)}`);
+		}
+	})
 });
-
-exports.extractMediaFile = multer({ storage });
