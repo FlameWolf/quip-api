@@ -196,7 +196,7 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 											$eq: ["$match", "startsWith"]
 										},
 										then: {
-											$concat: ["\\W+", "$word", ".*"]
+											$concat: ["\\b", "$word", ".*?\\b"]
 										}
 									},
 									{
@@ -204,7 +204,7 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 											$eq: ["$match", "endsWith"]
 										},
 										then: {
-											$concat: ["w*", "$word", "(\\W+|$)"]
+											$concat: ["\\b\\w*?", "$word", "\\b"]
 										}
 									},
 									{
@@ -212,7 +212,7 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 											$eq: ["$match", "exact"]
 										},
 										then: {
-											$concat: ["\\W+", "$word", "(\\W+|$)"]
+											$concat: ["\\b", "$word", "\\b"]
 										}
 									}
 								],
