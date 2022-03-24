@@ -11,7 +11,6 @@ const refreshTokenLife = 1000 * 3600 * 24 * 360;
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxMutedWordLength = 256;
-const maxMentionsCount = 256;
 const megaByte = 1024 * 1024;
 
 module.exports = {
@@ -26,6 +25,5 @@ module.exports = {
 	contentLengthRegExp,
 	maxContentLength,
 	maxMutedWordLength,
-	maxMentionsCount,
 	megaByte
 };
