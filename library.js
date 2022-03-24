@@ -9,17 +9,7 @@ const refreshTokenLife = 1000 * 3600 * 24 * 360;
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxMutedWordLength = 256;
-const mimeTypeMap = [
-	{
-		mimeType: "image/",
-		path: "images"
-	},
-	{
-		mimeType: "video/",
-		path: "videos"
-	}
-];
-const mapMimeType = mimeType => mimeTypeMap.find(value => mimeType.startsWith(value.mimeType));
+const megaByte = 1024 * 1024;
 
 module.exports = {
 	invalidHandles,
@@ -31,6 +21,5 @@ module.exports = {
 	contentLengthRegExp,
 	maxContentLength,
 	maxMutedWordLength,
-	mimeTypeMap,
-	mapMimeType
+	megaByte
 };
