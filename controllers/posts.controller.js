@@ -1,6 +1,9 @@
 "use strict";
 
 const { contentLengthRegExp, maxContentLength } = require("../library");
+const imageThumbnail = require("image-thumbnail");
+const ffmpeg = require("fluent-ffmpeg");
+const fs = require("fs");
 const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
 const Attachments = require("../models/attachments.model");
@@ -14,9 +17,40 @@ const validateContent = (content, attachment) => {
 	}
 };
 const createMediaAttachment = async (fileName, fileType, description, protocol, host) => {
+	const virtualDirectory = `${fileType}s`;
+	const fileSystemDirectory = `public/${virtualDirectory}`;
+	const filePath = `${fileSystemDirectory}/${fileName}`;
+	const previewVirtualDirectory = `${virtualDirectory}/previews`;
+	const previewFileSystemDirectory = `${fileSystemDirectory}/previews`;
+	const previewFileName = `${fileName.split(".")[0]}.jpg`;
+	const previewFilePath = `${previewFileSystemDirectory}/${previewFileName}`;
+	switch (fileType) {
+		case "image":
+			const thumbnail = await imageThumbnail(filePath, {
+				responseType: "buffer",
+				jpegOptions: {
+					width: 800,
+					height: 400,
+					force: true,
+					quality: 50
+				}
+			});
+			fs.createWriteStream(previewFilePath).write(thumbnail);
+			break;
+		case "video":
+			ffmpeg(filePath).screenshots({
+				count: 1,
+				folder: previewFileSystemDirectory,
+				filename: previewFileName
+			});
+			break;
+		default:
+			break;
+	}
 	const mediaFile = await new MediaFile({
 		fileType,
-		src: `${protocol}://${host}/${fileType}s/${fileName}`,
+		src: `${protocol}://${host}/${virtualDirectory}/${fileName}`,
+		previewSrc: `${protocol}://${host}/${previewVirtualDirectory}/${previewFileName}`,
 		description
 	}).save();
 	return await new Attachments({
