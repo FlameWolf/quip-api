@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const CastError = mongoose.Error.CastError;
-const isURL = require("validator/lib/isURL");
+const { urlRegExp } = require("../library");
 
 class Url extends mongoose.SchemaType {
 	constructor(key, options) {
@@ -8,7 +8,7 @@ class Url extends mongoose.SchemaType {
 	}
 
 	cast(value) {
-		if (!isURL(value)) {
+		if (!urlRegExp.test(value)) {
 			throw new CastError(this.constructor.name, value, "");
 		}
 		return value;
