@@ -3,12 +3,7 @@ const path = require("path");
 const validMimeTypes = ["image", "video"];
 const { megaByte } = require("../library");
 
-const sanitise = (value, maxLength = undefined) =>
-	value
-		.trim()
-		.substring(0, maxLength)
-		.replace(/\W+(?=.*\.[^.]*$)/g, "_")
-		.replace(/\.\w+$/, "");
+const sanitise = (value, maxLength = undefined) => value.trim().substring(0, maxLength).replace(/\W/g, "_");
 
 exports.extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
