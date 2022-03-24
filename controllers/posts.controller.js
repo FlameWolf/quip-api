@@ -4,8 +4,8 @@ const { contentLengthRegExp, maxContentLength } = require("../library");
 const Post = require("../models/post.model");
 const Attachments = require("../models/attachments.model");
 
-const validateContent = content => {
-	if (!content) {
+const validateContent = (content, attachment) => {
+	if (!(content || attachment)) {
 		throw new Error("No content");
 	}
 	if (content.match(contentLengthRegExp) > maxContentLength) {
@@ -15,9 +15,10 @@ const validateContent = content => {
 const createPost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
 	const media = req.file;
+	const mediaUrl = media && `${req.protocol}://${req.get("host")}/${req.fileType}s/${media.filename}`;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content);
+		validateContent(content, mediaUrl);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
@@ -75,7 +76,7 @@ const quotePost = async (req, res, next) => {
 		return;
 	}
 	try {
-		validateContent(content);
+		validateContent(content, null);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
@@ -131,7 +132,7 @@ const replyToPost = async (req, res, next) => {
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content);
+		validateContent(content, null);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
