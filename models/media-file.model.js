@@ -3,7 +3,7 @@
 const mongoose = require("mongoose");
 
 const mediaFileSchema = new mongoose.Schema({
-	type: {
+	fileType: {
 		type: String,
 		enum: ["image", "video"],
 		required: true
