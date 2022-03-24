@@ -20,30 +20,6 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 		$unwind: "$favourite"
 	},
 	{
-		$lookup: {
-			from: "users",
-			localField: "author",
-			foreignField: "_id",
-			pipeline: [
-				{
-					$match: {
-						deactivated: false,
-						deleted: false
-					}
-				},
-				{
-					$project: {
-						handle: 1
-					}
-				}
-			],
-			as: "author"
-		}
-	},
-	{
-		$unwind: "$author"
-	},
-	{
 		$match: lastPostId ? {
 			_id: {
 				$lt: ObjectId(lastPostId)
@@ -64,6 +40,26 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 	},
 	{
 		$limit: 20
+	},
+	{
+		$lookup: {
+			from: "users",
+			localField: "author",
+			foreignField: "_id",
+			pipeline: [
+				{
+					$project: {
+						handle: 1,
+						deactivated: 1,
+						deleted: 1
+					}
+				}
+			],
+			as: "author"
+		}
+	},
+	{
+		$unwind: "$author"
 	},
 	{
 		$lookup: {

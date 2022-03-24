@@ -32,30 +32,6 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				}
 			}
 		},
-		{
-			$lookup: {
-				from: "users",
-				localField: "author",
-				foreignField: "_id",
-				pipeline: [
-					{
-						$match: {
-							deactivated: false,
-							deleted: false
-						}
-					},
-					{
-						$project: {
-							handle: 1
-						}
-					}
-				],
-				as: "author"
-			}
-		},
-		{
-			$unwind: "$author"
-		},
 		...(userId ? [
 			{
 				$lookup: {
@@ -119,7 +95,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				$match: {
 					$expr: {
 						$not: {
-							$in: ["$author._id", "$blockedUsers"]
+							$in: ["$author", "$blockedUsers"]
 						}
 					}
 				}
@@ -161,7 +137,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				$match: {
 					$expr: {
 						$not: {
-							$in: ["$author._id", "$mutedUsers"]
+							$in: ["$author", "$mutedUsers"]
 						}
 					}
 				}
@@ -435,6 +411,26 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 		},
 		{
 			$limit: 20
+		},
+		{
+			$lookup: {
+				from: "users",
+				localField: "author",
+				foreignField: "_id",
+				pipeline: [
+					{
+						$project: {
+							handle: 1,
+							deactivated: 1,
+							deleted: 1
+						}
+					}
+				],
+				as: "author"
+			}
+		},
+		{
+			$unwind: "$author"
 		},
 		{
 			$lookup: {
