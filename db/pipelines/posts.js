@@ -19,30 +19,6 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 			}
 		},
 		{
-			$lookup: {
-				from: "users",
-				localField: "author",
-				foreignField: "_id",
-				pipeline: [
-					{
-						$match: {
-							deactivated: false,
-							deleted: false
-						}
-					},
-					{
-						$project: {
-							handle: 1
-						}
-					}
-				],
-				as: "author"
-			}
-		},
-		{
-			$unwind: "$author"
-		},
-		{
 			$match: matchConditions.length
 				? { ...matchConditions }
 				: {
