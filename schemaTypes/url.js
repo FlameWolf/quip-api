@@ -15,4 +15,4 @@ class Url extends mongoose.SchemaType {
 	}
 }
 
-module.exports = Url;
+mongoose.SchemaTypes.Url = Url;

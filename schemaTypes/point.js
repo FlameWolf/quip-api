@@ -37,4 +37,4 @@ class Point extends mongoose.SchemaType {
 	}
 }
 
-module.exports = Point;
+mongoose.SchemaTypes.Point = Point;
