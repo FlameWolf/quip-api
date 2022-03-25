@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 
 const attachmentsSchema = new mongoose.Schema({
 	post: { type: ObjectId, ref: "Post" },
-	url: { type: mongoose.SchemaTypes.Url },
 	mediaFile: { type: ObjectId, ref: "MediaFile" }
 });
 
