@@ -1,19 +1,37 @@
 "use strict";
 
-const { contentLengthRegExp, maxContentLength } = require("../library");
+const { contentLengthRegExp, urlRegExp, maxContentLength } = require("../library");
 const imageThumbnail = require("image-thumbnail");
 const ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
 const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
 const Attachments = require("../models/attachments.model");
+const Mention = require("../models/mention.model");
+const userController = require("./users.controller");
 
-const validateContent = (content, attachment) => {
+const validateContent = (content, attachment = undefined) => {
 	if (!(content || attachment)) {
 		throw new Error("No content");
 	}
 	if (content.match(contentLengthRegExp) > maxContentLength) {
 		throw new Error("Content too long");
+	}
+};
+const updateMentions = async (content, postId) => {
+	for (const word of content.split(/\s+|\.+/)) {
+		if (word.startsWith("@")) {
+			const handle = word.replace(/\W/g, "");
+			if (handle) {
+				const user = await userController.findUserByHandle(handle);
+				if (user) {
+					new Mention({
+						post: postId,
+						menioned: user._id
+					}).save();
+				}
+			}
+		}
 	}
 };
 const createMediaAttachment = async (fileName, fileType, description, protocol, host) => {
@@ -24,37 +42,48 @@ const createMediaAttachment = async (fileName, fileType, description, protocol, 
 	const previewFileSystemDirectory = `${fileSystemDirectory}/previews`;
 	const previewFileName = `${fileName.split(".")[0]}.jpg`;
 	const previewFilePath = `${previewFileSystemDirectory}/${previewFileName}`;
-	switch (fileType) {
-		case "image":
-			const thumbnail = await imageThumbnail(filePath, {
-				responseType: "buffer",
-				jpegOptions: {
-					width: 800,
-					height: 400,
-					force: true,
-					quality: 50
-				}
-			});
-			fs.createWriteStream(previewFilePath).write(thumbnail);
-			break;
-		case "video":
-			ffmpeg(filePath).screenshots({
-				count: 1,
-				folder: previewFileSystemDirectory,
-				filename: previewFileName
-			});
-			break;
-		default:
-			break;
-	}
 	const mediaFile = await new MediaFile({
 		fileType,
 		src: `${protocol}://${host}/${virtualDirectory}/${fileName}`,
 		previewSrc: `${protocol}://${host}/${previewVirtualDirectory}/${previewFileName}`,
 		description
 	}).save();
-	return await new Attachments({
-		mediaFile: mediaFile._id
+	const mediaFileId = mediaFile._id;
+	const errorHandler = err => {
+		MediaFile.findByIdAndUpdate(mediaFileId, {
+			previewSrc: null
+		}).exec();
+	};
+	switch (fileType) {
+		case "image":
+			imageThumbnail(filePath, {
+					responseType: "buffer",
+					jpegOptions: {
+						width: 800,
+						height: 400,
+						force: true,
+						quality: 50
+					}
+				})
+				.then(thumbnail => {
+					fs.createWriteStream(previewFilePath).write(thumbnail);
+				})
+				.catch(errorHandler);
+			break;
+		case "video":
+			ffmpeg(filePath)
+				.screenshots({
+					count: 1,
+					folder: previewFileSystemDirectory,
+					filename: previewFileName
+				})
+				.on("error", errorHandler);
+			break;
+		default:
+			break;
+	}
+	return new Attachments({
+		mediaFile: mediaFileId
 	}).save();
 };
 const createPost = async (req, res, next) => {
@@ -76,6 +105,9 @@ const createPost = async (req, res, next) => {
 			})
 		}).save();
 		res.status(201).json({ post });
+		if (content) {
+			updateMentions(content, post._id);
+		}
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -107,10 +139,6 @@ const getPost = async (req, res, next) => {
 				]
 			}
 		]);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
 		res.status(200).json({ post });
 	} catch (err) {
 		res.status(500).send(err);
@@ -121,27 +149,35 @@ const quotePost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
-	const postToQuote = await Post.findById(postId);
-	if (!postToQuote) {
+	const originalPost = await Post.findById(postId);
+	if (!originalPost) {
 		res.status(404).send("Post not found");
 		return;
 	}
 	try {
-		validateContent(content, null);
+		validateContent(content, media);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
 	}
 	try {
-		const attachments = await new Attachments({
-			post: postId
-		}).save();
-		const post = await new Post({
+		const attachments = media ? await createMediaAttachment(media.filename, req.fileType, mediaDescription, req.protocol, req.get("host")) : new Attachments();
+		attachments.post = postId;
+		await attachments.save();
+		const quote = await new Post({
 			content,
 			author: userId,
 			attachments
 		}).save();
-		res.status(201).json({ post });
+		res.status(201).json({ quote });
+		const quoteId = quote._id;
+		new Mention({
+			post: quoteId,
+			mentioned: originalPost.author
+		}).save();
+		if (content) {
+			updateMentions(content, quoteId);
+		}
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -184,12 +220,13 @@ const replyToPost = async (req, res, next) => {
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content, null);
+		validateContent(content, media);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
 	}
-	if (!(await Post.findById(replyTo))) {
+	const originalPost = await Post.findById(replyTo);
+	if (!originalPost) {
 		res.status(404).send("Post not found");
 		return;
 	}
@@ -203,6 +240,14 @@ const replyToPost = async (req, res, next) => {
 			})
 		}).save();
 		res.status(201).json({ reply });
+		const replyId = reply._id;
+		new Mention({
+			post: replyId,
+			mentioned: originalPost.author
+		}).save();
+		if (content) {
+			updateMentions(content, replyId);
+		}
 	} catch (err) {
 		res.status(500).send(err);
 	}
