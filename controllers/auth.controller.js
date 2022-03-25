@@ -60,6 +60,9 @@ const signIn = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const ping = async (req, res, next) => {
+	res.sendStatus(200);
+};
 const refreshAuthToken = async (req, res, next) => {
 	try {
 		const { "refresh-token": refreshToken } = req.cookies;
@@ -83,4 +86,4 @@ const signOut = async (req, res, next) => {
 	res.sendStatus(200);
 };
 
-module.exports = { signUp, signIn, refreshAuthToken, signOut };
+module.exports = { signUp, signIn, ping, refreshAuthToken, signOut };
