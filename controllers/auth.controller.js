@@ -63,6 +63,9 @@ const signIn = async (req, res, next) => {
 const refreshAuthToken = async (req, res, next) => {
 	try {
 		const { "refresh-token": refreshToken } = req.cookies;
+		if (!refreshToken) {
+			throw new Error("Refresh token not found");
+		}
 		const { handle, "user-id": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 		if (userInfo.handle === handle && userInfo.userId === userId) {
