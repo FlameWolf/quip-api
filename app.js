@@ -1,20 +1,19 @@
 "use strict";
 
 const isNotProdEnv = process.env.NODE_ENV !== "production";
-
 if (isNotProdEnv) {
 	require("dotenv").config();
 }
 
 const mongoose = require("mongoose");
-mongoose.SchemaTypes.Point = require("./schemaTypes/point");
-mongoose.SchemaTypes.Url = require("./schemaTypes/url");
-
+require("./schemaTypes/point");
+require("./schemaTypes/url");
 const express = require("express");
 const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+require("./polyfills");
 
 const indexRouter = require("./routes/index.router");
 const authRouter = require("./routes/auth.router");
