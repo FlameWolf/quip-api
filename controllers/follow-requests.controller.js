@@ -4,8 +4,7 @@ const pageSize = 65536;
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
-const acceptHandler = async (followRequestId, acceptorUserId = undefined) => {
-	const followRequest = await FollowRequest.findById(followRequestId);
+const acceptHandler = async (followRequest, acceptorUserId = undefined) => {
 	if (acceptorUserId && acceptorUserId !== followRequest.user) {
 		throw new Error("You are not allowed to perform this action");
 	}
@@ -15,19 +14,21 @@ const acceptHandler = async (followRequestId, acceptorUserId = undefined) => {
 		followedBy: followRequest.requestedBy
 	}).save();
 };
-const rejectHandler = async (followRequestId, rejectorUserId = undefined) => {
-	const followRequest = await FollowRequest.findById(followRequestId);
+const rejectHandler = async (followRequest, rejectorUserId = undefined) => {
 	if (rejectorUserId && rejectorUserId !== followRequest.user) {
 		throw new Error("You are not allowed to perform this action");
 	}
 	await FollowRequest.deleteOne(followRequest);
-	return followRequest;
 };
 const acceptFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;
 	const acceptorUserId = req.userInfo.userId;
 	try {
-		const accepted = await acceptHandler(followRequestId, acceptorUserId);
+		const followRequest = await FollowRequest.findById(followRequestId);
+		if (!followRequest) {
+			res.status(404).send(new Error("Follow request not found"));
+		}
+		const accepted = await acceptHandler(followRequest, acceptorUserId);
 		res.status(200).json({ accepted });
 	} catch (err) {
 		res.status(500).send(err);
@@ -37,8 +38,12 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 	const followRequestIds = req.body.requestIds;
 	const acceptorUserId = req.userInfo.userId;
 	try {
-		for (let id of followRequestIds) {
-			await acceptHandler(id, acceptorUserId);
+		for (const followRequestId of followRequestIds) {
+			const followRequest = await FollowRequest.findById(followRequestId);
+			if (!followRequest) {
+				res.status(404).send(new Error("Follow request not found"));
+			}
+			await acceptHandler(followRequest, acceptorUserId);
 		}
 		res.status(200).json({ acceptedRequestIds: followRequestIds });
 	} catch (err) {
@@ -52,8 +57,8 @@ const acceptAllFollowRequests = async (req, res, next) => {
 	try {
 		do {
 			const followRequests = await FollowRequest.find({ user: acceptorUserId }).select({ _id: 1 }).limit(pageSize);
-			for (let followRequest of followRequests) {
-				await acceptHandler(followRequest._id);
+			for (const followRequest of followRequests) {
+				await acceptHandler(followRequest);
 			}
 			requestsCount = followRequests.length;
 			acceptedRequestsCount += requestsCount;
@@ -67,8 +72,12 @@ const rejectFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;
 	const rejectorUserId = req.userInfo.userId;
 	try {
-		const rejected = await rejectHandler(followRequestId, rejectorUserId);
-		res.status(200).json({ rejected });
+		const followRequest = await FollowRequest.findById(followRequestId);
+		if (!followRequest) {
+			res.status(404).send(new Error("Follow request not found"));
+		}
+		await rejectHandler(followRequest, rejectorUserId);
+		res.status(200).json({ rejected: followRequest });
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -77,8 +86,12 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 	const followRequestIds = req.body.requestIds;
 	const rejectorUserId = req.userInfo.userId;
 	try {
-		for (let id of followRequestIds) {
-			await rejectHandler(id, rejectorUserId);
+		for (const followRequestId of followRequestIds) {
+			const followRequest = await FollowRequest.findById(followRequestId);
+			if (!followRequest) {
+				res.status(404).send(new Error("Follow request not found"));
+			}
+			await rejectHandler(followRequest, rejectorUserId);
 		}
 		res.status(200).json({ rejectedRequestIds: followRequestIds });
 	} catch (err) {
@@ -92,8 +105,8 @@ const rejectAllFollowRequests = async (req, res, next) => {
 	try {
 		do {
 			const followRequests = await FollowRequest.find({ user: rejectorUserId }).select({ _id: 1 }).limit(pageSize);
-			for (let followRequest of followRequests) {
-				await rejectHandler(followRequest._id);
+			for (const followRequest of followRequests) {
+				await rejectHandler(followRequest);
 			}
 			requestsCount = followRequests.length;
 			rejectedRequestsCount += requestsCount;
