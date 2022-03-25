@@ -20,12 +20,12 @@ const blockUser = async (req, res, next) => {
 			return;
 		}
 		const blockeeUserId = blockee._id;
-		await FollowRequest.deleteOne({ user: blockeeUserId, requestedBy: blockerUserId });
-		await FollowRequest.deleteOne({ user: blockerUserId, requestedBy: blockeeUserId });
-		await Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId });
-		await Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId });
 		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
 		res.status(200).json({ blocked });
+		FollowRequest.deleteOne({ user: blockeeUserId, requestedBy: blockerUserId }).exec();
+		FollowRequest.deleteOne({ user: blockerUserId, requestedBy: blockeeUserId }).exec();
+		Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId }).exec();
+		Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId }).exec();
 	} catch (err) {
 		res.status(500).send(err);
 	}
