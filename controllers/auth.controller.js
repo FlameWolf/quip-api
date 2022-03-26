@@ -69,7 +69,7 @@ const refreshAuthToken = async (req, res, next) => {
 		if (!refreshToken) {
 			throw new Error("Refresh token not found");
 		}
-		const { handle, "user-id": userId } = req.headers;
+		const { "x-slug": handle, "x-uid": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 		if (userInfo.handle === handle && userInfo.userId === userId) {
 			res.status(200).json(authSuccess(handle, userId));
