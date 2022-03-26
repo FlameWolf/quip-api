@@ -2,7 +2,14 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife } = require("../library");
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife, refreshTokenCookieName } = require("../library");
+const refreshTokenCookieOptions = {
+	maxAge: refreshTokenLife,
+	httpOnly: true,
+	path: "/",
+	sameSite: true,
+	secure: true
+};
 const User = require("../models/user.model");
 
 const generateAuthToken = (handle, userId) => {
@@ -20,7 +27,6 @@ const validatePassword = password => {
 const authSuccess = (handle, userId) => ({
 	userId,
 	authToken: generateAuthToken(handle, userId),
-	refreshToken: generateRefreshToken(handle, userId),
 	createdAt: Date.now(),
 	expiresIn: authTokenLife
 });
@@ -37,7 +43,8 @@ const signUp = async (req, res, next) => {
 	try {
 		const passwordHash = await bcrypt.hash(password, rounds);
 		const user = await new User({ handle, password: passwordHash }).save();
-		res.status(201).json(authSuccess(handle, user._id));
+		const userId = user._id;
+		res.cookie(refreshTokenCookieName, generateRefreshToken(handle, userId), refreshTokenCookieOptions).status(201).json(authSuccess(handle, userId));
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -55,7 +62,8 @@ const signIn = async (req, res, next) => {
 			res.status(403).send("Invalid credentials");
 			return;
 		}
-		res.status(200).json(authSuccess(handle, user._id));
+		const userId = user._id;
+		res.cookie(refreshTokenCookieName, generateRefreshToken(handle, userId), refreshTokenCookieOptions).status(200).json(authSuccess(handle, userId));
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -65,7 +73,7 @@ const ping = async (req, res, next) => {
 };
 const refreshAuthToken = async (req, res, next) => {
 	try {
-		const { "refresh-token": refreshToken } = req.cookies;
+		const { [refreshTokenCookieName]: refreshToken } = req.cookies;
 		if (!refreshToken) {
 			throw new Error("Refresh token not found");
 		}
