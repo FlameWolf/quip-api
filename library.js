@@ -8,6 +8,7 @@ const emailRegExp = /^[\w\.-]+@[\w\.-]+\.\w+$/;
 const rounds = 10;
 const authTokenLife = 1000 * 3600 * 24 * 7;
 const refreshTokenLife = 1000 * 3600 * 24 * 360;
+const refreshTokenCookieName = "refresh-token";
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxMutedWordLength = 256;
@@ -22,6 +23,7 @@ module.exports = {
 	rounds,
 	authTokenLife,
 	refreshTokenLife,
+	refreshTokenCookieName,
 	contentLengthRegExp,
 	maxContentLength,
 	maxMutedWordLength,
