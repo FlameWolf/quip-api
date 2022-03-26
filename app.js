@@ -49,6 +49,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
 app.use(express.static(path.join(__dirname, "public")));
+app.use((req, res, next) => {
+	res.setHeader("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN);
+	res.setHeader("Access-Control-Allow-Credentials", true);
+	res.setHeader("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
+	res.setHeader("Access-Control-Allow-Methods", "OPTIONS, POST, PUT, PATCH, GET, DELETE");
+	next();
+});
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
