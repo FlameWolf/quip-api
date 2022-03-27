@@ -82,9 +82,7 @@ const createMediaAttachment = async (fileName, fileType, description, protocol, 
 		default:
 			break;
 	}
-	return new Attachments({
-		mediaFile: mediaFileId
-	}).save();
+	return await new Attachments({ mediaFile }).save();
 };
 const createPost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
