@@ -18,8 +18,8 @@ const generateAuthToken = (handle, userId) => {
 const generateRefreshToken = (handle, userId) => {
 	return jwt.sign({ handle, userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: refreshTokenLife });
 };
-const validateUsername = username => {
-	return username && invalidHandles.indexOf(username.trim().toLowerCase()) === -1 && handleRegExp.test(username);
+const validateHandle = handle => {
+	return handle && invalidHandles.indexOf(handle.trim().toLowerCase()) === -1 && handleRegExp.test(handle);
 };
 const validatePassword = password => {
 	return password && passwordRegExp.test(password);
@@ -32,7 +32,7 @@ const authSuccess = (handle, userId) => ({
 });
 const signUp = async (req, res, next) => {
 	const { handle, password } = req.body;
-	if (!(validateUsername(handle) && validatePassword(password))) {
+	if (!(validateHandle(handle) && validatePassword(password))) {
 		res.status(400).send("Invalid username/password");
 		return;
 	}
