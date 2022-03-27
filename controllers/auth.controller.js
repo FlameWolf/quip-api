@@ -25,7 +25,6 @@ const validatePassword = password => {
 	return password && passwordRegExp.test(password);
 };
 const authSuccess = (handle, userId) => ({
-	userId,
 	token: generateAuthToken(handle, userId),
 	createdAt: Date.now(),
 	expiresIn: authTokenLife
