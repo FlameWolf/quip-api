@@ -11,7 +11,7 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 		includeReplies && {
 			replyTo: { $ne: null }
 		}
-	].filter(x => Boolean(x));
+	].filter(x => x);
 	return [
 		{
 			$match: {
