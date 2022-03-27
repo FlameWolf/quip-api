@@ -11,7 +11,7 @@ exports.extractMediaFile = multer({
 		req.fileType = type;
 		req.fileSubtype = subtype;
 		const isValid = validMimeTypes.some(mimeType => mimeType === type);
-		isValid ? cb(null, true) : cb(new Error("Invalid file type"));
+		cb(isValid ? null : new Error("Invalid file type"), isValid);
 	},
 	limits: {
 		fileSize: megaByte * 5
