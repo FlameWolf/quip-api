@@ -37,7 +37,7 @@ const signUp = async (req, res, next) => {
 		return;
 	}
 	if (await User.findOne({ handle })) {
-		res.status(400).send("Username unavailable");
+		res.status(409).send("Username unavailable");
 		return;
 	}
 	try {
