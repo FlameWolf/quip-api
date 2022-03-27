@@ -26,7 +26,7 @@ const validatePassword = password => {
 };
 const authSuccess = (handle, userId) => ({
 	userId,
-	authToken: generateAuthToken(handle, userId),
+	token: generateAuthToken(handle, userId),
 	createdAt: Date.now(),
 	expiresIn: authTokenLife
 });
