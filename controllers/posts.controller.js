@@ -4,11 +4,11 @@ const { contentLengthRegExp, urlRegExp, maxContentLength } = require("../library
 const imageThumbnail = require("image-thumbnail");
 const ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
+const userController = require("./users.controller");
 const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
 const Attachments = require("../models/attachments.model");
 const Mention = require("../models/mention.model");
-const userController = require("./users.controller");
 
 const validateContent = (content, attachment = undefined) => {
 	if (!(content || attachment)) {
