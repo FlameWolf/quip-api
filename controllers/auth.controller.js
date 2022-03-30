@@ -88,7 +88,7 @@ const refreshAuthToken = async (req, res, next) => {
 	next();
 };
 const signOut = async (req, res, next) => {
-	res.sendStatus(200);
+	res.clearCookie(refreshTokenCookieName, refreshTokenCookieOptions).sendStatus(200);
 };
 
 module.exports = { signUp, signIn, refreshAuthToken, signOut };
