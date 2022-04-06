@@ -31,11 +31,7 @@ if (isNotProdEnv) {
 }
 
 mongoose
-	.connect(process.env.DB_CONNECTION, {
-		user: "admin",
-		pass: "3956@tHeNgNgAaKkOlA",
-		dbName: "quip-db"
-	})
+	.connect(process.env.DB_CONNECTION)
 	.then(() => {
 		console.log("Connected to the database");
 	})
