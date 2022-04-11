@@ -102,7 +102,7 @@
 				}
 			}
 		},
-		"/auth/refresh-auth-token": {
+		"/auth/refresh-token": {
 			"get": {
 				"parameters": [
 					{
