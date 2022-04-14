@@ -16,7 +16,7 @@ const generateAuthToken = (handle, userId) => {
 	return jwt.sign({ handle, userId }, process.env.JWT_AUTH_SECRET, { expiresIn: authTokenLife });
 };
 const generateRefreshToken = (handle, userId) => {
-	return jwt.sign({ handle, userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: refreshTokenLife });
+	return jwt.sign({ handle, userId }, process.env.JWT_REFRESH_SECRET);
 };
 const validateHandle = handle => {
 	return handle && invalidHandles.indexOf(handle.trim().toLowerCase()) === -1 && handleRegExp.test(handle);
