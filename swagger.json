@@ -30,6 +30,20 @@
 				}
 			}
 		},
+		"RefreshToken": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"refreshToken": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
 		"Post": {
 			"content": {
 				"multipart/form-data": {
@@ -103,17 +117,8 @@
 			}
 		},
 		"/auth/refresh-token": {
-			"get": {
+			"post": {
 				"parameters": [
-					{
-						"name": "refresh-token",
-						"in": "cookie",
-						"required": true,
-						"schema": {
-							"type": "string",
-							"enum": ["Value will be read from the \"refresh-token\" cookie"]
-						}
-					},
 					{
 						"name": "X-Slug",
 						"in": "header",
@@ -130,7 +135,10 @@
 							"type": "string"
 						}
 					}
-				]
+				],
+				"requestBody": {
+					"$ref": "#/requestBodies/RefreshToken"
+				}
 			}
 		},
 		"/posts/create": {
