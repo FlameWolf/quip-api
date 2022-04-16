@@ -2,14 +2,7 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, refreshTokenLife, refreshTokenCookieName } = require("../library");
-const refreshTokenCookieOptions = {
-	maxAge: refreshTokenLife,
-	httpOnly: true,
-	path: "/",
-	sameSite: true,
-	secure: true
-};
+const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife } = require("../library");
 const User = require("../models/user.model");
 
 const generateAuthToken = (handle, userId) => {
@@ -24,9 +17,12 @@ const validateHandle = handle => {
 const validatePassword = password => {
 	return password && passwordRegExp.test(password);
 };
-const authSuccess = (handle, userId) => ({
+const authSuccess = (handle, userId, includeRefreshToken = true) => ({
 	userId,
-	token: generateAuthToken(handle, userId),
+	authToken: generateAuthToken(handle, userId),
+	...(includeRefreshToken && {
+		refreshToken: generateRefreshToken(handle, userId)
+	}),
 	createdAt: Date.now(),
 	expiresIn: authTokenLife
 });
@@ -44,7 +40,7 @@ const signUp = async (req, res, next) => {
 		const passwordHash = await bcrypt.hash(password, rounds);
 		const user = await new User({ handle, password: passwordHash }).save();
 		const userId = user._id;
-		res.cookie(refreshTokenCookieName, generateRefreshToken(handle, userId), refreshTokenCookieOptions).status(201).json(authSuccess(handle, userId));
+		res.status(201).json(authSuccess(handle, userId));
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -63,21 +59,21 @@ const signIn = async (req, res, next) => {
 			return;
 		}
 		const userId = user._id;
-		res.cookie(refreshTokenCookieName, generateRefreshToken(handle, userId), refreshTokenCookieOptions).status(200).json(authSuccess(handle, userId));
+		res.status(200).json(authSuccess(handle, userId));
 	} catch (err) {
 		res.status(500).send(err);
 	}
 };
 const refreshToken = async (req, res, next) => {
 	try {
-		const { [refreshTokenCookieName]: refreshToken } = req.cookies;
+		const { refreshToken } = req.body;
 		if (!refreshToken) {
 			throw new Error("Refresh token not found");
 		}
 		const { "x-slug": handle, "x-uid": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 		if (userInfo.handle === handle && userInfo.userId === userId) {
-			res.status(200).json(authSuccess(handle, userId));
+			res.status(200).json(authSuccess(handle, userId, false));
 		} else {
 			throw new Error("Refresh token invalid");
 		}
@@ -88,7 +84,7 @@ const refreshToken = async (req, res, next) => {
 	next();
 };
 const signOut = async (req, res, next) => {
-	res.clearCookie(refreshTokenCookieName, refreshTokenCookieOptions).sendStatus(200);
+	res.sendStatus(200);
 };
 
 module.exports = { signUp, signIn, refreshToken, signOut };
