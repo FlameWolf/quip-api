@@ -96,6 +96,34 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 		$unset: "following"
 	},
 	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
+		$lookup: {
+			from: "posts",
+			localField: "repeatPost",
+			foreignField: "_id",
+			let: {
+				repeatedBy: "$author"
+			},
+			as: "repeatedPost"
+		}
+	},
+	{
+		$addFields: {
+			repeatedPost: {
+				$arrayElemAt: ["$repeatedPost", 0]
+			}
+		}
+	},
+	{
+		$replaceWith: {
+			$ifNull: ["$repeatedPost", "$$ROOT"]
+		}
+	},
+	{
 		$lookup: {
 			from: "mutedusers",
 			localField: "userId",
@@ -178,29 +206,6 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	},
 	{
 		$unset: "mutedPosts"
-	},
-	{
-		$lookup: {
-			from: "posts",
-			localField: "repeatPost",
-			foreignField: "_id",
-			let: {
-				repeatedBy: "$author"
-			},
-			as: "repeatedPost"
-		}
-	},
-	{
-		$addFields: {
-			repeatedPost: {
-				$arrayElemAt: ["$repeatedPost", 0]
-			}
-		}
-	},
-	{
-		$replaceWith: {
-			$ifNull: ["$repeatedPost", "$$ROOT"]
-		}
 	},
 	{
 		$lookup: {
@@ -291,11 +296,6 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	},
 	{
 		$unset: ["mutedWords", "userId"]
-	},
-	{
-		$sort: {
-			createdAt: -1
-		}
 	},
 	{
 		$match: lastPostId ? {
