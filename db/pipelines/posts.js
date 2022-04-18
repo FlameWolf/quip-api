@@ -33,6 +33,29 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 			}
 		},
 		{
+			$lookup: {
+				from: "posts",
+				localField: "repeatPost",
+				foreignField: "_id",
+				let: {
+					repeatedBy: "$author"
+				},
+				as: "repeatedPost"
+			}
+		},
+		{
+			$addFields: {
+				repeatedPost: {
+					$arrayElemAt: ["$repeatedPost", 0]
+				}
+			}
+		},
+		{
+			$replaceWith: {
+				$ifNull: ["$repeatedPost", "$$ROOT"]
+			}
+		},
+		{
 			$limit: 20
 		},
 		{
@@ -41,6 +64,21 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 				localField: "attachments",
 				foreignField: "_id",
 				pipeline: [
+					{
+						$lookup: {
+							from: "posts",
+							localField: "post",
+							foreignField: "_id",
+							as: "post"
+						}
+					},
+					{
+						$addFields: {
+							post: {
+								$arrayElemAt: ["$post", 0]
+							}
+						}
+					},
 					{
 						$lookup: {
 							from: "mediafiles",

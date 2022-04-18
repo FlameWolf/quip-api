@@ -69,6 +69,21 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 			pipeline: [
 				{
 					$lookup: {
+						from: "posts",
+						localField: "post",
+						foreignField: "_id",
+						as: "post"
+					}
+				},
+				{
+					$addFields: {
+						post: {
+							$arrayElemAt: ["$post", 0]
+						}
+					}
+				},
+				{
+					$lookup: {
 						from: "mediafiles",
 						localField: "mediaFile",
 						foreignField: "_id",

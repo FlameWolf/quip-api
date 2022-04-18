@@ -181,6 +181,29 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	},
 	{
 		$lookup: {
+			from: "posts",
+			localField: "repeatPost",
+			foreignField: "_id",
+			let: {
+				repeatedBy: "$author"
+			},
+			as: "repeatedPost"
+		}
+	},
+	{
+		$addFields: {
+			repeatedPost: {
+				$arrayElemAt: ["$repeatedPost", 0]
+			}
+		}
+	},
+	{
+		$replaceWith: {
+			$ifNull: ["$repeatedPost", "$$ROOT"]
+		}
+	},
+	{
+		$lookup: {
 			from: "mutedwords",
 			localField: "userId",
 			foreignField: "mutedBy",
@@ -312,6 +335,21 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 			localField: "attachments",
 			foreignField: "_id",
 			pipeline: [
+				{
+					$lookup: {
+						from: "posts",
+						localField: "post",
+						foreignField: "_id",
+						as: "post"
+					}
+				},
+				{
+					$addFields: {
+						post: {
+							$arrayElemAt: ["$post", 0]
+						}
+					}
+				},
 				{
 					$lookup: {
 						from: "mediafiles",
