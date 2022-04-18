@@ -125,6 +125,48 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	},
 	{
 		$lookup: {
+			from: "blocks",
+			localField: "userId",
+			foreignField: "blockedBy",
+			pipeline: [
+				{
+					$group: {
+						_id: undefined,
+						result: {
+							$addToSet: "$user"
+						}
+					}
+				}
+			],
+			as: "blockedUsers"
+		}
+	},
+	{
+		$addFields: {
+			blockedUsers: {
+				$ifNull: [
+					{
+						$arrayElemAt: ["$blockedUsers.result", 0]
+					},
+					[]
+				]
+			}
+		}
+	},
+	{
+		$match: {
+			$expr: {
+				$not: {
+					$in: ["$author", "$blockedUsers"]
+				}
+			}
+		}
+	},
+	{
+		$unset: "blockedUsers"
+	},
+	{
+		$lookup: {
 			from: "mutedusers",
 			localField: "userId",
 			foreignField: "mutedBy",
