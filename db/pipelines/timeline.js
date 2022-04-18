@@ -108,6 +108,13 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 			let: {
 				repeatedBy: "$author"
 			},
+			pipeline: [
+				{
+					$addFields: {
+						repeatedBy: "$$repeatedBy"
+					}
+				}
+			],
 			as: "repeatedPost"
 		}
 	},

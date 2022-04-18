@@ -40,6 +40,13 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 				let: {
 					repeatedBy: "$author"
 				},
+				pipeline: [
+					{
+						$addFields: {
+							repeatedBy: "$$repeatedBy"
+						}
+					}
+				],
 				as: "repeatedPost"
 			}
 		},
