@@ -21,7 +21,7 @@ const validateContent = (content, attachment = undefined) => {
 const updateMentions = async (content, postId) => {
 	for (const word of content.split(/\s+|\.+/)) {
 		if (word.startsWith("@")) {
-			const handle = word.replace(/\W/g, "");
+			const handle = word.match(/\w+/g).shift();
 			if (handle) {
 				const user = await userController.findUserByHandle(handle);
 				if (user) {
