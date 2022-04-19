@@ -363,6 +363,28 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 	{
 		$lookup: {
 			from: "users",
+			localField: "repeatedBy",
+			foreignField: "_id",
+			pipeline: [
+				{
+					$project: {
+						handle: 1
+					}
+				}
+			],
+			as: "repeatedBy"
+		}
+	},
+	{
+		$addFields: {
+			repeatedBy: {
+				$arrayElemAt: ["$repeatedBy", 0]
+			}
+		}
+	},
+	{
+		$lookup: {
+			from: "users",
 			localField: "author",
 			foreignField: "_id",
 			pipeline: [
