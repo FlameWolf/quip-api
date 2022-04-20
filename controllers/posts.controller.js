@@ -1,9 +1,6 @@
 "use strict";
 
-const { contentLengthRegExp, urlRegExp, maxContentLength } = require("../library");
-const imageThumbnail = require("image-thumbnail");
-const ffmpeg = require("fluent-ffmpeg");
-const fs = require("fs");
+const { contentLengthRegExp, maxContentLength } = require("../library");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
@@ -34,54 +31,8 @@ const updateMentions = async (content, postId) => {
 		}
 	}
 };
-const createMediaAttachment = async (fileName, fileType, description, protocol, host) => {
-	const virtualDirectory = `${fileType}s`;
-	const fileSystemDirectory = `public/${virtualDirectory}`;
-	const filePath = `${fileSystemDirectory}/${fileName}`;
-	const previewVirtualDirectory = `${virtualDirectory}/previews`;
-	const previewFileSystemDirectory = `${fileSystemDirectory}/previews`;
-	const previewFileName = `${fileName.split(".")[0]}.jpg`;
-	const previewFilePath = `${previewFileSystemDirectory}/${previewFileName}`;
-	const mediaFile = await new MediaFile({
-		fileType,
-		src: `${protocol}://${host}/${virtualDirectory}/${fileName}`,
-		previewSrc: `${protocol}://${host}/${previewVirtualDirectory}/${previewFileName}`,
-		description
-	}).save();
-	const mediaFileId = mediaFile._id;
-	const errorHandler = err => {
-		MediaFile.findByIdAndUpdate(mediaFileId, {
-			previewSrc: null
-		}).exec();
-	};
-	switch (fileType) {
-		case "image":
-			imageThumbnail(filePath, {
-					responseType: "buffer",
-					jpegOptions: {
-						width: 800,
-						height: 400,
-						force: true,
-						quality: 50
-					}
-				})
-				.then(thumbnail => {
-					fs.createWriteStream(previewFilePath).write(thumbnail);
-				})
-				.catch(errorHandler);
-			break;
-		case "video":
-			ffmpeg(filePath)
-				.screenshots({
-					count: 1,
-					folder: previewFileSystemDirectory,
-					filename: previewFileName
-				})
-				.on("error", errorHandler);
-			break;
-		default:
-			break;
-	}
+const createMediaAttachment = async (fileType, src, description) => {
+	const mediaFile = await new MediaFile({ fileType, src, description }).save();
 	return await new Attachments({ mediaFile }).save();
 };
 const createPost = async (req, res, next) => {
@@ -99,7 +50,7 @@ const createPost = async (req, res, next) => {
 			content,
 			author: userId,
 			...(media && {
-				attachments: await createMediaAttachment(media.filename, req.fileType, mediaDescription, req.protocol, req.get("host"))
+				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription)
 			})
 		}).save();
 		res.status(201).json({ post });
@@ -159,7 +110,7 @@ const quotePost = async (req, res, next) => {
 		return;
 	}
 	try {
-		const attachments = media ? await createMediaAttachment(media.filename, req.fileType, mediaDescription, req.protocol, req.get("host")) : new Attachments();
+		const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription) : new Attachments();
 		attachments.post = postId;
 		await attachments.save();
 		const quote = await new Post({
@@ -234,7 +185,7 @@ const replyToPost = async (req, res, next) => {
 			author: userId,
 			replyTo,
 			...(media && {
-				attachments: await createMediaAttachment(media.filename, req.fileType, mediaDescription, req.protocol, req.get("host"))
+				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription)
 			})
 		}).save();
 		res.status(201).json({ reply });
