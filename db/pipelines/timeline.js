@@ -338,9 +338,7 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 							}
 						}
 						: {
-							$expr: {
-								$eq: [1, 1]
-							}
+							$expr: true
 						}
 				},
 				{

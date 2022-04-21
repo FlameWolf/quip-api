@@ -25,9 +25,7 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 				$lt: ObjectId(lastPostId)
 			}
 		} : {
-			$expr: {
-				$eq: [1, 1]
-			}
+			$expr: true
 		}
 	},
 	{

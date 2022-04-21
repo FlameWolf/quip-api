@@ -19,13 +19,7 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 			}
 		},
 		{
-			$match: matchConditions.length
-				? { ...matchConditions }
-				: {
-					$expr: {
-						$eq: [1, 1]
-					}
-				}
+			$match: matchConditions.length ? { ...matchConditions } : { $expr: true }
 		},
 		{
 			$sort: {
