@@ -11,6 +11,9 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 			from: "favourites",
 			localField: "_id",
 			foreignField: "favouritedBy",
+			let: {
+				userId: "$_id"
+			},
 			pipeline: [
 				{
 					$sort: {
@@ -109,6 +112,40 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 					$addFields: {
 						attachments: {
 							$arrayElemAt: ["$attachments", 0]
+						}
+					}
+				},
+				{
+					$addFields: {
+						favourited: true
+					}
+				},
+				{
+					$lookup: {
+						from: "posts",
+						localField: "_id",
+						foreignField: "repeatPost",
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$eq: ["$author", "$$userId"]
+									}
+								}
+							},
+							{
+								$addFields: {
+									result: true
+								}
+							}
+						],
+						as: "repeated"
+					}
+				},
+				{
+					$addFields: {
+						repeated: {
+							$arrayElemAt: ["$repeated.result", 0]
 						}
 					}
 				}
