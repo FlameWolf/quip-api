@@ -22,13 +22,15 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 	}
 	return [
 		{
-			$match: maxDate ? {
-				createdAt: {
-					$gt: maxDate
+			$match: maxDate
+				? {
+					createdAt: {
+						$gt: maxDate
+					}
 				}
-			} : {
-				$expr: true
-			}
+				: {
+					$expr: true
+				}
 		},
 		...(userId ? [
 			{
@@ -273,7 +275,74 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				}
 			},
 			{
-				$unset: ["mutedWords", "userId"]
+				$unset: "mutedWords"
+			},
+			{
+				$lookup: {
+					from: "favourites",
+					localField: "_id",
+					foreignField: "post",
+					let: {
+						userId: "$userId"
+					},
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$eq: ["$favouritedBy", "$$userId"]
+								}
+							}
+						},
+						{
+							$addFields: {
+								result: true
+							}
+						}
+					],
+					as: "favourited"
+				}
+			},
+			{
+				$addFields: {
+					favourited: {
+						$arrayElemAt: ["$favourited.result", 0]
+					}
+				}
+			},
+			{
+				$lookup: {
+					from: "posts",
+					localField: "_id",
+					foreignField: "repeatPost",
+					let: {
+						userId: "$userId"
+					},
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$eq: ["$author", "$$userId"]
+								}
+							}
+						},
+						{
+							$addFields: {
+								result: true
+							}
+						}
+					],
+					as: "repeated"
+				}
+			},
+			{
+				$addFields: {
+					repeated: {
+						$arrayElemAt: ["$repeated.result", 0]
+					}
+				}
+			},
+			{
+				$unset: "userId"
 			}
 		] : []),
 		{
@@ -397,13 +466,15 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 			}
 		},
 		{
-			$match: lastPostId ? {
-				_id: {
-					$lt: ObjectId(lastPostId)
+			$match: lastPostId
+				? {
+					_id: {
+						$lt: ObjectId(lastPostId)
+					}
 				}
-			} : {
-				$expr: true
-			}
+				: {
+					$expr: true
+				}
 		},
 		{
 			$limit: 20
