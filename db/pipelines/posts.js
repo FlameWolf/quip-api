@@ -23,6 +23,9 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 				from: "posts",
 				localField: "_id",
 				foreignField: "author",
+				let: {
+					userId: "$_id"
+				},
 				pipeline: [
 					{
 						$match: matchConditions.length ? { ...matchConditions } : { $expr: true }
@@ -43,7 +46,8 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 							pipeline: [
 								{
 									$addFields: {
-										repeatedBy: "$$repeatedBy"
+										repeatedBy: "$$repeatedBy",
+										repeated: true
 									}
 								}
 							],
@@ -109,6 +113,35 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 						$addFields: {
 							attachments: {
 								$arrayElemAt: ["$attachments", 0]
+							}
+						}
+					},
+					{
+						$lookup: {
+							from: "favourites",
+							localField: "_id",
+							foreignField: "post",
+							pipeline: [
+								{
+									$match: {
+										$expr: {
+											$eq: ["$favouritedBy", "$$userId"]
+										}
+									}
+								},
+								{
+									$addFields: {
+										result: true
+									}
+								}
+							],
+							as: "favourited"
+						}
+					},
+					{
+						$addFields: {
+							favourited: {
+								$arrayElemAt: ["$favourited.result", 0]
 							}
 						}
 					}
