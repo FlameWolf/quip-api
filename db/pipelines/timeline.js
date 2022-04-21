@@ -49,7 +49,12 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 			let: {
 				userId: "$_id",
 				following: {
-					$arrayElemAt: ["$following.result", 0]
+					$ifNull: [
+						{
+							$arrayElemAt: ["$following.result", 0]
+						},
+						[]
+					]
 				}
 			},
 			pipeline: [
