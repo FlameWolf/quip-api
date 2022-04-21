@@ -430,6 +430,35 @@ const timelineAggregationPipeline = (userId, lastPostId = undefined) => [
 							$arrayElemAt: ["$attachments", 0]
 						}
 					}
+				},
+				{
+					$lookup: {
+						from: "favourites",
+						localField: "_id",
+						foreignField: "post",
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$eq: ["$favouritedBy", "$$userId"]
+									}
+								}
+							},
+							{
+								$addFields: {
+									result: true
+								}
+							}
+						],
+						as: "favourited"
+					}
+				},
+				{
+					$addFields: {
+						favourited: {
+							$arrayElemAt: ["$favourited.result", 0]
+						}
+					}
 				}
 			],
 			as: "posts"
