@@ -32,7 +32,8 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 					$expr: true
 				}
 		},
-		...(userId ? [
+		...(userId ?
+		[
 			{
 				$lookup: {
 					from: "users",
