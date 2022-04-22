@@ -35,32 +35,35 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 							createdAt: -1
 						}
 					},
-					{
-						$lookup: {
-							from: "posts",
-							localField: "repeatPost",
-							foreignField: "_id",
-							let: {
-								repeatedBy: "$author"
-							},
-							pipeline: [
-								{
-									$addFields: {
-										repeatedBy: "$$repeatedBy",
-										repeated: true
+					...(includeRepeats ?
+					[
+						{
+							$lookup: {
+								from: "posts",
+								localField: "repeatPost",
+								foreignField: "_id",
+								let: {
+									repeatedBy: "$author"
+								},
+								pipeline: [
+									{
+										$addFields: {
+											repeatedBy: "$$repeatedBy",
+											repeated: true
+										}
 									}
+								],
+								as: "repeatedPost"
+							}
+						},
+						{
+							$addFields: {
+								repeatedPost: {
+									$arrayElemAt: ["$repeatedPost", 0]
 								}
-							],
-							as: "repeatedPost"
-						}
-					},
-					{
-						$addFields: {
-							repeatedPost: {
-								$arrayElemAt: ["$repeatedPost", 0]
 							}
 						}
-					},
+					] : []),
 					{
 						$replaceWith: {
 							$ifNull: ["$repeatedPost", "$$ROOT"]
