@@ -1,5 +1,4 @@
 To add:
 
--   Reverse sort all post arrays
--   Quote post
--   Attachments
+- User settings
+- Turn repeats on/off in timeline
