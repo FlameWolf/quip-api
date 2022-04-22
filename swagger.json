@@ -252,6 +252,38 @@
 					}
 				]
 			}
+		},
+		"/users/{handle}/posts": {
+			"get": {
+				"parameters": [
+					{
+						"name": "includeRepeats",
+						"in": "query",
+						"type": "boolean"
+					},
+					{
+						"name": "includeReplies",
+						"in": "query",
+						"type": "boolean"
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/{handle}/favourites": {
+			"get": {
+				"parameters": [
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
 		}
 	}
 }
