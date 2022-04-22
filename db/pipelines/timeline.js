@@ -1,6 +1,6 @@
 const { ObjectId } = require("bson");
 
-const timelineAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
+const timelineAggregationPipeline = (userId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => {
 	const matchConditions = [
 		lastPostId && {
 			_id: { $lt: ObjectId(lastPostId) }
