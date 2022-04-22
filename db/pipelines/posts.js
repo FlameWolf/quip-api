@@ -2,7 +2,6 @@ const { ObjectId } = require("bson");
 
 const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
 	const matchConditions = {
-		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } }),
 		...(!includeRepeats && {
 			repeatPost: {
 				$eq: null
@@ -12,7 +11,8 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 			replyTo: {
 				$eq: null
 			}
-		})
+		}),
+		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } }),
 	};
 	return [
 		{
