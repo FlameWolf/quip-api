@@ -419,7 +419,9 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 							$expr: {
 								$eq: ["$post", "$$postId"]
 							}
-						},
+						}
+					},
+					{
 						$group: {
 							_id: undefined,
 							result: {
