@@ -208,6 +208,16 @@
 			"get": {
 				"parameters": [
 					{
+						"name": "includeRepeats",
+						"in": "query",
+						"type": "boolean"
+					},
+					{
+						"name": "includeReplies",
+						"in": "query",
+						"type": "boolean"
+					},
+					{
 						"name": "lastPostId",
 						"in": "query",
 						"type": "string"
