@@ -385,14 +385,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 						$group: {
 							_id: undefined,
 							result: {
-								$sum: 1
-							}
-						}
-					},
-					{
-						$project: {
-							result: {
-								$multiply: ["$result", 2]
+								$sum: 2
 							}
 						}
 					}
@@ -414,6 +407,44 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 		},
 		{
 			$lookup: {
+				from: "attachments",
+				localField: "attachments",
+				foreignField: "_id",
+				let: {
+					postId: "$_id"
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ["$post", "$$postId"]
+							}
+						},
+						$group: {
+							_id: undefined,
+							result: {
+								$sum: 2
+							}
+						}
+					}
+				],
+				as: "quoteCount"
+			}
+		},
+		{
+			$addFields: {
+				quoteCount: {
+					$ifNull: [
+						{
+							$arrayElemAt: ["$quoteCount.result", 0]
+						},
+						0
+					]
+				}
+			}
+		},
+		{
+			$lookup: {
 				from: "posts",
 				localField: "_id",
 				foreignField: "repeatPost",
@@ -422,14 +453,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 						$group: {
 							_id: undefined,
 							result: {
-								$sum: 1
-							}
-						}
-					},
-					{
-						$project: {
-							result: {
-								$multiply: ["$result", 4]
+								$sum: 4
 							}
 						}
 					}
@@ -452,12 +476,12 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 		{
 			$addFields: {
 				score: {
-					$sum: ["$favouriteCount", "$replyCount", "$repeatCount"]
+					$sum: ["$favouriteCount", "$replyCount", "$quoteCount", "$repeatCount"]
 				}
 			}
 		},
 		{
-			$unset: ["favouriteCount", "replyCount", "repeatCount"]
+			$unset: ["favouriteCount", "replyCount", "quoteCount", "repeatCount"]
 		},
 		{
 			$sort: {
