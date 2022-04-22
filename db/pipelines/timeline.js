@@ -1,17 +1,19 @@
 const { ObjectId } = require("bson");
 
 const timelineAggregationPipeline = (userId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => {
-	const matchConditions = [
-		lastPostId && {
-			_id: { $lt: ObjectId(lastPostId) }
-		},
-		includeRepeats && {
-			repeatPost: { $ne: null }
-		},
-		includeReplies && {
-			replyTo: { $ne: null }
-		}
-	].filter(x => x);
+	const matchConditions = {
+		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } }),
+		...(!includeRepeats && {
+			repeatPost: {
+				$in: [undefined, null]
+			}
+		}),
+		...(!includeReplies && {
+			replyTo: {
+				$in: [undefined, null]
+			}
+		})
+	};
 	return [
 		{
 			$match: {
@@ -85,7 +87,7 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 						}
 					},
 					{
-						$match: matchConditions.length ? { ...matchConditions } : { $expr: true }
+						$match: Object.keys(matchConditions).length ? matchConditions : { $expr: true }
 					},
 					{
 						$sort: {
