@@ -5,12 +5,12 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } }),
 		...(!includeRepeats && {
 			repeatPost: {
-				$in: [undefined, null]
+				$eq: null
 			}
 		}),
 		...(!includeReplies && {
 			replyTo: {
-				$in: [undefined, null]
+				$eq: null
 			}
 		})
 	};
