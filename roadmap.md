@@ -1,4 +1,4 @@
 To add:
 
+- Activity stream
 - User settings
-- Turn repeats on/off in timeline
