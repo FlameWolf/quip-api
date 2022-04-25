@@ -541,10 +541,9 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 						}
 					},
 					{
-						$addFields: {
-							post: {
-								$arrayElemAt: ["$post", 0]
-							}
+						$unwind: {
+							path: "$post",
+							preserveNullAndEmptyArrays: true
 						}
 					},
 					{
@@ -556,14 +555,19 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 						}
 					},
 					{
-						$addFields: {
-							mediaFile: {
-								$arrayElemAt: ["$mediaFile", 0]
-							}
+						$unwind: {
+							path: "$mediaFile",
+							preserveNullAndEmptyArrays: true
 						}
 					}
 				],
 				as: "attachments"
+			}
+		},
+		{
+			$unwind: {
+				path: "$attachments",
+				preserveNullAndEmptyArrays: true
 			}
 		},
 		{

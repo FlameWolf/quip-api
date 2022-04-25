@@ -59,10 +59,9 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 							}
 						},
 						{
-							$addFields: {
-								repeatedPost: {
-									$arrayElemAt: ["$repeatedPost", 0]
-								}
+							$unwind: {
+								path: "$repeatedPost",
+								preserveNullAndEmptyArrays: true
 							}
 						}
 					] : []),
@@ -89,10 +88,9 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 									}
 								},
 								{
-									$addFields: {
-										post: {
-											$arrayElemAt: ["$post", 0]
-										}
+									$unwind: {
+										path: "$post",
+										preserveNullAndEmptyArrays: true
 									}
 								},
 								{
@@ -104,10 +102,9 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 									}
 								},
 								{
-									$addFields: {
-										mediaFile: {
-											$arrayElemAt: ["$mediaFile", 0]
-										}
+									$unwind: {
+										path: "$mediaFile",
+										preserveNullAndEmptyArrays: true
 									}
 								}
 							],
@@ -115,10 +112,9 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 						}
 					},
 					{
-						$addFields: {
-							attachments: {
-								$arrayElemAt: ["$attachments", 0]
-							}
+						$unwind: {
+							path: "$attachments",
+							preserveNullAndEmptyArrays: true
 						}
 					},
 					{

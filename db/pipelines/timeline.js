@@ -115,10 +115,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 							}
 						},
 						{
-							$addFields: {
-								repeatedPost: {
-									$arrayElemAt: ["$repeatedPost", 0]
-								}
+							$unwind: {
+								path: "$repeatedPost",
+								preserveNullAndEmptyArrays: true
 							}
 						},
 						{
@@ -385,10 +384,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 						}
 					},
 					{
-						$addFields: {
-							repeatedBy: {
-								$arrayElemAt: ["$repeatedBy", 0]
-							}
+						$unwind: {
+							path: "$repeatedBy",
+							preserveNullAndEmptyArrays: true
 						}
 					},
 					{
@@ -424,10 +422,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 									}
 								},
 								{
-									$addFields: {
-										post: {
-											$arrayElemAt: ["$post", 0]
-										}
+									$unwind: {
+										path: "$post",
+										preserveNullAndEmptyArrays: true
 									}
 								},
 								{
@@ -439,10 +436,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 									}
 								},
 								{
-									$addFields: {
-										mediaFile: {
-											$arrayElemAt: ["$mediaFile", 0]
-										}
+									$unwind: {
+										path: "$mediaFile",
+										preserveNullAndEmptyArrays: true
 									}
 								}
 							],
@@ -450,10 +446,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 						}
 					},
 					{
-						$addFields: {
-							attachments: {
-								$arrayElemAt: ["$attachments", 0]
-							}
+						$unwind: {
+							path: "$attachments",
+							preserveNullAndEmptyArrays: true
 						}
 					},
 					{

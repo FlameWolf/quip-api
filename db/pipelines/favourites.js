@@ -83,10 +83,9 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 								}
 							},
 							{
-								$addFields: {
-									post: {
-										$arrayElemAt: ["$post", 0]
-									}
+								$unwind: {
+									path: "$post",
+									preserveNullAndEmptyArrays: true
 								}
 							},
 							{
@@ -98,10 +97,9 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 								}
 							},
 							{
-								$addFields: {
-									mediaFile: {
-										$arrayElemAt: ["$mediaFile", 0]
-									}
+								$unwind: {
+									path: "$mediaFile",
+									preserveNullAndEmptyArrays: true
 								}
 							}
 						],
@@ -109,10 +107,9 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 					}
 				},
 				{
-					$addFields: {
-						attachments: {
-							$arrayElemAt: ["$attachments", 0]
-						}
+					$unwind: {
+						path: "$attachments",
+						preserveNullAndEmptyArrays: true
 					}
 				},
 				{
