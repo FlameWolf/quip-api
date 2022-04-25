@@ -33,6 +33,12 @@ if (isNotProdEnv) {
 mongoose
 	.connect(process.env.DB_CONNECTION)
 	.then(() => {
+		mongoose.connection
+			.createCollection("blocks_and_mutes", {
+				viewOn: "users",
+				pipeline: require("./db/pipelines/blocks-and-mutes")
+			})
+			.catch(() => void 0);
 		console.log("Connected to the database");
 	})
 	.catch(() => {
