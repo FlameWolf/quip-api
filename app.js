@@ -36,7 +36,11 @@ mongoose
 		mongoose.connection
 			.createCollection("blocks_and_mutes", {
 				viewOn: "users",
-				pipeline: require("./db/pipelines/blocks-and-mutes")
+				pipeline: require("./db/pipelines/blocks-and-mutes"),
+				collation: {
+					locale: "en",
+					strength: 2
+				}
 			})
 			.catch(() => void 0);
 		console.log("Connected to the database");
