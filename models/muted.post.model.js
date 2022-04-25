@@ -10,6 +10,7 @@ const mutedPostSchema = new mongoose.Schema(
 		mutedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
+		timestamps: true,
 		collation: {
 			locale: "en",
 			strength: 2

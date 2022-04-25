@@ -10,6 +10,7 @@ const blockSchema = new mongoose.Schema(
 		blockedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
+		timestamps: true,
 		collation: {
 			locale: "en",
 			strength: 2

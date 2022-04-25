@@ -9,7 +9,11 @@ const mentionSchema = new mongoose.Schema(
 		mentioned: { type: ObjectId, ref: "User", index: true }
 	},
 	{
-		timestamps: true
+		timestamps: true,
+		collation: {
+			locale: "en",
+			strength: 2
+		}
 	}
 );
 

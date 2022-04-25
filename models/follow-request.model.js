@@ -10,6 +10,7 @@ const followRequestSchema = new mongoose.Schema(
 		requestedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
+		timestamps: true,
 		collation: {
 			locale: "en",
 			strength: 2
