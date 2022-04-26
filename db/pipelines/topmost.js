@@ -79,47 +79,39 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 			{
 				$match: {
 					$expr: {
-						$not: {
-							$in: ["$author", "$blocksAndMutes.blockedUsers"]
-						}
-					}
-				}
-			},
-			{
-				$match: {
-					$expr: {
-						$not: {
-							$in: ["$author", "$blocksAndMutes.mutedUsers"]
-						}
-					}
-				}
-			},
-			{
-				$match: {
-					$expr: {
-						$not: {
-							$in: ["$_id", "$blocksAndMutes.mutedPosts"]
-						}
-					}
-				}
-			},
-			{
-				$match: {
-					$expr: {
-						$eq: [
+						$and: [
 							{
-								$filter: {
-									input: "$blocksAndMutes.mutedWords",
-									cond: {
-										$regexMatch: {
-											input: "$content",
-											regex: "$$this",
-											options: "i"
-										}
-									}
+								$not: {
+									$in: ["$author", "$blocksAndMutes.blockedUsers"]
 								}
 							},
-							[]
+							{
+								$not: {
+									$in: ["$author", "$blocksAndMutes.mutedUsers"]
+								}
+							},
+							{
+								$not: {
+									$in: ["$_id", "$blocksAndMutes.mutedPosts"]
+								}
+							},
+							{
+								$eq: [
+									{
+										$filter: {
+											input: "$blocksAndMutes.mutedWords",
+											cond: {
+												$regexMatch: {
+													input: "$content",
+													regex: "$$this",
+													options: "i"
+												}
+											}
+										}
+									},
+									[]
+								]
+							}
 						]
 					}
 				}
