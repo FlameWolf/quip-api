@@ -418,13 +418,6 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				path: "$attachments",
 				preserveNullAndEmptyArrays: true
 			}
-		},
-		{
-			$addFields: {
-				attachments: {
-					$arrayElemAt: ["$attachments", 0]
-				}
-			}
 		}
 	];
 };
