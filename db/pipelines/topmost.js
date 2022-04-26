@@ -64,31 +64,24 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 			},
 			{
 				$lookup: {
-					from: "blocks",
+					from: "blocks_and_mutes",
 					localField: "userId",
-					foreignField: "blockedBy",
-					pipeline: [
-						{
-							$group: {
-								_id: undefined,
-								result: {
-									$addToSet: "$user"
-								}
-							}
-						}
-					],
-					as: "blockedUsers"
+					foreignField: "_id",
+					as: "blocksAndMutes"
 				}
 			},
 			{
-				$addFields: {
-					blockedUsers: {
-						$ifNull: [
-							{
-								$arrayElemAt: ["$blockedUsers.result", 0]
-							},
-							[]
-						]
+				$unwind: {
+					path: "$blocksAndMutes",
+					preserveNullAndEmptyArrays: true
+				}
+			},
+			{
+				$match: {
+					$expr: {
+						$not: {
+							$in: ["$author", "$blocksAndMutes.blockedUsers"]
+						}
 					}
 				}
 			},
@@ -96,41 +89,8 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				$match: {
 					$expr: {
 						$not: {
-							$in: ["$author", "$blockedUsers"]
+							$in: ["$author", "$blocksAndMutes.mutedUsers"]
 						}
-					}
-				}
-			},
-			{
-				$unset: "blockedUsers"
-			},
-			{
-				$lookup: {
-					from: "mutedusers",
-					localField: "userId",
-					foreignField: "mutedBy",
-					pipeline: [
-						{
-							$group: {
-								_id: undefined,
-								result: {
-									$addToSet: "$user"
-								}
-							}
-						}
-					],
-					as: "mutedUsers"
-				}
-			},
-			{
-				$addFields: {
-					mutedUsers: {
-						$ifNull: [
-							{
-								$arrayElemAt: ["$mutedUsers.result", 0]
-							},
-							[]
-						]
 					}
 				}
 			},
@@ -138,119 +98,8 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				$match: {
 					$expr: {
 						$not: {
-							$in: ["$author", "$mutedUsers"]
+							$in: ["$_id", "$blocksAndMutes.mutedPosts"]
 						}
-					}
-				}
-			},
-			{
-				$unset: "mutedUsers"
-			},
-			{
-				$lookup: {
-					from: "mutedposts",
-					localField: "userId",
-					foreignField: "mutedBy",
-					pipeline: [
-						{
-							$group: {
-								_id: undefined,
-								result: {
-									$addToSet: "$post"
-								}
-							}
-						}
-					],
-					as: "mutedPosts"
-				}
-			},
-			{
-				$addFields: {
-					mutedPosts: {
-						$ifNull: [
-							{
-								$arrayElemAt: ["$mutedPosts.result", 0]
-							},
-							[]
-						]
-					}
-				}
-			},
-			{
-				$match: {
-					$expr: {
-						$not: {
-							$in: ["$_id", "$mutedPosts"]
-						}
-					}
-				}
-			},
-			{
-				$unset: "mutedPosts"
-			},
-			{
-				$lookup: {
-					from: "mutedwords",
-					localField: "userId",
-					foreignField: "mutedBy",
-					pipeline: [
-						{
-							$project: {
-								_id: 0,
-								regEx: {
-									$switch: {
-										branches: [
-											{
-												case: {
-													$eq: ["$match", "startsWith"]
-												},
-												then: {
-													$concat: ["\\b", "$word", ".*?\\b"]
-												}
-											},
-											{
-												case: {
-													$eq: ["$match", "endsWith"]
-												},
-												then: {
-													$concat: ["\\b\\w*?", "$word", "\\b"]
-												}
-											},
-											{
-												case: {
-													$eq: ["$match", "exact"]
-												},
-												then: {
-													$concat: ["\\b", "$word", "\\b"]
-												}
-											}
-										],
-										default: "$word"
-									}
-								}
-							}
-						},
-						{
-							$group: {
-								_id: undefined,
-								result: {
-									$addToSet: "$regEx"
-								}
-							}
-						}
-					],
-					as: "mutedWords"
-				}
-			},
-			{
-				$addFields: {
-					mutedWords: {
-						$ifNull: [
-							{
-								$arrayElemAt: ["$mutedWords.result", 0]
-							},
-							[]
-						]
 					}
 				}
 			},
@@ -260,7 +109,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 						$eq: [
 							{
 								$filter: {
-									input: "$mutedWords",
+									input: "$blocksAndMutes.mutedWords",
 									cond: {
 										$regexMatch: {
 											input: "$content",
@@ -276,7 +125,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 				}
 			},
 			{
-				$unset: "mutedWords"
+				$unset: "blocksAndMutes"
 			},
 			{
 				$lookup: {
