@@ -33,24 +33,20 @@ if (isNotProdEnv) {
 mongoose
 	.connect(process.env.DB_CONNECTION)
 	.then(() => {
-		const mongooseConnection = mongoose.connection;
-		const blocksAndMutesCollectionName = "blocks_and_mutes";
-		mongooseConnection.db
-			.listCollections({
-				name: blocksAndMutesCollectionName
-			})
-			.next((error, result) => {
-				if (!result) {
-					mongooseConnection.createCollection(blocksAndMutesCollectionName, {
-						viewOn: "users",
-						pipeline: require("./db/pipelines/blocks-and-mutes"),
-						collation: {
-							locale: "en",
-							strength: 2
-						}
-					});
-				}
-			});
+		const connection = mongoose.connection;
+		const name = "blocks_and_mutes";
+		connection.db.listCollections({ name }).next((error, result) => {
+			if (!result) {
+				connection.createCollection(name, {
+					viewOn: "users",
+					pipeline: require("./db/pipelines/blocks-and-mutes"),
+					collation: {
+						locale: "en",
+						strength: 2
+					}
+				});
+			}
+		});
 		console.log("Connected to the database");
 	})
 	.catch(() => {
