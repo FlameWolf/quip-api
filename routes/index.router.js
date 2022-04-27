@@ -13,6 +13,7 @@ router.get("/", async (req, res, next) => {
 	res.sendStatus(404);
 });
 router.get("/timeline", authenticateRequest, indexController.timeline);
+router.get("/activity/:period?", authenticateRequest, indexController.activity);
 router.get("/topmost/:period?", authenticateRequest, indexController.topmost);
 
 module.exports = router;
