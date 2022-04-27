@@ -25,7 +25,7 @@ const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined)
 			$match: maxDate
 				? {
 					createdAt: {
-						$gt: maxDate
+						$gte: maxDate
 					}
 				}
 				: {
