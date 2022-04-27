@@ -1,23 +1,23 @@
 const { ObjectId } = require("bson");
 
 const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined) => {
-	const now = new Date();
-	let maxDate = undefined;
+	let maxDate = new Date();
 	switch (period.toLowerCase()) {
 		case "all":
+			maxDate = undefined;
 			break;
 		case "year":
-			maxDate = new Date(now.setFullYear(now.getFullYear() - 1));
+			maxDate.setFullYear(maxDate.getFullYear() - 1);
 			break;
 		case "month":
-			maxDate = new Date(now.setMonth(now.getMonth() - 1));
+			maxDate.setMonth(maxDate.getMonth() - 1);
 			break;
 		case "week":
-			maxDate = new Date(now.setDate(now.getDate() - 7));
+			maxDate.setDate(maxDate.getDate() - 7);
 			break;
 		case "day":
 		default:
-			maxDate = new Date(now.setDate(now.getDate() - 1));
+			maxDate.setDate(maxDate.getDate() - 1);
 			break;
 	}
 	return [
