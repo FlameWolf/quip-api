@@ -75,6 +75,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				{
 					$group: {
 						_id: "$post",
+						latestId: {
+							$max: "$_id"
+						},
 						favouritedBy: {
 							$addToSet: "$favouritedBy"
 						},
@@ -85,7 +88,7 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				},
 				{
 					$project: {
-						_id: "$_id._id",
+						_id: "$latestId",
 						post: "$_id",
 						favouritedBy: 1,
 						createdAt: 1
@@ -128,6 +131,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				{
 					$group: {
 						_id: "$attachments.post",
+						latestId: {
+							$max: "$_id"
+						},
 						quotedBy: {
 							$addToSet: "$author"
 						},
@@ -138,7 +144,7 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				},
 				{
 					$project: {
-						_id: "$_id._id",
+						_id: "$latestId",
 						post: "$_id",
 						quotedBy: 1,
 						createdAt: 1
@@ -168,6 +174,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				{
 					$group: {
 						_id: "$replyTo",
+						latestId: {
+							$max: "$_id"
+						},
 						repliedBy: {
 							$addToSet: "$author"
 						},
@@ -178,7 +187,7 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				},
 				{
 					$project: {
-						_id: "$_id._id",
+						_id: "$latestId",
 						post: "$_id",
 						repliedBy: 1,
 						createdAt: 1
@@ -197,6 +206,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				{
 					$group: {
 						_id: "$user",
+						latestId: {
+							$max: "$_id"
+						},
 						followedBy: {
 							$addToSet: "$followedBy"
 						}
@@ -204,6 +216,7 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 				},
 				{
 					$project: {
+						_id: "$latestId",
 						user: "$_id",
 						followedBy: 1
 					}
