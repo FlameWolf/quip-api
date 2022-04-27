@@ -1,6 +1,7 @@
+"use strict";
+
 const multer = require("multer");
 const multerCloudStorage = require("multer-cloud-storage");
-const path = require("path");
 const validMimeTypes = ["image", "video"];
 const { megaByte } = require("../library");
 
