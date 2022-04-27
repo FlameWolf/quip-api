@@ -90,7 +90,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 					$project: {
 						_id: "$latestId",
 						post: "$_id",
-						favouritedBy: 1,
+						favouritedBy: {
+							$size: "$favouritedBy"
+						},
 						createdAt: 1
 					}
 				}
@@ -146,7 +148,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 					$project: {
 						_id: "$latestId",
 						post: "$_id",
-						quotedBy: 1,
+						quotedBy: {
+							$size: "$quotedBy"
+						},
 						createdAt: 1
 					}
 				}
@@ -189,7 +193,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 					$project: {
 						_id: "$latestId",
 						post: "$_id",
-						repliedBy: 1,
+						repliedBy: {
+							$size: "$repliedBy"
+						},
 						createdAt: 1
 					}
 				}
@@ -218,7 +224,9 @@ const activityAggregationPipeline = (userId, lastEntryId = undefined) => [
 					$project: {
 						_id: "$latestId",
 						user: "$_id",
-						followedBy: 1
+						followedBy: {
+							$size: "$followedBy"
+						}
 					}
 				}
 			],
