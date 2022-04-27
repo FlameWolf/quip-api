@@ -3,7 +3,6 @@
 const postsAggregationPipeline = require("../db/pipelines/posts");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const User = require("../models/user.model");
-const Post = require("../models/post.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
