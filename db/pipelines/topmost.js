@@ -1,3 +1,5 @@
+"use strict";
+
 const { ObjectId } = require("bson");
 
 const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined) => {

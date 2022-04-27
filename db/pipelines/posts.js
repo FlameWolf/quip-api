@@ -1,3 +1,5 @@
+"use strict";
+
 const { ObjectId } = require("bson");
 
 const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {

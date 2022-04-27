@@ -1,3 +1,5 @@
+"use strict";
+
 const { ObjectId } = require("bson");
 
 const timelineAggregationPipeline = (userId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => {
