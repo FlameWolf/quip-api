@@ -12,7 +12,7 @@ const postSchema = new mongoose.Schema(
 				validator: value => value.match(contentLengthRegExp).length <= maxContentLength,
 				message: "Content length exceeds the maximum allowed limit"
 			},
-			index: "text"
+			text: true
 		},
 		author: { type: ObjectId, ref: "User", required: true, index: true },
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
