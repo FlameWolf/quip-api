@@ -86,6 +86,26 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 										from: "posts",
 										localField: "post",
 										foreignField: "_id",
+										pipeline: [
+											{
+												$lookup: {
+													from: "users",
+													localField: "author",
+													foreignField: "_id",
+													pipeline: [
+														{
+															$project: {
+																handle: 1
+															}
+														}
+													],
+													as: "author"
+												}
+											},
+											{
+												$unwind: "$author"
+											}
+										],
 										as: "post"
 									}
 								},
