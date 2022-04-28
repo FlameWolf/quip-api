@@ -1,4 +1,5 @@
 To add:
 
-- Activity stream
-- User settings
+- Mentions
+- Post search
+- User search
