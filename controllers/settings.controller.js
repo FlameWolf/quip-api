@@ -3,7 +3,14 @@
 const { setProperty, getProperty } = require("../library");
 const Settings = require("../models/settings.model");
 
-const getSettingsByUserId = async userId => (await Settings.findOne({ user: userId })) || {};
+const getSettingsByUserId = async userId => {
+	const param = { user: userId };
+	const settings = await Settings.findOne(param);
+	if (!settings) {
+		return await new Settings(param).save();
+	}
+	return settings;
+};
 const updateSettingsByUserId = async (userId, settings) =>
 	await Settings.findOneAndUpdate(
 		{
