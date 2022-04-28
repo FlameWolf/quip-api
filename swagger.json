@@ -99,6 +99,62 @@
 					}
 				}
 			}
+		},
+		"Settings": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"user": "string",
+							"timeline": {
+								"type": "object",
+								"properties": {
+									"includeRepeats": {
+										"type": "boolean",
+										"default": true
+									},
+									"includeReplies": {
+										"type": "boolean",
+										"default": true
+									}
+								}
+							},
+							"activity": {
+								"type": "object",
+								"properties": {
+									"period": {
+										"type": "string",
+										"enum": ["", "day", "week", "month"]
+									}
+								}
+							},
+							"topmost": {
+								"type": "object",
+								"properties": {
+									"period": {
+										"type": "string",
+										"enum": ["", "day", "week", "month", "year", "all"]
+									}
+								}
+							},
+							"profile": {
+								"type": "object",
+								"properties": {
+									"includeRepeats": {
+										"type": "boolean",
+										"default": false
+									},
+									"includeReplies": {
+										"type": "boolean",
+										"default": false
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"paths": {
@@ -249,6 +305,40 @@
 					{
 						"name": "description",
 						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
+					}
+				]
+			}
+		},
+		"/settings": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/Settings"
+				}
+			}
+		},
+		"/settings/{path}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "path",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			},
+			"put": {
+				"parameters": [
+					{
+						"name": "path",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "value",
+						"in": "query",
+						"required": true
 					}
 				]
 			}
