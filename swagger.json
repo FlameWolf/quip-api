@@ -125,7 +125,7 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": ["", "day", "week", "month"]
+										"enum": ["day", "week", "month"]
 									}
 								}
 							},
@@ -134,7 +134,7 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": ["", "day", "week", "month", "year", "all"]
+										"enum": ["day", "week", "month", "year", "all"]
 									}
 								}
 							},
