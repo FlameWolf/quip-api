@@ -28,6 +28,16 @@ const settingsSchema = new Schema(
 		profile: new Schema({
 			includeRepeats: { type: Boolean, default: false },
 			includeReplies: { type: Boolean, default: false }
+		}),
+		ui: new Schema({
+			theme: {
+				type: String,
+				enum: ["light", "dark"],
+				default: "light"
+			},
+			lang: {
+				type: String
+			}
 		})
 	},
 	{
