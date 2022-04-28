@@ -1,11 +1,9 @@
 "use strict";
 
+const { setProperty, getProperty } = require("../library");
 const Settings = require("../models/settings.model");
 
-const getSettingsByUserId = async userId => {
-	const model = { user: userId };
-	return (await Settings.findOne(model)) || (await new Settings(model).save());
-};
+const getSettingsByUserId = async userId => (await Settings.findOne({ user: userId })) || {};
 const updateSettingsByUserId = async (userId, settings) =>
 	await Settings.findOneAndUpdate(
 		{
@@ -20,7 +18,7 @@ const updateSettingsByUserId = async (userId, settings) =>
 const getSettings = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
-		res.status(200).json({ settings: getSettingsByUserId(userId) });
+		res.status(200).json({ settings: await getSettingsByUserId(userId) });
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -29,9 +27,9 @@ const getSettingByPath = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const path = req.params.path;
 	try {
-		const settings = getSettingsByUserId(userId);
-		const value = Object.getProperty(settings, path);
-		res.status(200).json({ path: value });
+		const settings = await getSettingsByUserId(userId);
+		const value = getProperty(settings, path);
+		res.status(200).json({ [path]: value });
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -51,8 +49,8 @@ const updateSettingByPath = async (req, res, next) => {
 	const path = req.params.path;
 	const value = req.query.value;
 	try {
-		const settings = getSettingsByUserId(userId);
-		Object.setProperty(settings, path, value);
+		const settings = {};
+		setProperty(settings, path, value);
 		const updated = await updateSettingsByUserId(userId, settings);
 		res.status(200).json({ updated });
 	} catch (err) {
