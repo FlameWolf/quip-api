@@ -12,9 +12,11 @@ router.post("/create", authenticateRequest, multerCloudStorageController.uploadM
 router.get("/:postId", postsController.getPost);
 router.get("/favourite/:postId", authenticateRequest, favouritesController.addFavourite);
 router.get("/unfavourite/:postId", authenticateRequest, favouritesController.removeFavourite);
+router.get("/is-favourited/:postId", authenticateRequest, favouritesController.isFavourited);
 router.post("/quote/:postId", authenticateRequest, multerCloudStorageController.uploadMediaFileToCloud, postsController.quotePost);
 router.get("/repeat/:postId", authenticateRequest, postsController.repeatPost);
 router.get("/unrepeat/:postId", authenticateRequest, postsController.unrepeatPost);
+router.get("/is-repeated/:postId", authenticateRequest, postsController.isRepeated);
 router.post("/reply/:postId", authenticateRequest, multerCloudStorageController.uploadMediaFileToCloud, postsController.replyToPost);
 router.get("/mute/:postId", authenticateRequest, mutesController.mutePost);
 router.get("/unmute/:postId", authenticateRequest, mutesController.unmutePost);
