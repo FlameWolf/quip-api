@@ -412,6 +412,38 @@
 					}
 				]
 			}
+		},
+		"/users/{handle}/following": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "lastFollowId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/{handle}/followers": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "lastFollowId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
 		}
 	}
 }
