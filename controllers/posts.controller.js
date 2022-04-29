@@ -78,9 +78,19 @@ const getPost = async (req, res, next) => {
 				populate: [
 					{
 						path: "post",
-						populate: {
-							path: "author"
-						}
+						populate: [
+							{
+								path: "author"
+							},
+							{
+								path: "attachments",
+								populate: [
+									{
+										path: "mediaFile"
+									}
+								]
+							}
+						]
 					},
 					{
 						path: "mediaFile"
