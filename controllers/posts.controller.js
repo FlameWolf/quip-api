@@ -173,6 +173,19 @@ const unrepeatPost = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const isRepeated = async (req, res, next) => {
+	const postId = req.params.postId;
+	const userId = req.userInfo.userId;
+	try {
+		const count = await Post.countDocuments({
+			author: userId,
+			repeatPost: postId
+		});
+		res.status(200).send(count);
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
 const replyToPost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
 	const media = req.file;
@@ -237,6 +250,7 @@ module.exports = {
 	quotePost,
 	repeatPost,
 	unrepeatPost,
+	isRepeated,
 	replyToPost,
 	deletePost
 };
