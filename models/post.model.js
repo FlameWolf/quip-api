@@ -14,6 +14,7 @@ const postSchema = new mongoose.Schema(
 			},
 			index: {
 				text: true,
+				default_language: "none",
 				collation: {
 					locale: "simple"
 				}
