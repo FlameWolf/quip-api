@@ -13,13 +13,11 @@ const mediaFileSchema = new mongoose.Schema(
 		previewSrc: { type: mongoose.SchemaTypes.Url },
 		description: {
 			type: String,
-			text: true,
 			index: {
-				partialFilterExpression: {
-					description: {
-						$exists: true,
-						$ne: null
-					}
+				text: true,
+				default_language: "none",
+				collation: {
+					locale: "simple"
 				}
 			}
 		}
