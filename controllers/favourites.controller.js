@@ -28,5 +28,22 @@ const removeFavourite = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const isFavourited = async (req, res, next) => {
+	const postId = req.params.postId;
+	const userId = req.userInfo.userId;
+	try {
+		const count = await Favourite.countDocuments({
+			post: postId,
+			favouritedBy: userId
+		});
+		res.status(200).send(count);
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
 
-module.exports = { addFavourite, removeFavourite };
+module.exports = {
+	addFavourite,
+	removeFavourite,
+	isFavourited
+};
