@@ -375,6 +375,11 @@
 			"get": {
 				"parameters": [
 					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
 						"name": "includeRepeats",
 						"in": "query",
 						"type": "boolean"
@@ -395,6 +400,11 @@
 		"/users/{handle}/favourites": {
 			"get": {
 				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
 					{
 						"name": "lastPostId",
 						"in": "query",
