@@ -4,3 +4,4 @@ To add:
 - Post search
 - User search
 - Following/followers
+- Blocks/mutes
