@@ -1,7 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const followingAggregationPipeline = (userId, lastFollowId) => [
+const followingAggregationPipeline = (userId, lastFollowId = undefined) => [
 	{
 		$match: {
 			followedBy: ObjectId(userId)
@@ -40,6 +40,9 @@ const followingAggregationPipeline = (userId, lastFollowId) => [
 			: {
 				$expr: true
 			}
+	},
+	{
+		$limit: 20
 	},
 	{
 		$project: {
