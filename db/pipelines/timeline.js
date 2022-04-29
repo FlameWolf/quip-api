@@ -15,7 +15,11 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 				$eq: null
 			}
 		}),
-		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } })
+		...(lastPostId && {
+			_id: {
+				$lt: ObjectId(lastPostId)
+			}
+		})
 	};
 	return [
 		{

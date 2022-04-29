@@ -15,7 +15,11 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 				$eq: null
 			}
 		}),
-		...(lastPostId && { _id: { $lt: ObjectId(lastPostId) } }),
+		...(lastPostId && {
+			_id: {
+				$lt: ObjectId(lastPostId)
+			}
+		}),
 	};
 	return [
 		{
