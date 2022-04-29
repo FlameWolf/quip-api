@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const attachmentsAggregationPipeline = require("./attachments");
 
-const topmostAggregationPipeline = (userId, period = "", lastPostId = undefined) => {
+const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId = undefined) => {
 	let maxDate = new Date();
 	switch (period.toLowerCase()) {
 		case "all":
