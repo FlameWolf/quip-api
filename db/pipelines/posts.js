@@ -104,6 +104,36 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 											},
 											{
 												$unwind: "$author"
+											},
+											{
+												$lookup: {
+													from: "attachments",
+													localField: "attachments",
+													foreignField: "_id",
+													pipeline: [
+														{
+															$lookup: {
+																from: "mediafiles",
+																localField: "mediaFile",
+																foreignField: "_id",
+																as: "mediaFile"
+															}
+														},
+														{
+															$unwind: {
+																path: "$mediaFile",
+																preserveNullAndEmptyArrays: true
+															}
+														}
+													],
+													as: "attachments"
+												}
+											},
+											{
+												$unwind: {
+													path: "$attachments",
+													preserveNullAndEmptyArrays: true
+												}
 											}
 										],
 										as: "post"
