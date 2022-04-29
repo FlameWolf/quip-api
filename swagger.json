@@ -444,6 +444,53 @@
 					}
 				]
 			}
+		},
+		"/search": {
+			"get": {
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "from",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "since",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "until",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "has-media",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "not-from",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "date-sort",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
 		}
 	}
 }
