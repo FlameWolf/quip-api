@@ -5,7 +5,7 @@ const postAggregationPipeline = require("./post");
 const filtersAggregationPipeline = require("./filters");
 const interactionsAggregationPipeline = require("./interactions");
 
-const mentionsAggregationPipeline = (userId, lastPostId) => [
+const mentionsAggregationPipeline = (userId, lastMentionId = undefined) => [
 	{
 		$match: {
 			mentioned: ObjectId(userId)
@@ -23,23 +23,39 @@ const mentionsAggregationPipeline = (userId, lastPostId) => [
 					$sort: {
 						createdAt: -1
 					}
-				},
-				{
-					$match: lastPostId
-						? {
-							_id: {
-								$lt: ObjectId(lastPostId)
-							}
-						}
-						: {
-							$expr: true
-						}
-				},
-				{
-					$limit: 20
-				},
-				...interactionsAggregationPipeline(userId)
+				}
 			],
+			as: "post"
+		}
+	},
+	{
+		$unwind: "$post"
+	},
+	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
+		$match: lastMentionId
+			? {
+				_id: {
+					$lt: ObjectId(lastMentionId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
+	},
+	{
+		$lookup: {
+			from: "posts",
+			localField: "post._id",
+			foreignField: "_id",
+			pipeline: interactionsAggregationPipeline(userId),
 			as: "post"
 		}
 	},
