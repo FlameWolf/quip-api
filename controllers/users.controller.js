@@ -4,8 +4,10 @@ const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
+const mentionsAggregationPipeline = require("../db/pipelines/mentions");
 const User = require("../models/user.model");
-const Follows = require("../models/follow.model");
+const Follow = require("../models/follow.model");
+const Mention = require("../models/mention.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
@@ -13,8 +15,9 @@ const findUserById = async userId => await User.findOne({ _id: userId, deleted: 
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
 const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
 const findFavouritesByUserId = async (userId, lastPostId) => await User.aggregate(favouritesAggregationPipeline(userId, lastPostId));
-const findFollowingByUserId = async (userId, lastFollowId) => await Follows.aggregate(followingAggregationPipeline(userId, lastFollowId));
-const findFollowersByUserId = async (userId, lastFollowId) => await Follows.aggregate(followersAggregationPipeline(userId, lastFollowId));
+const findFollowingByUserId = async (userId, lastFollowId) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
+const findFollowersByUserId = async (userId, lastFollowId) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
+const findMentionsByUserId = async (userId, lastMentionId) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
 	try {
@@ -88,6 +91,22 @@ const getUserFollowers = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const getUserMentions = async (req, res, next) => {
+	const handle = req.params.handle;
+	const lastMentionId = req.query.lastMentionId;
+	try {
+		const user = await findActiveUserByHandle(handle);
+		if (!user) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const mentions = await findMentionsByUserId(user._id, lastMentionId);
+		res.status(200).json({ mentions });
+	} catch (err) {
+		console.log(err);
+		res.status(500).send(err);
+	}
+};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -125,11 +144,13 @@ module.exports = {
 	findFavouritesByUserId,
 	findFollowingByUserId,
 	findFollowersByUserId,
+	findMentionsByUserId,
 	getUser,
 	getUserPosts,
 	getUserFavourites,
 	getUserFollowing,
 	getUserFollowers,
+	getUserMentions,
 	deactivateUser,
 	activateUser,
 	deleteUser
