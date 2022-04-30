@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const attachmentsAggregationPipeline = require("./attachments");
 
-const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
+const userPostsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
 	const matchConditions = {
 		...(!includeRepeats && {
 			repeatPost: {
@@ -137,4 +137,4 @@ const postsAggregationPipeline = (userId, includeRepeats = false, includeReplies
 	];
 };
 
-module.exports = postsAggregationPipeline;
+module.exports = userPostsAggregationPipeline;
