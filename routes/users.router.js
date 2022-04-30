@@ -13,6 +13,7 @@ router.get("/:handle/posts", usersController.getUserPosts);
 router.get("/:handle/favourites", usersController.getUserFavourites);
 router.get("/:handle/following", usersController.getUserFollowing);
 router.get("/:handle/followers", usersController.getUserFollowers);
+router.get("/:handle/mentions", usersController.getUserMentions);
 router.get("/follow/:handle", authenticateRequest, followsController.followUser);
 router.get("/unfollow/:handle", authenticateRequest, followsController.unfollowUser);
 router.get("/mute/:handle", authenticateRequest, mutesController.muteUser);
