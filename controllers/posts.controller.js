@@ -1,6 +1,7 @@
 "use strict";
 
 const { contentLengthRegExp, maxContentLength } = require("../library");
+const postAggregationPipeline = require("../db/pipelines/post");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
@@ -69,36 +70,15 @@ const getPost = async (req, res, next) => {
 			res.status(404).send("Post not found");
 			return;
 		}
-		await post.populate([
-			{
-				path: "author"
-			},
-			{
-				path: "attachments",
-				populate: [
-					{
-						path: "post",
-						populate: [
-							{
-								path: "author"
-							},
-							{
-								path: "attachments",
-								populate: [
-									{
-										path: "mediaFile"
-									}
-								]
-							}
-						]
-					},
-					{
-						path: "mediaFile"
-					}
-				]
-			}
-		]);
-		res.status(200).json({ post });
+		const expandedPost = (
+			await Post.aggregate([
+				{
+					$match: post
+				},
+				...postAggregationPipeline(req.userInfo?.userId)
+			])
+		).shift();
+		res.status(200).json({ post: expandedPost });
 	} catch (err) {
 		res.status(500).send(err);
 	}
