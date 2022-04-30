@@ -23,7 +23,7 @@ const updateMentions = async (content, postId) => {
 			if (handle) {
 				const user = await userController.findUserByHandle(handle);
 				if (user) {
-					new Mention({
+					await new Mention({
 						post: postId,
 						menioned: user._id
 					}).save();
