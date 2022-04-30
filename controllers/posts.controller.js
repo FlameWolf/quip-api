@@ -17,20 +17,22 @@ const validateContent = (content, attachment = undefined) => {
 	}
 };
 const updateMentions = async (content, postId) => {
+	const userIds = [];
 	for (const word of content.split(/\s+|\.+/)) {
 		if (word.startsWith("@")) {
 			const handle = word.match(/\w+/g).shift();
 			if (handle) {
 				const user = await userController.findUserByHandle(handle);
 				if (user) {
-					await new Mention({
-						post: postId,
-						mentioned: user._id
-					}).save();
+					userIds.push(user._id);
 				}
 			}
 		}
 	}
+	await new Mention({
+		post: postId,
+		mentioned: userIds
+	}).save();
 };
 const createMediaAttachment = async (fileType, src, description) => {
 	const mediaFile = await new MediaFile({ fileType, src, description }).save();
@@ -112,7 +114,7 @@ const quotePost = async (req, res, next) => {
 		const quoteId = quote._id;
 		new Mention({
 			post: quoteId,
-			mentioned: originalPost.author
+			mentioned: [originalPost.author]
 		}).save();
 		if (content) {
 			updateMentions(content, quoteId);
@@ -195,7 +197,7 @@ const replyToPost = async (req, res, next) => {
 		const replyId = reply._id;
 		new Mention({
 			post: replyId,
-			mentioned: originalPost.author
+			mentioned: [originalPost.author]
 		}).save();
 		if (content) {
 			updateMentions(content, replyId);
