@@ -21,8 +21,8 @@ const activity = async (req, res, next) => {
 	const period = req.params.period;
 	const lastPostId = req.query.lastPostId;
 	try {
-		const posts = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
-		res.status(200).json({ posts });
+		const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
+		res.status(200).json({ entries });
 	} catch (err) {
 		res.status(500).send(err);
 	}
