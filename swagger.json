@@ -445,6 +445,22 @@
 				]
 			}
 		},
+		"/users/{handle}/mentions": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "lastMentionId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/search": {
 			"get": {
 				"parameters": [
