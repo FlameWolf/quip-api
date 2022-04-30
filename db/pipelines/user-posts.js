@@ -19,7 +19,7 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 			_id: {
 				$lt: ObjectId(lastPostId)
 			}
-		}),
+		})
 	};
 	return [
 		{
