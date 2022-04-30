@@ -25,7 +25,7 @@ const updateMentions = async (content, postId) => {
 				if (user) {
 					await new Mention({
 						post: postId,
-						menioned: user._id
+						mentioned: user._id
 					}).save();
 				}
 			}
