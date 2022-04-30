@@ -1,7 +1,8 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const attachmentsAggregationPipeline = require("./attachments");
+const interactionsAggregationPipeline = require("./interactions");
+const postAggregationPipeline = require("./post");
 
 const searchPostsAggregationPipeline = (
 	searchText,
@@ -17,7 +18,7 @@ const searchPostsAggregationPipeline = (
 	lastPostId = undefined
 ) => {
 	const matchConditions = {};
-	if (searchOptions) {
+	if (Object.keys(searchOptions).length) {
 		const separator = "|";
 		const atSign = "@";
 		const { from, since, until, hasMedia, notFrom } = searchOptions;
@@ -103,39 +104,7 @@ const searchPostsAggregationPipeline = (
 				}
 			}
 		},
-		{
-			$lookup: {
-				from: "users",
-				localField: "author",
-				foreignField: "_id",
-				pipeline: [
-					{
-						$project: {
-							handle: 1
-						}
-					}
-				],
-				as: "author"
-			}
-		},
-		{
-			$unwind: "$author"
-		},
-		{
-			$lookup: {
-				from: "attachments",
-				localField: "attachments",
-				foreignField: "_id",
-				pipeline: attachmentsAggregationPipeline,
-				as: "attachments"
-			}
-		},
-		{
-			$unwind: {
-				path: "$attachments",
-				preserveNullAndEmptyArrays: true
-			}
-		},
+		...postAggregationPipeline(),
 		{
 			$match: matchConditions
 		},
@@ -160,7 +129,8 @@ const searchPostsAggregationPipeline = (
 		},
 		{
 			$limit: 20
-		}
+		},
+		...interactionsAggregationPipeline(userId)
 	];
 };
 

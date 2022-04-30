@@ -1,7 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const attachmentsAggregationPipeline = require("./attachments");
+const postAggregationPipeline = require("./post");
 
 const timelineAggregationPipeline = (userId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => {
 	const matchConditions = {
@@ -237,97 +237,7 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 							preserveNullAndEmptyArrays: true
 						}
 					},
-					{
-						$lookup: {
-							from: "users",
-							localField: "author",
-							foreignField: "_id",
-							pipeline: [
-								{
-									$project: {
-										handle: 1
-									}
-								}
-							],
-							as: "author"
-						}
-					},
-					{
-						$unwind: "$author"
-					},
-					{
-						$lookup: {
-							from: "attachments",
-							localField: "attachments",
-							foreignField: "_id",
-							pipeline: attachmentsAggregationPipeline,
-							as: "attachments"
-						}
-					},
-					{
-						$unwind: {
-							path: "$attachments",
-							preserveNullAndEmptyArrays: true
-						}
-					},
-					{
-						$lookup: {
-							from: "favourites",
-							localField: "_id",
-							foreignField: "post",
-							pipeline: [
-								{
-									$match: {
-										$expr: {
-											$eq: ["$favouritedBy", "$$userId"]
-										}
-									}
-								},
-								{
-									$addFields: {
-										result: true
-									}
-								}
-							],
-							as: "favourited"
-						}
-					},
-					{
-						$addFields: {
-							favourited: {
-								$arrayElemAt: ["$favourited.result", 0]
-							}
-						}
-					},
-					{
-						$lookup: {
-							from: "posts",
-							localField: "_id",
-							foreignField: "repeatPost",
-							pipeline: [
-								{
-									$match: {
-										$expr: {
-											$eq: ["$author", "$$userId"]
-										}
-									}
-								},
-								{
-									$addFields: {
-										result: true
-									}
-								}
-							],
-							as: "repeated"
-						}
-					},
-					{
-						$addFields: {
-							repeated: {
-								$arrayElemAt: ["$repeated.result", 0]
-							}
-						}
-					}
+					...postAggregationPipeline(userId)
 				],
 				as: "posts"
 			}

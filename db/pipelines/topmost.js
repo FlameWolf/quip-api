@@ -1,7 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const attachmentsAggregationPipeline = require("./attachments");
+const postAggregationPipeline = require("./post");
 
 const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId = undefined) => {
 	let maxDate = new Date();
@@ -121,73 +121,6 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId 
 			},
 			{
 				$unset: "blocksAndMutes"
-			},
-			{
-				$lookup: {
-					from: "favourites",
-					localField: "_id",
-					foreignField: "post",
-					let: {
-						userId: "$userId"
-					},
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$eq: ["$favouritedBy", "$$userId"]
-								}
-							}
-						},
-						{
-							$addFields: {
-								result: true
-							}
-						}
-					],
-					as: "favourited"
-				}
-			},
-			{
-				$addFields: {
-					favourited: {
-						$arrayElemAt: ["$favourited.result", 0]
-					}
-				}
-			},
-			{
-				$lookup: {
-					from: "posts",
-					localField: "_id",
-					foreignField: "repeatPost",
-					let: {
-						userId: "$userId"
-					},
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$eq: ["$author", "$$userId"]
-								}
-							}
-						},
-						{
-							$addFields: {
-								result: true
-							}
-						}
-					],
-					as: "repeated"
-				}
-			},
-			{
-				$addFields: {
-					repeated: {
-						$arrayElemAt: ["$repeated.result", 0]
-					}
-				}
-			},
-			{
-				$unset: "userId"
 			}
 		] : []),
 		{
@@ -350,41 +283,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId 
 		{
 			$limit: 20
 		},
-		{
-			$lookup: {
-				from: "users",
-				localField: "author",
-				foreignField: "_id",
-				pipeline: [
-					{
-						$project: {
-							handle: 1,
-							deactivated: 1,
-							deleted: 1
-						}
-					}
-				],
-				as: "author"
-			}
-		},
-		{
-			$unwind: "$author"
-		},
-		{
-			$lookup: {
-				from: "attachments",
-				localField: "attachments",
-				foreignField: "_id",
-				pipeline: attachmentsAggregationPipeline,
-				as: "attachments"
-			}
-		},
-		{
-			$unwind: {
-				path: "$attachments",
-				preserveNullAndEmptyArrays: true
-			}
-		}
+		...postAggregationPipeline(userId)
 	];
 };
 

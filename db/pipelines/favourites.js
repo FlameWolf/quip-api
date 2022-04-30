@@ -1,7 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const attachmentsAggregationPipeline = require("./attachments");
+const postAggregationPipeline = require("./post");
 
 const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 	{
@@ -51,41 +51,7 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 				{
 					$limit: 20
 				},
-				{
-					$lookup: {
-						from: "users",
-						localField: "author",
-						foreignField: "_id",
-						pipeline: [
-							{
-								$project: {
-									handle: 1,
-									deactivated: 1,
-									deleted: 1
-								}
-							}
-						],
-						as: "author"
-					}
-				},
-				{
-					$unwind: "$author"
-				},
-				{
-					$lookup: {
-						from: "attachments",
-						localField: "attachments",
-						foreignField: "_id",
-						pipeline: attachmentsAggregationPipeline,
-						as: "attachments"
-					}
-				},
-				{
-					$unwind: {
-						path: "$attachments",
-						preserveNullAndEmptyArrays: true
-					}
-				},
+				...postAggregationPipeline(),
 				{
 					$addFields: {
 						favourited: true

@@ -1,6 +1,6 @@
 "use strict";
 
-const postsAggregationPipeline = require("../db/pipelines/posts");
+const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
@@ -11,7 +11,7 @@ const findActiveUserById = async userId => await User.findOne({ _id: userId, dea
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
-const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId) => await User.aggregate(postsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
+const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
 const findFavouritesByUserId = async (userId, lastPostId) => await User.aggregate(favouritesAggregationPipeline(userId, lastPostId));
 const findFollowingByUserId = async (userId, lastFollowId) => await Follows.aggregate(followingAggregationPipeline(userId, lastFollowId));
 const findFollowersByUserId = async (userId, lastFollowId) => await Follows.aggregate(followersAggregationPipeline(userId, lastFollowId));
