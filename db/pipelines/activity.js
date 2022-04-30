@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const filtersAggregationPipeline = require("./filters");
 const attachmentsAggregationPipeline = require("./attachments");
 
 const activityAggregationPipeline = (userId, period = "", lastEntryId = undefined) => {
@@ -293,74 +294,18 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		},
 		{
 			$lookup: {
-				from: "blocks_and_mutes",
-				localField: "_id",
+				from: "posts",
+				localField: "entry.post._id",
 				foreignField: "_id",
-				as: "blocksAndMutes"
+				pipeline: filtersAggregationPipeline(userId),
+				as: "entry.post"
 			}
 		},
 		{
 			$unwind: {
-				path: "$blocksAndMutes",
+				path: "$entry.post",
 				preserveNullAndEmptyArrays: true
 			}
-		},
-		{
-			$match: {
-				$expr: {
-					$and: [
-						{
-							$not: {
-								$or: [
-									{
-										$in: ["$entry.post.author", "$blocksAndMutes.blockedUsers"]
-									},
-									{
-										$in: ["$entry.user", "$blocksAndMutes.blockedUsers"]
-									}
-								]
-							}
-						},
-						{
-							$not: {
-								$or: [
-									{
-										$in: ["$entry.post.author", "$blocksAndMutes.mutedUsers"]
-									},
-									{
-										$in: ["$entry.user", "$blocksAndMutes.mutedUsers"]
-									}
-								]
-							}
-						},
-						{
-							$not: {
-								$in: ["$entry.post._id", "$blocksAndMutes.mutedPosts"]
-							}
-						},
-						{
-							$eq: [
-								{
-									$filter: {
-										input: "$blocksAndMutes.mutedWords",
-										cond: {
-											$regexMatch: {
-												input: "$entry.post.content",
-												regex: "$$this",
-												options: "i"
-											}
-										}
-									}
-								},
-								[]
-							]
-						}
-					]
-				}
-			}
-		},
-		{
-			$unset: "blocksAndMutes"
 		},
 		{
 			$sort: {

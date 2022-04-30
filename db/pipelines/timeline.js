@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const filtersAggregationPipeline = require("./filters");
 const postAggregationPipeline = require("./post");
 
 const timelineAggregationPipeline = (userId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => {
@@ -133,75 +134,7 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 							}
 						}
 					] : []),
-					{
-						$addFields: {
-							userId: "$$userId"
-						}
-					},
-					{
-						$lookup: {
-							from: "blocks_and_mutes",
-							localField: "userId",
-							foreignField: "_id",
-							as: "blocksAndMutes"
-						}
-					},
-					{
-						$unwind: {
-							path: "$blocksAndMutes",
-							preserveNullAndEmptyArrays: true
-						}
-					},
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{
-										$not: {
-											$in: ["$author", "$blocksAndMutes.blockedUsers"]
-										}
-									},
-									{
-										$not: {
-											$or: [
-												{
-													$in: ["$author", "$blocksAndMutes.mutedUsers"]
-												},
-												{
-													$in: ["$repeatedBy", "$blocksAndMutes.mutedUsers"]
-												}
-											]
-										}
-									},
-									{
-										$not: {
-											$in: ["$_id", "$blocksAndMutes.mutedPosts"]
-										}
-									},
-									{
-										$eq: [
-											{
-												$filter: {
-													input: "$blocksAndMutes.mutedWords",
-													cond: {
-														$regexMatch: {
-															input: "$content",
-															regex: "$$this",
-															options: "i"
-														}
-													}
-												}
-											},
-											[]
-										]
-									}
-								]
-							}
-						}
-					},
-					{
-						$unset: ["blocksAndMutes", "userId"]
-					},
+					...filtersAggregationPipeline(userId),
 					{
 						$match: lastPostId
 							? {

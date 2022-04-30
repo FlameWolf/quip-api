@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const filtersAggregationPipeline = require("./filters");
 const postAggregationPipeline = require("./post");
 
 const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId = undefined) => {
@@ -35,94 +36,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId 
 					$expr: true
 				}
 		},
-		...(userId ?
-		[
-			{
-				$lookup: {
-					from: "users",
-					pipeline: [
-						{
-							$match: {
-								_id: ObjectId(userId)
-							}
-						},
-						{
-							$project: {
-								_id: 1
-							}
-						}
-					],
-					as: "user"
-				}
-			},
-			{
-				$addFields: {
-					userId: {
-						$arrayElemAt: ["$user._id", 0]
-					}
-				}
-			},
-			{
-				$unset: "user"
-			},
-			{
-				$lookup: {
-					from: "blocks_and_mutes",
-					localField: "userId",
-					foreignField: "_id",
-					as: "blocksAndMutes"
-				}
-			},
-			{
-				$unwind: {
-					path: "$blocksAndMutes",
-					preserveNullAndEmptyArrays: true
-				}
-			},
-			{
-				$match: {
-					$expr: {
-						$and: [
-							{
-								$not: {
-									$in: ["$author", "$blocksAndMutes.blockedUsers"]
-								}
-							},
-							{
-								$not: {
-									$in: ["$author", "$blocksAndMutes.mutedUsers"]
-								}
-							},
-							{
-								$not: {
-									$in: ["$_id", "$blocksAndMutes.mutedPosts"]
-								}
-							},
-							{
-								$eq: [
-									{
-										$filter: {
-											input: "$blocksAndMutes.mutedWords",
-											cond: {
-												$regexMatch: {
-													input: "$content",
-													regex: "$$this",
-													options: "i"
-												}
-											}
-										}
-									},
-									[]
-								]
-							}
-						]
-					}
-				}
-			},
-			{
-				$unset: "blocksAndMutes"
-			}
-		] : []),
+		...filtersAggregationPipeline(userId),
 		{
 			$lookup: {
 				from: "favourites",
