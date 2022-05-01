@@ -1,6 +1,6 @@
 To fix:
 
-- Sorting in favourites, search, and topmost
+- Sorting in favourites and search
 - Ensure sorting is okay in other pipelines
 
 To add:
