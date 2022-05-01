@@ -4,7 +4,7 @@ const { ObjectId } = require("bson");
 const filtersAggregationPipeline = require("./filters");
 const postAggregationPipeline = require("./post");
 
-const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId = undefined) => {
+const topmostAggregationPipeline = (userId = undefined, period = "") => {
 	let maxDate = new Date();
 	switch (period.toLowerCase()) {
 		case "all":
@@ -184,18 +184,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastPostId 
 			}
 		},
 		{
-			$match: lastPostId
-				? {
-					_id: {
-						$lt: ObjectId(lastPostId)
-					}
-				}
-				: {
-					$expr: true
-				}
-		},
-		{
-			$limit: 20
+			$limit: 250
 		},
 		...postAggregationPipeline(userId)
 	];
