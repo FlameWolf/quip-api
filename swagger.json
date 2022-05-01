@@ -352,11 +352,6 @@
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
 					}
 				]
 			}
