@@ -4,7 +4,8 @@ To fix:
 
 To add:
 
-- Mentions
 - Media search
 - User search
 - Blocks/mutes
+- Delete Attachments, Favourites, Mentions, Mutes, Repeats, and Pinned Posts upon Post deletion
+	- Delete Media Files on Attachment deletion
