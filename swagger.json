@@ -401,7 +401,7 @@
 						"type": "string"
 					},
 					{
-						"name": "lastPostId",
+						"name": "lastFavouriteId",
 						"in": "query",
 						"type": "string"
 					}
