@@ -4,7 +4,7 @@ const Post = require("../models/post.model");
 const searchPostsAggregationPipeline = require("../db/pipelines/search-posts");
 
 const searchPosts = async (req, res, next) => {
-	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "date-sort": sortByDate, lastPostId } = req.query;
+	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "date-sort": sortByDate, lastScore, lastPostId } = req.query;
 	const userId = req.userInfo.userId;
 	if (!searchText) {
 		res.status(400).send("Search text missing");
@@ -23,6 +23,7 @@ const searchPosts = async (req, res, next) => {
 					notFrom
 				},
 				sortByDate,
+				lastScore,
 				lastPostId
 			)
 		);
