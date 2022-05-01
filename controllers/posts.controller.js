@@ -210,17 +210,11 @@ const deletePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const post = await Post.findOne({
+		const deleted = await Post.findOneAndDelete({
 			_id: postId,
 			author: userId
 		});
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		const deleted = await Post.findOneAndDelete(post);
 		res.status(200).json({ deleted });
-		Mention.deleteMany({ post: postId });
 	} catch (err) {
 		res.status(500).send(err);
 	}
