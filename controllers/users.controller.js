@@ -14,7 +14,7 @@ const findActiveUserByHandle = async handle => await User.findOne({ handle, deac
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
 const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
-const findFavouritesByUserId = async (userId, lastPostId) => await User.aggregate(favouritesAggregationPipeline(userId, lastPostId));
+const findFavouritesByUserId = async (userId, lastFavouriteId) => await User.aggregate(favouritesAggregationPipeline(userId, lastFavouriteId));
 const findFollowingByUserId = async (userId, lastFollowId) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
 const findFollowersByUserId = async (userId, lastFollowId) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
 const findMentionsByUserId = async (userId, lastMentionId) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
@@ -48,14 +48,14 @@ const getUserPosts = async (req, res, next) => {
 };
 const getUserFavourites = async (req, res, next) => {
 	const handle = req.params.handle;
-	const lastPostId = req.query.lastPostId;
+	const lastFavouriteId = req.query.lastFavouriteId;
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
 			res.status(404).send("User not found");
 			return;
 		}
-		const favourites = await findFavouritesByUserId(user._id, lastPostId);
+		const favourites = await findFavouritesByUserId(user._id, lastFavouriteId);
 		res.status(200).json({ favourites });
 	} catch (err) {
 		res.status(500).send(err);
