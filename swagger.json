@@ -496,6 +496,11 @@
 						"type": "string"
 					},
 					{
+						"name": "lastScore",
+						"in": "query",
+						"type": "string"
+					},
+					{
 						"name": "lastPostId",
 						"in": "query",
 						"type": "string"
