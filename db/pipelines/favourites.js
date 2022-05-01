@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
+const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 	{
 		$match: {
 			_id: ObjectId(userId)
@@ -28,6 +28,43 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 						from: "posts",
 						localField: "post",
 						foreignField: "_id",
+						pipeline: [
+							...postAggregationPipeline(),
+							{
+								$addFields: {
+									favourited: true
+								}
+							},
+							{
+								$lookup: {
+									from: "posts",
+									localField: "_id",
+									foreignField: "repeatPost",
+									pipeline: [
+										{
+											$match: {
+												$expr: {
+													$eq: ["$author", "$$userId"]
+												}
+											}
+										},
+										{
+											$addFields: {
+												result: true
+											}
+										}
+									],
+									as: "repeated"
+								}
+							},
+							{
+								$addFields: {
+									repeated: {
+										$arrayElemAt: ["$repeated.result", 0]
+									}
+								}
+							}
+						],
 						as: "post"
 					}
 				},
@@ -35,55 +72,9 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 					$unwind: "$post"
 				},
 				{
-					$replaceWith: "$post"
-				},
-				{
-					$match: lastPostId
-						? {
-							_id: {
-								$lt: ObjectId(lastPostId)
-							}
-						}
-						: {
-							$expr: true
-						}
-				},
-				{
-					$limit: 20
-				},
-				...postAggregationPipeline(),
-				{
-					$addFields: {
-						favourited: true
-					}
-				},
-				{
-					$lookup: {
-						from: "posts",
-						localField: "_id",
-						foreignField: "repeatPost",
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$eq: ["$author", "$$userId"]
-									}
-								}
-							},
-							{
-								$addFields: {
-									result: true
-								}
-							}
-						],
-						as: "repeated"
-					}
-				},
-				{
-					$addFields: {
-						repeated: {
-							$arrayElemAt: ["$repeated.result", 0]
-						}
+					$project: {
+						post: 1,
+						createdAt: 1
 					}
 				}
 			],
@@ -91,16 +82,24 @@ const favouritesAggregationPipeline = (userId, lastPostId = undefined) => [
 		}
 	},
 	{
-		$project: {
-			_id: 0,
-			favourites: 1
-		}
-	},
-	{
 		$unwind: "$favourites"
 	},
 	{
 		$replaceWith: "$favourites"
+	},
+	{
+		$match: lastFavouriteId
+			? {
+				_id: {
+					$lt: ObjectId(lastFavouriteId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
 	}
 ];
 
