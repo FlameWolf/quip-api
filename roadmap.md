@@ -1,6 +1,5 @@
 To fix:
 
-- Sorting in search
 - Ensure sorting is okay in other pipelines
 
 To add:
