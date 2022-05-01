@@ -15,9 +15,12 @@ const searchPostsAggregationPipeline = (
 		notFrom: undefined
 	},
 	sortByDate = false,
+	lastScore = undefined,
 	lastPostId = undefined
 ) => {
 	const matchConditions = {};
+	const sortConditions = {};
+	const pageConditions = {};
 	if (Object.keys(searchOptions).length) {
 		const separator = "|";
 		const atSign = "@";
@@ -83,10 +86,48 @@ const searchPostsAggregationPipeline = (
 				});
 			}
 		}
-	} else {
-		Object.assign(matchConditions, {
-			$expr: true
+	}
+	if (sortByDate) {
+		Object.assign(sortConditions, {
+			createdAt: -1,
+			score: -1
 		});
+	} else {
+		Object.assign(sortConditions, {
+			score: -1,
+			createdAt: -1
+		});
+	}
+	if (lastPostId) {
+		const lastPostObjectId = ObjectId(lastPostId);
+		if (sortByDate) {
+			Object.assign(pageConditions, {
+				lastPostId: {
+					$lt: lastPostObjectId
+				}
+			});
+		} else if (lastScore) {
+			const parsedLastScore = parseFloat(lastScore);
+			Object.assign(pageConditions, {
+				$expr: {
+					$or: [
+						{
+							$lt: ["$score", parsedLastScore]
+						},
+						{
+							$and: [
+								{
+									$eq: ["$score", parsedLastScore]
+								},
+								{
+									$lt: ["$_id", lastPostObjectId]
+								}
+							]
+						}
+					]
+				}
+			});
+		}
 	}
 	return [
 		{
@@ -98,34 +139,18 @@ const searchPostsAggregationPipeline = (
 			}
 		},
 		{
-			$sort: {
+			$addFields: {
 				score: {
 					$meta: "textScore"
 				}
 			}
 		},
+		{
+			$sort: sortConditions
+		},
 		...postAggregationPipeline(),
 		{
-			$match: matchConditions
-		},
-		...(sortByDate ?
-		[
-			{
-				$sort: {
-					createdAt: -1
-				}
-			}
-		] : []),
-		{
-			$match: lastPostId
-				? {
-					_id: {
-						$lt: ObjectId(lastPostId)
-					}
-				}
-				: {
-					$expr: true
-				}
+			$match: Object.assign(matchConditions, pageConditions)
 		},
 		{
 			$limit: 20
