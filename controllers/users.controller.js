@@ -103,7 +103,6 @@ const getUserMentions = async (req, res, next) => {
 		const mentions = await findMentionsByUserId(user._id, lastMentionId);
 		res.status(200).json({ mentions });
 	} catch (err) {
-		console.log(err);
 		res.status(500).send(err);
 	}
 };
