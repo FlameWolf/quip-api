@@ -1,6 +1,6 @@
 To fix:
 
-- Sorting in favourites and search
+- Sorting in search
 - Ensure sorting is okay in other pipelines
 
 To add:
