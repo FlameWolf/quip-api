@@ -5,19 +5,31 @@ const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
 const mentionsAggregationPipeline = require("../db/pipelines/mentions");
+const blocksAggregationPipeline = require("../db/pipelines/blocks");
+const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
+const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
+const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
 const User = require("../models/user.model");
 const Follow = require("../models/follow.model");
 const Mention = require("../models/mention.model");
+const Block = require("../models/block.model");
+const MutedUser = require("../models/muted.user.model");
+const MutedPost = require("../models/muted.post.model");
+const MutedWord = require("../models/muted.word.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
-const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
-const findFavouritesByUserId = async (userId, lastFavouriteId) => await User.aggregate(favouritesAggregationPipeline(userId, lastFavouriteId));
-const findFollowingByUserId = async (userId, lastFollowId) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
-const findFollowersByUserId = async (userId, lastFollowId) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
-const findMentionsByUserId = async (userId, lastMentionId) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
+const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId = undefined) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
+const findFavouritesByUserId = async (userId, lastFavouriteId = undefined) => await User.aggregate(favouritesAggregationPipeline(userId, lastFavouriteId));
+const findFollowingByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
+const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
+const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
+const findBlocksByUserId = async (userId, lastBlockId = undefined) => await Block.aggregate(blocksAggregationPipeline(userId, lastBlockId));
+const findMutedUsersByUserId = async (userId, lastMuteId = undefined) => await MutedUser.aggregate(mutedUsersAggregationPipeline(userId, lastMuteId));
+const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await MutedPost.aggregate(mutedPostsAggregationPipeline(userId, lastMuteId));
+const findMutedWordsByUserId = async (userId, lastMuteId = undefined) => await MutedWord.aggregate(mutedWordsAggregationPipeline(userId, lastMuteId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
 	try {
@@ -106,6 +118,46 @@ const getUserMentions = async (req, res, next) => {
 		res.status(500).send(err);
 	}
 };
+const getBlocks = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const lastBlockId = req.query.lastBlockId;
+	try {
+		const blockedUsers = await findBlocksByUserId(userId, lastBlockId);
+		res.status(200).json({ blockedUsers });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+const getMutedUsers = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const lastMuteId = req.query.lastMuteId;
+	try {
+		const mutedUsers = await findMutedUsersByUserId(userId, lastMuteId);
+		res.status(200).json({ mutedUsers });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+const getMutedPosts = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const lastMuteId = req.query.lastMuteId;
+	try {
+		const mutedPosts = await findMutedPostsByUserId(userId, lastMuteId);
+		res.status(200).json({ mutedPosts });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+const getMutedWords = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const lastMuteId = req.query.lastMuteId;
+	try {
+		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
+		res.status(200).json({ mutedWords });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -150,6 +202,10 @@ module.exports = {
 	getUserFollowing,
 	getUserFollowers,
 	getUserMentions,
+	getBlocks,
+	getMutedUsers,
+	getMutedPosts,
+	getMutedWords,
 	deactivateUser,
 	activateUser,
 	deleteUser
