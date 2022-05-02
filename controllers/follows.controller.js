@@ -20,18 +20,21 @@ const followUser = async (req, res, next) => {
 			return;
 		}
 		const followeeUserId = followee._id;
-		const blocked = await Block.findOne({ user: followerUserId, blockedBy: followeeUserId });
-		if (blocked) {
+		if (await Block.countDocuments({ user: followerUserId, blockedBy: followeeUserId })) {
 			res.status(403).send("User has blocked you from following them");
 			return;
 		}
+		if (await Block.countDocuments({ user: followeeUserId, blockedBy: followerUserId })) {
+			res.status(403).send("Unblock this user to start following them");
+			return;
+		}
 		const isFolloweeProtected = followee.protected;
-		const model = isFolloweeProtected ?
-			new FollowRequest({
+		const model = isFolloweeProtected
+			? new FollowRequest({
 				user: followeeUserId,
 				requestedBy: followerUserId
-			}) :
-			new Follow({
+			})
+			: new Follow({
 				user: followeeUserId,
 				followedBy: followerUserId
 			});
