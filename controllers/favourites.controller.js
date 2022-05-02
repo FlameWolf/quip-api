@@ -42,8 +42,4 @@ const isFavourited = async (req, res, next) => {
 	}
 };
 
-module.exports = {
-	addFavourite,
-	removeFavourite,
-	isFavourited
-};
+module.exports = { addFavourite, removeFavourite };
