@@ -20,6 +20,10 @@ router.get("/accept_all_reqs", authenticateRequest, followRequestsController.acc
 router.get("/reject_req/:requestId", authenticateRequest, followRequestsController.rejectFollowRequest);
 router.post("/reject_reqs", authenticateRequest, followRequestsController.rejectSelectedFollowRequests);
 router.get("/reject_all_reqs", authenticateRequest, followRequestsController.rejectAllFollowRequests);
+router.get("/blocked", authenticateRequest, usersController.getBlocks);
+router.get("/muted/users", authenticateRequest, usersController.getMutedUsers);
+router.get("/muted/posts", authenticateRequest, usersController.getMutedPosts);
+router.get("/muted/words", authenticateRequest, usersController.getMutedWords);
 router.get("/deactivate", authenticateRequest, usersController.deactivateUser);
 router.get("/activate", authenticateRequest, usersController.activateUser);
 router.delete("/delete", authenticateRequest, usersController.deleteUser);
