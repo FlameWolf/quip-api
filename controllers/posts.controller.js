@@ -61,7 +61,7 @@ const createPost = async (req, res, next) => {
 			updateMentions(content, post._id);
 		}
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getPost = async (req, res, next) => {
@@ -82,7 +82,7 @@ const getPost = async (req, res, next) => {
 		).shift();
 		res.status(200).json({ post: expandedPost });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const quotePost = async (req, res, next) => {
@@ -120,7 +120,7 @@ const quotePost = async (req, res, next) => {
 			updateMentions(content, quoteId);
 		}
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -139,7 +139,7 @@ const repeatPost = async (req, res, next) => {
 		const repeated = await new Post(payload).save();
 		res.status(201).json({ repeated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const unrepeatPost = async (req, res, next) => {
@@ -152,7 +152,7 @@ const unrepeatPost = async (req, res, next) => {
 		});
 		res.status(200).json({ unrepeated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const isRepeated = async (req, res, next) => {
@@ -165,7 +165,7 @@ const isRepeated = async (req, res, next) => {
 		});
 		res.status(200).send(count);
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const replyToPost = async (req, res, next) => {
@@ -203,7 +203,7 @@ const replyToPost = async (req, res, next) => {
 			updateMentions(content, replyId);
 		}
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const deletePost = async (req, res, next) => {
@@ -216,7 +216,7 @@ const deletePost = async (req, res, next) => {
 		});
 		res.status(200).json({ deleted });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 

@@ -31,7 +31,7 @@ const acceptFollowRequest = async (req, res, next) => {
 		const accepted = await acceptHandler(followRequest, acceptorUserId);
 		res.status(200).json({ accepted });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const acceptSelectedFollowRequests = async (req, res, next) => {
@@ -42,7 +42,7 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 		await Promise.all(followRequests.map(async followRequest => followRequest && (await acceptHandler(followRequest, acceptorUserId))));
 		res.status(200).json({ acceptedRequestIds: followRequestIds });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const acceptAllFollowRequests = async (req, res, next) => {
@@ -58,7 +58,7 @@ const acceptAllFollowRequests = async (req, res, next) => {
 		} while (requestsCount === pageSize);
 		res.status(200).json({ acceptedRequestsCount });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const rejectFollowRequest = async (req, res, next) => {
@@ -72,7 +72,7 @@ const rejectFollowRequest = async (req, res, next) => {
 		await rejectHandler(followRequest, rejectorUserId);
 		res.status(200).json({ rejected: followRequest });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
@@ -83,7 +83,7 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 		await Promise.all(followRequests.map(async followRequest => followRequest && (await rejectHandler(followRequest, rejectorUserId))));
 		res.status(200).json({ rejectedRequestIds: followRequestIds });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const rejectAllFollowRequests = async (req, res, next) => {
@@ -99,7 +99,7 @@ const rejectAllFollowRequests = async (req, res, next) => {
 		} while (requestsCount === pageSize);
 		res.status(200).json({ rejectedRequestsCount });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 

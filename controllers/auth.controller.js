@@ -42,7 +42,7 @@ const signUp = async (req, res, next) => {
 		const userId = user._id;
 		res.status(201).json(authSuccess(handle, userId));
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const signIn = async (req, res, next) => {
@@ -61,7 +61,7 @@ const signIn = async (req, res, next) => {
 		const userId = user._id;
 		res.status(200).json(authSuccess(handle, userId));
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const refreshToken = async (req, res, next) => {

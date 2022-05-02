@@ -27,7 +27,7 @@ const getSettings = async (req, res, next) => {
 	try {
 		res.status(200).json({ settings: await getSettingsByUserId(userId) });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getSettingByPath = async (req, res, next) => {
@@ -38,7 +38,7 @@ const getSettingByPath = async (req, res, next) => {
 		const value = getProperty(settings, path);
 		res.status(200).json({ [path]: value });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const updateSettings = async (req, res, next) => {
@@ -48,7 +48,7 @@ const updateSettings = async (req, res, next) => {
 		const updated = await updateSettingsByUserId(userId, settings);
 		res.status(200).json({ updated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const updateSettingByPath = async (req, res, next) => {
@@ -61,7 +61,7 @@ const updateSettingByPath = async (req, res, next) => {
 		const updated = await updateSettingsByUserId(userId, settings);
 		res.status(200).json({ updated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 

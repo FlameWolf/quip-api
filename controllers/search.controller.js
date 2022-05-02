@@ -29,7 +29,7 @@ const searchPosts = async (req, res, next) => {
 		);
 		res.status(200).json({ result });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 

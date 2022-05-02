@@ -13,7 +13,7 @@ const timeline = async (req, res, next) => {
 		const posts = await User.aggregate(timelineAggregationPipeline(userId, includeRepeats !== "false", includeReplies !== "false", lastPostId));
 		res.status(200).json({ posts });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const activity = async (req, res, next) => {
@@ -24,7 +24,7 @@ const activity = async (req, res, next) => {
 		const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
 		res.status(200).json({ entries });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const topmost = async (req, res, next) => {
@@ -34,7 +34,7 @@ const topmost = async (req, res, next) => {
 		const posts = await Post.aggregate(topmostAggregationPipeline(userId, period));
 		res.status(200).json({ posts });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 

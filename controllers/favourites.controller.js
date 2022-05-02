@@ -12,7 +12,7 @@ const addFavourite = async (req, res, next) => {
 		}).save();
 		res.status(200).json({ favourited });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const removeFavourite = async (req, res, next) => {
@@ -25,7 +25,7 @@ const removeFavourite = async (req, res, next) => {
 		});
 		res.status(200).json({ unfavourited });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const isFavourited = async (req, res, next) => {
@@ -38,7 +38,7 @@ const isFavourited = async (req, res, next) => {
 		});
 		res.status(200).send(count);
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 
