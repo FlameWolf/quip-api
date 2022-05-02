@@ -32,7 +32,7 @@ const signUp = async (req, res, next) => {
 		res.status(400).send("Invalid username/password");
 		return;
 	}
-	if (await User.findOne({ handle })) {
+	if (await User.countDocuments({ handle })) {
 		res.status(409).send("Username unavailable");
 		return;
 	}
