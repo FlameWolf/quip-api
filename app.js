@@ -15,6 +15,8 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 require("./polyfills");
 
+const authenticateRequest = require("./middleware/authenticate-request");
+const requireAuthentication = require("./middleware/require-authentication");
 const indexRouter = require("./routes/index.router");
 const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
@@ -53,11 +55,15 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use("/", indexRouter);
+app.use("/", authenticateRequest, indexRouter);
 app.use("/auth", authRouter);
-app.use("/users", usersRouter);
-app.use("/posts", postsRouter);
-app.use("/search", searchRouter);
-app.use("/settings", settingsRouter);
+app.use("/users", authenticateRequest, usersRouter);
+app.use("/posts", authenticateRequest, postsRouter);
+app.use("/search", authenticateRequest, searchRouter);
+app.use("/settings", authenticateRequest, requireAuthentication, settingsRouter);
+
+app.use((err, req, res, next) => {
+	res.status(500).send(err);
+});
 
 module.exports = app;
