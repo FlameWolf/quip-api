@@ -12,11 +12,9 @@ router.post("/create", requireAuthentication, multerCloudStorageController.uploa
 router.get("/:postId", postsController.getPost);
 router.get("/favourite/:postId", requireAuthentication, favouritesController.addFavourite);
 router.get("/unfavourite/:postId", requireAuthentication, favouritesController.removeFavourite);
-router.get("/is-favourited/:postId", requireAuthentication, favouritesController.isFavourited);
 router.post("/quote/:postId", requireAuthentication, multerCloudStorageController.uploadMediaFileToCloud, postsController.quotePost);
 router.get("/repeat/:postId", requireAuthentication, postsController.repeatPost);
 router.get("/unrepeat/:postId", requireAuthentication, postsController.unrepeatPost);
-router.get("/is-repeated/:postId", requireAuthentication, postsController.isRepeated);
 router.post("/reply/:postId", requireAuthentication, multerCloudStorageController.uploadMediaFileToCloud, postsController.replyToPost);
 router.get("/mute/:postId", requireAuthentication, mutesController.mutePost);
 router.get("/unmute/:postId", requireAuthentication, mutesController.unmutePost);
