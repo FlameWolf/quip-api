@@ -9,10 +9,29 @@ const mutedWordsAggregationPipeline = (userId, lastMuteId) => [
 		}
 	},
 	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
 		project: {
 			word: 1,
 			match: 1
 		}
+	},
+	{
+		$match: lastMuteId
+			? {
+				_id: {
+					$lt: ObjectId(lastMuteId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
 	}
 ];
 
