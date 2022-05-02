@@ -32,15 +32,21 @@ const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await M
 const findMutedWordsByUserId = async (userId, lastMuteId = undefined) => await MutedWord.aggregate(mutedWordsAggregationPipeline(userId, lastMuteId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
+	const userId = req.userInfo?.userId;
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
 			res.status(404).send("User not found");
 			return;
 		}
+		if (userId) {
+			const targetId = user._id;
+			user.blocked = Block.countDocuments({ user: targetId, blockedBy: userId });
+			user.muted = MutedUser.countDocuments({ user: targetId, mutedBy: userId });
+		}
 		res.status(200).json({ user });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getUserPosts = async (req, res, next) => {
@@ -55,7 +61,7 @@ const getUserPosts = async (req, res, next) => {
 		const posts = await findPostsByUserId(user._id, includeRepeats === "true", includeReplies === "true", lastPostId);
 		res.status(200).json({ posts });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getUserFavourites = async (req, res, next) => {
@@ -70,7 +76,7 @@ const getUserFavourites = async (req, res, next) => {
 		const favourites = await findFavouritesByUserId(user._id, lastFavouriteId);
 		res.status(200).json({ favourites });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getUserFollowing = async (req, res, next) => {
@@ -85,7 +91,7 @@ const getUserFollowing = async (req, res, next) => {
 		const following = await findFollowingByUserId(user._id, lastFollowId);
 		res.status(200).json({ following });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getUserFollowers = async (req, res, next) => {
@@ -100,7 +106,7 @@ const getUserFollowers = async (req, res, next) => {
 		const followers = await findFollowersByUserId(user._id, lastFollowId);
 		res.status(200).json({ followers });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getUserMentions = async (req, res, next) => {
@@ -115,7 +121,7 @@ const getUserMentions = async (req, res, next) => {
 		const mentions = await findMentionsByUserId(user._id, lastMentionId);
 		res.status(200).json({ mentions });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getBlocks = async (req, res, next) => {
@@ -125,7 +131,7 @@ const getBlocks = async (req, res, next) => {
 		const blockedUsers = await findBlocksByUserId(userId, lastBlockId);
 		res.status(200).json({ blockedUsers });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getMutedUsers = async (req, res, next) => {
@@ -135,7 +141,7 @@ const getMutedUsers = async (req, res, next) => {
 		const mutedUsers = await findMutedUsersByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedUsers });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getMutedPosts = async (req, res, next) => {
@@ -145,7 +151,7 @@ const getMutedPosts = async (req, res, next) => {
 		const mutedPosts = await findMutedPostsByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedPosts });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const getMutedWords = async (req, res, next) => {
@@ -155,7 +161,7 @@ const getMutedWords = async (req, res, next) => {
 		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedWords });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const deactivateUser = async (req, res, next) => {
@@ -164,7 +170,7 @@ const deactivateUser = async (req, res, next) => {
 		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true });
 		res.status(200).json({ deactivated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const activateUser = async (req, res, next) => {
@@ -173,7 +179,7 @@ const activateUser = async (req, res, next) => {
 		const activated = await User.findByIdAndUpdate(userId, { deactivated: false });
 		res.status(200).json({ activated });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 const deleteUser = async (req, res, next) => {
@@ -182,7 +188,7 @@ const deleteUser = async (req, res, next) => {
 		const deleted = await User.findByIdAndUpdate(userId, { deleted: true });
 		res.status(200).json({ deleted });
 	} catch (err) {
-		res.status(500).send(err);
+		next(err);
 	}
 };
 
