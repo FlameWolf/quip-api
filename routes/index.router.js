@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const authenticateRequest = require("../middleware/authenticate-request");
+const requireAuthentication = require("../middleware/require-authentication");
 const indexController = require("../controllers/index.controller");
 
 router.get("/", async (req, res, next) => {
@@ -12,8 +12,8 @@ router.get("/", async (req, res, next) => {
 	}
 	res.sendStatus(404);
 });
-router.get("/timeline", authenticateRequest, indexController.timeline);
-router.get("/activity/:period?", authenticateRequest, indexController.activity);
-router.get("/topmost/:period?", authenticateRequest, indexController.topmost);
+router.get("/timeline", requireAuthentication, indexController.timeline);
+router.get("/activity/:period?", requireAuthentication, indexController.activity);
+router.get("/topmost/:period?", indexController.topmost);
 
 module.exports = router;
