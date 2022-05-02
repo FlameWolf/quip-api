@@ -3,6 +3,11 @@
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const Mention = require("./mention.model");
+const User = require("./user.model");
+const Favourite = require("./favourite.model");
+const MutedPost = require("./muted.post.model");
+const Attachments = require("./attachments.model");
 
 const postSchema = new mongoose.Schema(
 	{
@@ -35,5 +40,27 @@ const postSchema = new mongoose.Schema(
 		}
 	}
 );
+postSchema.post("findOneAndDelete", async post => {
+	const postId = post?._id;
+	if (postId) {
+		const filter = { post: postId };
+		await Promise.allSettled(
+			User.findOneAndUpdate(
+				{
+					pinnedPost: postId
+				},
+				{
+					pinnedPost: undefined
+				}
+			),
+			Post.deleteMany({ repeatPost: postId }),
+			Attachments.findOneAndDelete(post.attachments),
+			Mention.deleteMany(filter),
+			Favourite.deleteMany(filter),
+			MutedPost.deleteMany(filter)
+		);
+	}
+});
 
-module.exports = mongoose.model("Post", postSchema);
+const Post = mongoose.model("Post", postSchema);
+module.exports = Post;
