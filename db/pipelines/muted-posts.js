@@ -43,6 +43,20 @@ const mutedPostsAggregationPipeline = (userId, lastMuteId) => [
 		$project: {
 			post: 1
 		}
+	},
+	{
+		$match: lastMuteId
+			? {
+				_id: {
+					$lt: ObjectId(lastMuteId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
 	}
 ];
 

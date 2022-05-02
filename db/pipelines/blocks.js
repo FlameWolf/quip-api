@@ -35,6 +35,20 @@ const blocksAggregationPipeline = (userId, lastBlockId) => [
 		$project: {
 			user: 1
 		}
+	},
+	{
+		match: lastBlockId
+			? {
+				_id: {
+					$lt: ObjectId(lastBlockId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
 	}
 ];
 
