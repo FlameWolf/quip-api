@@ -1,9 +1,9 @@
-To fix:
-
-- Ensure sorting is okay in other pipelines
-
 To add:
 
+- Add email
+- Verify email
+- Pinned post
+- Add location to post
 - Media search
 - User search
-- Blocks/mutes
+- Location search
