@@ -72,16 +72,13 @@ const refreshToken = async (req, res, next) => {
 		}
 		const { "x-slug": handle, "x-uid": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-		if (userInfo.handle === handle && userInfo.userId === userId) {
-			res.status(200).json(authSuccess(handle, userId, false));
-		} else {
+		if (userInfo.handle !== handle || userInfo.userId !== userId) {
 			throw new Error("Refresh token invalid");
 		}
+		res.status(200).json(authSuccess(handle, userId, false));
 	} catch (err) {
 		res.status(401).send(err);
-		return;
 	}
-	next();
 };
 const signOut = async (req, res, next) => {
 	res.sendStatus(200);
