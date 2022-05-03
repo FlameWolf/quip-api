@@ -65,21 +65,6 @@ const getUserPosts = async (req, res, next) => {
 		next(err);
 	}
 };
-const getUserFavourites = async (req, res, next) => {
-	const handle = req.params.handle;
-	const lastFavouriteId = req.query.lastFavouriteId;
-	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const favourites = await findFavouritesByUserId(user._id, lastFavouriteId);
-		res.status(200).json({ favourites });
-	} catch (err) {
-		next(err);
-	}
-};
 const getUserTopmost = async (req, res, next) => {
 	const { handle, period } = req.params;
 	const userId = req.userInfo?.userId;
@@ -114,16 +99,29 @@ const getUserTopmost = async (req, res, next) => {
 		next(err);
 	}
 };
+const getUserFavourites = async (req, res, next) => {
+	const handle = req.params.handle;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
+	try {
+		const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
+		res.status(200).json({ favourites });
+	} catch (err) {
+		next(err);
+	}
+};
 const getUserFollowing = async (req, res, next) => {
 	const handle = req.params.handle;
-	const lastFollowId = req.query.lastFollowId;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
 	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const following = await findFollowingByUserId(user._id, lastFollowId);
+		const following = await findFollowingByUserId(userInfo.userId, req.query.lastFollowId);
 		res.status(200).json({ following });
 	} catch (err) {
 		next(err);
@@ -131,14 +129,13 @@ const getUserFollowing = async (req, res, next) => {
 };
 const getUserFollowers = async (req, res, next) => {
 	const handle = req.params.handle;
-	const lastFollowId = req.query.lastFollowId;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
 	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const followers = await findFollowersByUserId(user._id, lastFollowId);
+		const followers = await findFollowersByUserId(userInfo.userId, req.query.lastFollowId);
 		res.status(200).json({ followers });
 	} catch (err) {
 		next(err);
