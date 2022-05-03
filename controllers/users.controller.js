@@ -1,5 +1,6 @@
 "use strict";
 
+const mongoose = require("mongoose");
 const { ObjectId } = require("bson");
 const { noReplyEmail } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
@@ -203,7 +204,9 @@ const getMutedWords = async (req, res, next) => {
 const updateEmail = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const { oldEmail, newEmail } = req.body;
+	const session = await mongoose.startSession();
 	try {
+		session.startTransaction();
 		const updated = await User.findOneAndUpdate(
 			{
 				_id: userId,
@@ -213,8 +216,7 @@ const updateEmail = async (req, res, next) => {
 				email: newEmail,
 				emailVerified: false
 			}
-		);
-		res.status(200).json({ updated });
+		).session(session);
 		EmailVerification.updateOne(
 			{
 				user: userId,
@@ -223,12 +225,16 @@ const updateEmail = async (req, res, next) => {
 			{
 				upsert: true
 			}
-		).exec();
+		).session(session);
+		session.commitTransaction();
+		res.status(200).json({ updated });
 		if (oldEmail) {
-			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
+			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`).catch();
 		}
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const deactivateUser = async (req, res, next) => {

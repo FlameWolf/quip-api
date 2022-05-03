@@ -1,5 +1,6 @@
 "use strict";
 
+const mongoose = require("mongoose");
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const userController = require("./users.controller");
@@ -16,7 +17,7 @@ const validateContent = (content, attachment = undefined) => {
 		throw new Error("Content too long");
 	}
 };
-const updateMentions = async (content, postId) => {
+const updateMentions = async (content, postId, session) => {
 	const userIds = [];
 	for (const word of content.split(/\s+|\.+/)) {
 		if (word.startsWith("@")) {
@@ -32,11 +33,11 @@ const updateMentions = async (content, postId) => {
 	await new Mention({
 		post: postId,
 		mentioned: userIds
-	}).save();
+	}).save({ session });
 };
-const createMediaAttachment = async (fileType, src, description) => {
-	const mediaFile = await new MediaFile({ fileType, src, description }).save();
-	return await new Attachments({ mediaFile }).save();
+const createMediaAttachment = async (fileType, src, description, session) => {
+	const mediaFile = await new MediaFile({ fileType, src, description }).save({ session });
+	return await new Attachments({ mediaFile }).save({ session });
 };
 const createPost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
@@ -48,20 +49,25 @@ const createPost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
+		session.startTransaction();
 		const post = await new Post({
 			content,
 			author: userId,
 			...(media && {
-				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription)
+				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
 			})
-		}).save();
-		res.status(201).json({ post });
+		}).save({ session });
 		if (content) {
-			updateMentions(content, post._id);
+			await updateMentions(content, post._id, session);
 		}
+		session.commitTransaction();
+		res.status(201).json({ post });
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const getPost = async (req, res, next) => {
@@ -101,26 +107,30 @@ const quotePost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
-		const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription) : new Attachments();
+		const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session) : new Attachments();
 		attachments.post = postId;
-		await attachments.save();
+		await attachments.save({ session });
 		const quote = await new Post({
 			content,
 			author: userId,
 			attachments
-		}).save();
-		res.status(201).json({ quote });
+		}).save({ session });
 		const quoteId = quote._id;
-		new Mention({
+		await new Mention({
 			post: quoteId,
 			mentioned: [originalPost.author]
-		}).save();
+		}).save({ session });
 		if (content) {
-			updateMentions(content, quoteId);
+			await updateMentions(content, quoteId, session);
 		}
+		session.commitTransaction();
+		res.status(201).json({ quote });
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -130,16 +140,21 @@ const repeatPost = async (req, res, next) => {
 		author: userId,
 		repeatPost: postId
 	};
+	const session = await mongoose.startSession();
 	try {
 		if (!(await Post.findById(postId))) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		await Post.deleteOne(payload);
-		const repeated = await new Post(payload).save();
+		session.startTransaction();
+		await Post.deleteOne(payload).session(session);
+		const repeated = await new Post(payload).save({ session });
+		session.commitTransaction();
 		res.status(201).json({ repeated });
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const unrepeatPost = async (req, res, next) => {
@@ -171,26 +186,31 @@ const replyToPost = async (req, res, next) => {
 		res.status(404).send("Post not found");
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
+		session.startTransaction();
 		const reply = await new Post({
 			content,
 			author: userId,
 			replyTo,
 			...(media && {
-				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription)
+				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
 			})
-		}).save();
-		res.status(201).json({ reply });
+		}).save({ session });
 		const replyId = reply._id;
 		new Mention({
 			post: replyId,
 			mentioned: [originalPost.author]
-		}).save();
+		}).save({ session });
 		if (content) {
-			updateMentions(content, replyId);
+			await updateMentions(content, replyId, session);
 		}
+		session.commitTransaction();
+		res.status(201).json({ reply });
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const deletePost = async (req, res, next) => {

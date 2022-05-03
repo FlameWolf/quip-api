@@ -1,5 +1,6 @@
 "use strict";
 
+const mongoose = require("mongoose");
 const timelineAggregationPipeline = require("../db/pipelines/timeline");
 const activityAggregationPipeline = require("../db/pipelines/activity");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
@@ -41,21 +42,27 @@ const topmost = async (req, res, next) => {
 };
 const verifyEmail = async (req, res, next) => {
 	const token = req.path.token;
+	const session = await mongoose.startSession();
 	try {
 		const emailVerification = await EmailVerification.findOne({ token });
 		if (!emailVerification) {
 			res.status(404).send("Verification token not found or expired");
 		}
-		await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).exec();
+		session.startTransaction();
+		await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
+		await EmailVerification.deleteOne(emailVerification).session(session);
+		session.commitTransaction();
 		res.sendStatus(200);
-		EmailVerification.deleteOne(emailVerification).exec();
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 
 module.exports = {
 	timeline,
 	activity,
-	topmost
+	topmost,
+	verifyEmail
 };

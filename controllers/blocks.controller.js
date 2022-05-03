@@ -1,5 +1,6 @@
 "use strict";
 
+const mongoose = require("mongoose");
 const usersController = require("./users.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
@@ -13,6 +14,7 @@ const blockUser = async (req, res, next) => {
 		res.status(422).send("User cannot block themselves");
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
 		const blockee = await usersController.findActiveUserByHandle(blockeeHandle);
 		if (!blockee) {
@@ -20,14 +22,32 @@ const blockUser = async (req, res, next) => {
 			return;
 		}
 		const blockeeUserId = blockee._id;
-		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save();
+		session.startTransaction();
+		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save({ session });
+		await Promise.all([
+			FollowRequest.deleteOne({
+				user: blockeeUserId,
+				requestedBy: blockerUserId
+			}).session(session),
+			FollowRequest.deleteOne({
+				user: blockerUserId,
+				requestedBy: blockeeUserId
+			}).session(session),
+			Follow.deleteOne({
+				user: blockeeUserId,
+				followedBy: blockerUserId
+			}).session(session),
+			Follow.deleteOne({
+				user: blockerUserId,
+				followedBy: blockeeUserId
+			}).session(session)
+		]);
+		session.commitTransaction();
 		res.status(200).json({ blocked });
-		FollowRequest.deleteOne({ user: blockeeUserId, requestedBy: blockerUserId }).exec();
-		FollowRequest.deleteOne({ user: blockerUserId, requestedBy: blockeeUserId }).exec();
-		Follow.deleteOne({ user: blockeeUserId, followedBy: blockerUserId }).exec();
-		Follow.deleteOne({ user: blockerUserId, followedBy: blockeeUserId }).exec();
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const unblockUser = async (req, res, next) => {
