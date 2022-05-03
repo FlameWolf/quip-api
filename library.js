@@ -11,6 +11,7 @@ const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxMutedWordLength = 256;
 const megaByte = 1024 * 1024;
+const noReplyEmail = "no-reply@quip-web-app.web.app";
 
 const setProperty = (operand, path, value) => {
 	const segments = Array.isArray(path) ? path : path.split(".");
@@ -43,6 +44,7 @@ module.exports = {
 	maxContentLength,
 	maxMutedWordLength,
 	megaByte,
+	noReplyEmail,
 	setProperty,
 	getProperty
 };
