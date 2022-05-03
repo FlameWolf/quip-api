@@ -1,9 +1,9 @@
 "use strict";
 
-const { handleRegExp, passwordRegExp, emailRegExp } = require("../library");
+const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
-const { ObjectId } = require("mongodb");
+const { handleRegExp, passwordRegExp, emailRegExp } = require("../library");
 
 const userSchema = new mongoose.Schema(
 	{

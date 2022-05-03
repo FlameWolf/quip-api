@@ -1,9 +1,9 @@
 "use strict";
 
-const { contentLengthRegExp, maxMutedWordLength } = require("../library");
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
+const { contentLengthRegExp, maxMutedWordLength } = require("../library");
 
 const mutedWordSchema = new mongoose.Schema(
 	{
