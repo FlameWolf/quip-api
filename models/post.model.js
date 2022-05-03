@@ -43,7 +43,7 @@ postSchema.post("findOneAndDelete", async post => {
 	const postId = post?._id;
 	if (postId) {
 		const filter = { post: postId };
-		await Promise.allSettled(
+		await Promise.allSettled([
 			User.findOneAndUpdate(
 				{
 					pinnedPost: postId
@@ -57,7 +57,7 @@ postSchema.post("findOneAndDelete", async post => {
 			Mention.deleteMany(filter),
 			Favourite.deleteMany(filter),
 			MutedPost.deleteMany(filter)
-		);
+		]);
 	}
 });
 
