@@ -1,5 +1,7 @@
 "use strict";
 
+const { ObjectId } = require("bson");
+const { noReplyEmail } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
@@ -10,6 +12,7 @@ const blocksAggregationPipeline = require("../db/pipelines/blocks");
 const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
 const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
 const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
+const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Follow = require("../models/follow.model");
 const Mention = require("../models/mention.model");
@@ -17,6 +20,7 @@ const Block = require("../models/block.model");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
+const EmailVerification = require("../models/email-verification.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
@@ -196,6 +200,37 @@ const getMutedWords = async (req, res, next) => {
 		next(err);
 	}
 };
+const updateEmail = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const { oldEmail, newEmail } = req.body;
+	try {
+		const updated = await User.findOneAndUpdate(
+			{
+				_id: userId,
+				email: oldEmail || { $exists: false }
+			},
+			{
+				email: newEmail,
+				emailVerified: false
+			}
+		);
+		res.status(200).json({ updated });
+		EmailVerification.updateOne(
+			{
+				user: userId,
+				token: new ObjectId()
+			},
+			{
+				upsert: true
+			}
+		).exec();
+		if (oldEmail) {
+			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
+		}
+	} catch (err) {
+		next(err);
+	}
+};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -245,6 +280,7 @@ module.exports = {
 	getMutedUsers,
 	getMutedPosts,
 	getMutedWords,
+	updateEmail,
 	deactivateUser,
 	activateUser,
 	deleteUser
