@@ -10,6 +10,7 @@ const blocksController = require("../controllers/blocks.controller");
 
 router.get("/:handle", usersController.getUser);
 router.get("/:handle/posts", usersController.getUserPosts);
+router.get("/:handle/topmost", usersController.getUserTopmost);
 router.get("/:handle/favourites", usersController.getUserFavourites);
 router.get("/:handle/following", usersController.getUserFollowing);
 router.get("/:handle/followers", usersController.getUserFollowers);
