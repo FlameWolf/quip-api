@@ -1,7 +1,7 @@
 "use strict";
 
-const Post = require("../models/post.model");
 const searchPostsAggregationPipeline = require("../db/pipelines/search-posts");
+const Post = require("../models/post.model");
 
 const searchPosts = async (req, res, next) => {
 	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "date-sort": sortByDate, lastScore, lastPostId } = req.query;
