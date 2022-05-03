@@ -1,6 +1,7 @@
 "use strict";
 
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
+const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
@@ -75,6 +76,40 @@ const getUserFavourites = async (req, res, next) => {
 		}
 		const favourites = await findFavouritesByUserId(user._id, lastFavouriteId);
 		res.status(200).json({ favourites });
+	} catch (err) {
+		next(err);
+	}
+};
+const getUserTopmost = async (req, res, next) => {
+	const { handle, period } = req.params;
+	const userId = req.userInfo?.userId;
+	try {
+		const user = await findActiveUserByHandle(handle);
+		if (!user) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const posts = await User.aggregate([
+			{
+				$match: { handle }
+			},
+			{
+				$lookup: {
+					from: "posts",
+					localField: "_id",
+					foreignField: "author",
+					pipeline: topmostAggregationPipeline(userId, period),
+					as: "posts"
+				}
+			},
+			{
+				$unwind: "$posts"
+			},
+			{
+				$replaceWith: "$posts"
+			}
+		]);
+		res.status(200).json({ posts });
 	} catch (err) {
 		next(err);
 	}
@@ -204,6 +239,7 @@ module.exports = {
 	findMentionsByUserId,
 	getUser,
 	getUserPosts,
+	getUserTopmost,
 	getUserFavourites,
 	getUserFollowing,
 	getUserFollowers,
