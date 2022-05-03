@@ -1,8 +1,8 @@
 "use strict";
 
-const { contentLengthRegExp, maxContentLength } = require("../library");
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const { contentLengthRegExp, maxContentLength } = require("../library");
 const Mention = require("./mention.model");
 const User = require("./user.model");
 const Favourite = require("./favourite.model");
@@ -29,7 +29,6 @@ const postSchema = new mongoose.Schema(
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: { type: ObjectId, ref: "Attachments" },
-		private: { type: Boolean, default: false },
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" }
 	},
 	{
