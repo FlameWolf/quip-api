@@ -109,24 +109,25 @@ const quotePost = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session) : new Attachments();
-		attachments.post = postId;
-		await attachments.save({ session });
-		const quote = await new Post({
-			content,
-			author: userId,
-			attachments
-		}).save({ session });
-		const quoteId = quote._id;
-		await new Mention({
-			post: quoteId,
-			mentioned: [originalPost.author]
-		}).save({ session });
-		if (content) {
-			await updateMentions(content, quoteId, session);
-		}
-		session.commitTransaction();
-		res.status(201).json({ quote });
+		await session.withTransaction(async () => {
+			const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session) : new Attachments();
+			attachments.post = postId;
+			await attachments.save({ session });
+			const quote = await new Post({
+				content,
+				author: userId,
+				attachments
+			}).save({ session });
+			const quoteId = quote._id;
+			await new Mention({
+				post: quoteId,
+				mentioned: [originalPost.author]
+			}).save({ session });
+			if (content) {
+				await updateMentions(content, quoteId, session);
+			}
+			res.status(201).json({ quote });
+		});
 	} catch (err) {
 		next(err);
 	} finally {
