@@ -23,7 +23,7 @@ router.get("/blocked", usersController.getBlocks);
 router.get("/muted/users", usersController.getMutedUsers);
 router.get("/muted/posts", usersController.getMutedPosts);
 router.get("/muted/words", usersController.getMutedWords);
-router.get("/update-email", usersController.updateEmail);
+router.post("/update-email", usersController.updateEmail);
 router.get("/deactivate", usersController.deactivateUser);
 router.get("/activate", usersController.activateUser);
 router.delete("/delete", usersController.deleteUser);
