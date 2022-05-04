@@ -8,9 +8,7 @@ const usersController = require("../controllers/users.controller");
 const followRequestsController = require("../controllers/follow-requests.controller");
 
 router.post("/", settingsController.updateSettings);
-router.put("/:path", settingsController.updateSettingByPath);
 router.get("/", settingsController.getSettings);
-router.get("/:path", settingsController.getSettingByPath);
 router.post("/mute", mutesController.muteWord);
 router.post("/unmute", mutesController.unmuteWord);
 router.get("/accept-req/:requestId", followRequestsController.acceptFollowRequest);
@@ -27,5 +25,7 @@ router.post("/update-email", usersController.updateEmail);
 router.get("/deactivate", usersController.deactivateUser);
 router.get("/activate", usersController.activateUser);
 router.delete("/delete", usersController.deleteUser);
+router.put("/:path", settingsController.updateSettingByPath);
+router.get("/:path", settingsController.getSettingByPath);
 
 module.exports = router;
