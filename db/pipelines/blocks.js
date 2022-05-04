@@ -37,7 +37,7 @@ const blocksAggregationPipeline = (userId, lastBlockId) => [
 		}
 	},
 	{
-		match: lastBlockId
+		$match: lastBlockId
 			? {
 				_id: {
 					$lt: ObjectId(lastBlockId)
