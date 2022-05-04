@@ -368,6 +368,50 @@
 				}
 			}
 		},
+		"/settings/blocked": {
+			"get": {
+				"parameters": [
+					{
+						"name": "lastBlockId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/muted/users": {
+			"get": {
+				"parameters": [
+					{
+						"name": "lastMuteId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/muted/posts": {
+			"get": {
+				"parameters": [
+					{
+						"name": "lastMuteId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/muted/words": {
+			"get": {
+				"parameters": [
+					{
+						"name": "lastMuteId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/topmost/{period}": {
 			"get": {
 				"parameters": [
