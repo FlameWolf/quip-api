@@ -50,9 +50,9 @@ const verifyEmail = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			const updated = await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }, { new: true }).session(session);
+			await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
-			res.status(200).json({ updated });
+			res.status(200).send(`<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body><p>Email verified successfully.</p></body></html>`);
 		});
 	} catch (err) {
 		next(err);
