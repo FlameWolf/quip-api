@@ -417,6 +417,34 @@
 				]
 			}
 		},
+		"/users/{handle}/topmost/{period?}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "description",
+						"enum": ["Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"]
+					}
+				]
+			}
+		},
+		"/users/{handle}/topmost/{period}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "period",
+						"in": "path",
+						"required": false,
+						"type": "string",
+						"enum": ["?", "day", "week", "month", "year", "all"]
+					}
+				]
+			}
+		},
 		"/users/{handle}/favourites": {
 			"get": {
 				"parameters": [
