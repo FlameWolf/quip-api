@@ -31,6 +31,13 @@ const getProperty = (operand, path) => {
 	}
 	return operand;
 };
+const escapeRegExp = value => {
+	const regExpSpecialChars = ["^", "$", '"', ".", "*", "+", "?", "(", ")", "[", "]", "{", "}", "|"];
+	for (const char of regExpSpecialChars) {
+		value = value.replace(new RegExp(`\\${char}`, "g"), `\\${char}`);
+	}
+	return value;
+};
 
 module.exports = {
 	invalidHandles,
@@ -46,5 +53,6 @@ module.exports = {
 	megaByte,
 	noReplyEmail,
 	setProperty,
-	getProperty
+	getProperty,
+	escapeRegExp
 };
