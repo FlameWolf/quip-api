@@ -215,21 +215,20 @@ const updateEmail = async (req, res, next) => {
 				{
 					email: newEmail,
 					emailVerified: false
-				}
-			).session(session);
-			EmailVerification.updateOne(
-				{
-					user: userId,
-					token: new ObjectId()
 				},
 				{
-					upsert: true
+					new: true
 				}
 			).session(session);
+			const emailVerification = await new EmailVerification({
+				user: userId,
+				token: new ObjectId()
+			}).save({ session });
+			await emailController.sendEmail(noReplyEmail, newEmail, "Verify your email", `Hi @${req.userInfo.handle}, your email address on Quip was updated from to ${newEmail} on ${new Date()}. Click <a href="${req.protocol}://${req.get("Host")}/verify-email/${emailVerification.token}">here</a> to verify that this is correct.`);
 			res.status(200).json({ updated });
 		});
 		if (oldEmail) {
-			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`).catch();
+			await emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
 		}
 	} catch (err) {
 		next(err);
