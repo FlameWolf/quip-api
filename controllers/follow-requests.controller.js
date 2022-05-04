@@ -30,10 +30,10 @@ const acceptFollowRequest = async (req, res, next) => {
 		if (!followRequest) {
 			res.status(404).send(new Error("Follow request not found"));
 		}
-		session.startTransaction();
-		const accepted = await acceptHandler(followRequest, session, acceptorUserId);
-		session.commitTransaction();
-		res.status(200).json({ accepted });
+		await session.withTransaction(async () => {
+			const accepted = await acceptHandler(followRequest, session, acceptorUserId);
+			res.status(200).json({ accepted });
+		});
 	} catch (err) {
 		next(err);
 	} finally {
@@ -45,10 +45,10 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 	const acceptorUserId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
-		session.startTransaction();
-		await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
-		session.commitTransaction();
+		await session.withTransaction(async () => {
+			const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
+			await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
+		});
 		res.status(200).json({ acceptedRequestIds: followRequestIds });
 	} catch (err) {
 		next(err);
@@ -62,14 +62,14 @@ const acceptAllFollowRequests = async (req, res, next) => {
 	try {
 		let acceptedRequestsCount = 0;
 		let requestsCount = 0;
-		session.startTransaction();
-		do {
-			const followRequests = await FollowRequest.find({ user: acceptorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
-			await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
-			requestsCount = followRequests.length;
-			acceptedRequestsCount += requestsCount;
-		} while (requestsCount === pageSize);
-		session.commitTransaction();
+		await session.withTransaction(async () => {
+			do {
+				const followRequests = await FollowRequest.find({ user: acceptorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
+				await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
+				requestsCount = followRequests.length;
+				acceptedRequestsCount += requestsCount;
+			} while (requestsCount === pageSize);
+		});
 		res.status(200).json({ acceptedRequestsCount });
 	} catch (err) {
 		next(err);
@@ -86,9 +86,9 @@ const rejectFollowRequest = async (req, res, next) => {
 		if (!followRequest) {
 			res.status(404).send(new Error("Follow request not found"));
 		}
-		session.startTransaction();
-		await rejectHandler(followRequest, session, rejectorUserId);
-		session.commitTransaction();
+		await session.withTransaction(async () => {
+			await rejectHandler(followRequest, session, rejectorUserId);
+		});
 		res.status(200).json({ rejected: followRequest });
 	} catch (err) {
 		next(err);
@@ -101,10 +101,10 @@ const rejectSelectedFollowRequests = async (req, res, next) => {
 	const rejectorUserId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
-		session.startTransaction();
-		await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
-		session.commitTransaction();
+		await session.withTransaction(async () => {
+			const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
+			await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
+		});
 		res.status(200).json({ rejectedRequestIds: followRequestIds });
 	} catch (err) {
 		next(err);
@@ -118,14 +118,14 @@ const rejectAllFollowRequests = async (req, res, next) => {
 	try {
 		let rejectedRequestsCount = 0;
 		let requestsCount = 0;
-		session.startTransaction();
-		do {
-			const followRequests = await FollowRequest.find({ user: rejectorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
-			await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
-			requestsCount = followRequests.length;
-			rejectedRequestsCount += requestsCount;
-		} while (requestsCount === pageSize);
-		session.commitTransaction();
+		await session.withTransaction(async () => {
+			do {
+				const followRequests = await FollowRequest.find({ user: rejectorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
+				await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
+				requestsCount = followRequests.length;
+				rejectedRequestsCount += requestsCount;
+			} while (requestsCount === pageSize);
+		});
 		res.status(200).json({ rejectedRequestsCount });
 	} catch (err) {
 		next(err);

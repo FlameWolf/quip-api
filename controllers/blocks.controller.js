@@ -21,29 +21,29 @@ const blockUser = async (req, res, next) => {
 			res.status(404).send("User not found");
 			return;
 		}
-		const blockeeUserId = blockee._id;
-		session.startTransaction();
-		const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save({ session });
-		await Promise.all([
-			FollowRequest.deleteOne({
-				user: blockeeUserId,
-				requestedBy: blockerUserId
-			}).session(session),
-			FollowRequest.deleteOne({
-				user: blockerUserId,
-				requestedBy: blockeeUserId
-			}).session(session),
-			Follow.deleteOne({
-				user: blockeeUserId,
-				followedBy: blockerUserId
-			}).session(session),
-			Follow.deleteOne({
-				user: blockerUserId,
-				followedBy: blockeeUserId
-			}).session(session)
-		]);
-		session.commitTransaction();
-		res.status(200).json({ blocked });
+		await session.withTransaction(async () => {
+			const blockeeUserId = blockee._id;
+			const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save({ session });
+			await Promise.all([
+				FollowRequest.deleteOne({
+					user: blockeeUserId,
+					requestedBy: blockerUserId
+				}).session(session),
+				FollowRequest.deleteOne({
+					user: blockerUserId,
+					requestedBy: blockeeUserId
+				}).session(session),
+				Follow.deleteOne({
+					user: blockeeUserId,
+					followedBy: blockerUserId
+				}).session(session),
+				Follow.deleteOne({
+					user: blockerUserId,
+					followedBy: blockeeUserId
+				}).session(session)
+			]);
+			res.status(200).json({ blocked });
+		});
 	} catch (err) {
 		next(err);
 	} finally {

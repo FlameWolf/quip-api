@@ -51,19 +51,19 @@ const createPost = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		session.startTransaction();
-		const post = await new Post({
-			content,
-			author: userId,
-			...(media && {
-				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
-			})
-		}).save({ session });
-		if (content) {
-			await updateMentions(content, post._id, session);
-		}
-		session.commitTransaction();
-		res.status(201).json({ post });
+		await session.withTransaction(async () => {
+			const post = await new Post({
+				content,
+				author: userId,
+				...(media && {
+					attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
+				})
+			}).save({ session });
+			if (content) {
+				await updateMentions(content, post._id, session);
+			}
+			res.status(201).json({ post });
+		});
 	} catch (err) {
 		next(err);
 	} finally {
@@ -146,11 +146,11 @@ const repeatPost = async (req, res, next) => {
 			res.status(404).send("Post not found");
 			return;
 		}
-		session.startTransaction();
-		await Post.deleteOne(payload).session(session);
-		const repeated = await new Post(payload).save({ session });
-		session.commitTransaction();
-		res.status(201).json({ repeated });
+		await session.withTransaction(async () => {
+			await Post.deleteOne(payload).session(session);
+			const repeated = await new Post(payload).save({ session });
+			res.status(201).json({ repeated });
+		});
 	} catch (err) {
 		next(err);
 	} finally {
@@ -188,25 +188,25 @@ const replyToPost = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		session.startTransaction();
-		const reply = await new Post({
-			content,
-			author: userId,
-			replyTo,
-			...(media && {
-				attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
-			})
-		}).save({ session });
-		const replyId = reply._id;
-		new Mention({
-			post: replyId,
-			mentioned: [originalPost.author]
-		}).save({ session });
-		if (content) {
-			await updateMentions(content, replyId, session);
-		}
-		session.commitTransaction();
-		res.status(201).json({ reply });
+		await session.withTransaction(async () => {
+			const reply = await new Post({
+				content,
+				author: userId,
+				replyTo,
+				...(media && {
+					attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
+				})
+			}).save({ session });
+			const replyId = reply._id;
+			new Mention({
+				post: replyId,
+				mentioned: [originalPost.author]
+			}).save({ session });
+			if (content) {
+				await updateMentions(content, replyId, session);
+			}
+			res.status(201).json({ reply });
+		});
 	} catch (err) {
 		next(err);
 	} finally {

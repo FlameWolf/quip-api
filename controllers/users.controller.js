@@ -206,28 +206,28 @@ const updateEmail = async (req, res, next) => {
 	const { oldEmail, newEmail } = req.body;
 	const session = await mongoose.startSession();
 	try {
-		session.startTransaction();
-		const updated = await User.findOneAndUpdate(
-			{
-				_id: userId,
-				email: oldEmail || { $exists: false }
-			},
-			{
-				email: newEmail,
-				emailVerified: false
-			}
-		).session(session);
-		EmailVerification.updateOne(
-			{
-				user: userId,
-				token: new ObjectId()
-			},
-			{
-				upsert: true
-			}
-		).session(session);
-		session.commitTransaction();
-		res.status(200).json({ updated });
+		await session.withTransaction(async () => {
+			const updated = await User.findOneAndUpdate(
+				{
+					_id: userId,
+					email: oldEmail || { $exists: false }
+				},
+				{
+					email: newEmail,
+					emailVerified: false
+				}
+			).session(session);
+			EmailVerification.updateOne(
+				{
+					user: userId,
+					token: new ObjectId()
+				},
+				{
+					upsert: true
+				}
+			).session(session);
+			res.status(200).json({ updated });
+		});
 		if (oldEmail) {
 			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`).catch();
 		}

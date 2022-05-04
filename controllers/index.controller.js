@@ -48,11 +48,11 @@ const verifyEmail = async (req, res, next) => {
 		if (!emailVerification) {
 			res.status(404).send("Verification token not found or expired");
 		}
-		session.startTransaction();
-		await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
-		await EmailVerification.deleteOne(emailVerification).session(session);
-		session.commitTransaction();
-		res.sendStatus(200);
+		await session.withTransaction(async () => {
+			const updated = await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
+			await EmailVerification.deleteOne(emailVerification).session(session);
+			res.status(200).json({ updated });
+		});
 	} catch (err) {
 		next(err);
 	} finally {
