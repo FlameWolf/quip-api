@@ -155,6 +155,24 @@
 					}
 				}
 			}
+		},
+		"EmailUpdate": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"oldEmail": {
+								"type": "string"
+							},
+							"newEmail": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"paths": {
@@ -341,6 +359,13 @@
 						"required": true
 					}
 				]
+			}
+		},
+		"/settings/update-email": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/EmailUpdate"
+				}
 			}
 		},
 		"/topmost/{period}": {
