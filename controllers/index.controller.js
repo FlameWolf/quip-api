@@ -41,15 +41,16 @@ const topmost = async (req, res, next) => {
 	}
 };
 const verifyEmail = async (req, res, next) => {
-	const token = req.path.token;
+	const token = req.params.token;
 	const session = await mongoose.startSession();
 	try {
 		const emailVerification = await EmailVerification.findOne({ token });
 		if (!emailVerification) {
 			res.status(404).send("Verification token not found or expired");
+			return;
 		}
 		await session.withTransaction(async () => {
-			const updated = await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
+			const updated = await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }, { new: true }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
 			res.status(200).json({ updated });
 		});
