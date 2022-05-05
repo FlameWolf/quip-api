@@ -184,6 +184,9 @@ const topmostAggregationPipeline = (userId = undefined, period = "") => {
 			}
 		},
 		{
+			$unset: "score"
+		},
+		{
 			$limit: 250
 		},
 		...postAggregationPipeline(userId)
