@@ -505,6 +505,22 @@
 				]
 			}
 		},
+		"/users/{handle}/bookmark": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "lastBookmarkId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/users/{handle}/following": {
 			"get": {
 				"parameters": [
