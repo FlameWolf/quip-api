@@ -12,6 +12,7 @@ router.get("/:handle", usersController.getUser);
 router.get("/:handle/posts", usersController.getUserPosts);
 router.get("/:handle/topmost/:period?", usersController.getUserTopmost);
 router.get("/:handle/favourites", requireAuthentication, usersController.getUserFavourites);
+router.get("/:handle/bookmarks", requireAuthentication, usersController.getUserBookmarks);
 router.get("/:handle/following", requireAuthentication, usersController.getUserFollowing);
 router.get("/:handle/followers", requireAuthentication, usersController.getUserFollowers);
 router.get("/:handle/mentions", usersController.getUserMentions);
