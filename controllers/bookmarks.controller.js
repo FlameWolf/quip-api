@@ -7,7 +7,7 @@ const addBookmark = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		if (!(await Post.findById(postId))) {
+		if (!(await Post.countDocuments({ _id: postId }))) {
 			res.status(404).send("Post not found");
 			return;
 		}

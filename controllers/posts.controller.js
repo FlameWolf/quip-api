@@ -1,5 +1,6 @@
 "use strict";
 
+const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const { contentLengthRegExp, maxContentLength } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
@@ -73,20 +74,21 @@ const createPost = async (req, res, next) => {
 const getPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
-		const post = await Post.findById(postId);
-		if (!post) {
+		if (!(await Post.countDocuments({ _id: postId }))) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const expandedPost = (
+		const post = (
 			await Post.aggregate([
 				{
-					$match: post
+					$match: {
+						_id: ObjectId(postId)
+					}
 				},
 				...postAggregationPipeline(req.userInfo?.userId)
 			])
 		).shift();
-		res.status(200).json({ post: expandedPost });
+		res.status(200).json({ post });
 	} catch (err) {
 		next(err);
 	}
@@ -143,7 +145,7 @@ const repeatPost = async (req, res, next) => {
 	};
 	const session = await mongoose.startSession();
 	try {
-		if (!(await Post.findById(postId))) {
+		if (!(await Post.countDocuments({ _id: postId }))) {
 			res.status(404).send("Post not found");
 			return;
 		}
