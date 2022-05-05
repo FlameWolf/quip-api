@@ -1,11 +1,16 @@
 "use strict";
 
+const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
 
 const addFavourite = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
+		if (!(await Post.findById(postId))) {
+			res.status(404).send("Post not found");
+			return;
+		}
 		const favourited = await new Favourite({
 			post: postId,
 			favouritedBy: userId
