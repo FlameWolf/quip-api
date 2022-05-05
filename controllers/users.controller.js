@@ -255,7 +255,7 @@ const updateEmail = async (req, res, next) => {
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
-		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true });
+		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true }, { new: true });
 		res.status(200).json({ deactivated });
 	} catch (err) {
 		next(err);
@@ -264,7 +264,7 @@ const deactivateUser = async (req, res, next) => {
 const activateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
-		const activated = await User.findByIdAndUpdate(userId, { deactivated: false });
+		const activated = await User.findByIdAndUpdate(userId, { deactivated: false }, { new: true });
 		res.status(200).json({ activated });
 	} catch (err) {
 		next(err);
@@ -273,7 +273,7 @@ const activateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
-		const deleted = await User.findByIdAndUpdate(userId, { deleted: true });
+		const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true });
 		res.status(200).json({ deleted });
 	} catch (err) {
 		next(err);
