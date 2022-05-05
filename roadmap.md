@@ -1,5 +1,7 @@
 To add:
 
+- Load replies to a post
+- Load parent of a reply post
 - Change password
 - Reset password
 - Pinned post
