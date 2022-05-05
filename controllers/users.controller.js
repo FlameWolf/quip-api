@@ -76,14 +76,14 @@ const getUserTopmost = async (req, res, next) => {
 	const { handle, period } = req.params;
 	const userId = req.userInfo?.userId;
 	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
+		const filter = { handle };
+		if (!(await User.countDocuments(filter))) {
 			res.status(404).send("User not found");
 			return;
 		}
 		const posts = await User.aggregate([
 			{
-				$match: { handle }
+				$match: filter
 			},
 			{
 				$lookup: {
