@@ -6,6 +6,7 @@ const { noReplyEmail } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
+const bookmarksAggregationPipeline = require("../db/pipelines/bookmarks");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
 const mentionsAggregationPipeline = require("../db/pipelines/mentions");
@@ -29,6 +30,7 @@ const findUserById = async userId => await User.findOne({ _id: userId, deleted: 
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
 const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId = undefined) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
 const findFavouritesByUserId = async (userId, lastFavouriteId = undefined) => await User.aggregate(favouritesAggregationPipeline(userId, lastFavouriteId));
+const findBookmarksByUserId = async (userId, lastBookmarkId = undefined) => await User.aggregate(bookmarksAggregationPipeline(userId, lastBookmarkId));
 const findFollowingByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
 const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
 const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
@@ -114,6 +116,20 @@ const getUserFavourites = async (req, res, next) => {
 	try {
 		const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
 		res.status(200).json({ favourites });
+	} catch (err) {
+		next(err);
+	}
+};
+const getUserBookmarks = async (req, res, next) => {
+	const handle = req.params.handle;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
+	try {
+		const bookmarks = await findBookmarksByUserId(userInfo.userId, req.query.lastBookmarkId);
+		res.status(200).json({ bookmarks });
 	} catch (err) {
 		next(err);
 	}
@@ -278,6 +294,7 @@ module.exports = {
 	getUserPosts,
 	getUserTopmost,
 	getUserFavourites,
+	getUserBookmarks,
 	getUserFollowing,
 	getUserFollowers,
 	getUserMentions,
