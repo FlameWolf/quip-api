@@ -7,5 +7,4 @@ To add:
 - Media search
 - User search
 - Location search
-- Save post
 - Lists
