@@ -505,7 +505,7 @@
 				]
 			}
 		},
-		"/users/{handle}/bookmark": {
+		"/users/{handle}/bookmarks": {
 			"get": {
 				"parameters": [
 					{
