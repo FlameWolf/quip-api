@@ -3,11 +3,12 @@
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const { contentLengthRegExp, maxContentLength } = require("../library");
-const Mention = require("./mention.model");
 const User = require("./user.model");
-const Favourite = require("./favourite.model");
-const MutedPost = require("./muted.post.model");
 const Attachments = require("./attachments.model");
+const Mention = require("./mention.model");
+const Favourite = require("./favourite.model");
+const Bookmark = require("./bookmark.model");
+const MutedPost = require("./muted.post.model");
 
 const postSchema = new mongoose.Schema(
 	{
@@ -56,6 +57,7 @@ postSchema.post("findOneAndDelete", async post => {
 			Attachments.findOneAndDelete(post.attachments),
 			Mention.deleteMany(filter),
 			Favourite.deleteMany(filter),
+			Bookmark.deleteMany(filter),
 			MutedPost.deleteMany(filter)
 		]);
 	}
