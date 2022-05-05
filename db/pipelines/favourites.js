@@ -73,8 +73,7 @@ const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 				},
 				{
 					$project: {
-						post: 1,
-						createdAt: 1
+						post: 1
 					}
 				}
 			],
