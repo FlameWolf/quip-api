@@ -11,6 +11,8 @@ router.post("/", settingsController.updateSettings);
 router.get("/", settingsController.getSettings);
 router.post("/mute", mutesController.muteWord);
 router.post("/unmute", mutesController.unmuteWord);
+router.post("/sent-reqs", usersController.getUserFollowRequestsSent);
+router.post("/received-reqs", usersController.getUserFollowRequestsReceived);
 router.get("/accept-req/:requestId", followRequestsController.acceptFollowRequest);
 router.post("/accept-reqs", followRequestsController.acceptSelectedFollowRequests);
 router.get("/accept-all-reqs", followRequestsController.acceptAllFollowRequests);
