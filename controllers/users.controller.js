@@ -9,6 +9,8 @@ const favouritesAggregationPipeline = require("../db/pipelines/favourites");
 const bookmarksAggregationPipeline = require("../db/pipelines/bookmarks");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
+const followRequestsSentAggregationPipeline = require("../db/pipelines/follow-requests-sent");
+const followRequestsReceivedAggregationPipeline = require("../db/pipelines/follow-requests-received");
 const mentionsAggregationPipeline = require("../db/pipelines/mentions");
 const blocksAggregationPipeline = require("../db/pipelines/blocks");
 const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
@@ -17,12 +19,18 @@ const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
 const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Follow = require("../models/follow.model");
+const FollowRequest = require("../models/follow-request.model");
 const Mention = require("../models/mention.model");
 const Block = require("../models/block.model");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 const EmailVerification = require("../models/email-verification.model");
+const Bookmark = require("../models/bookmark.model");
+const List = require("../models/list.model");
+const ListMember = require("../models/list-member.model");
+const Favourite = require("../models/favourite.model");
+const Settings = require("../models/settings.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
@@ -33,6 +41,8 @@ const findFavouritesByUserId = async (userId, lastFavouriteId = undefined) => aw
 const findBookmarksByUserId = async (userId, lastBookmarkId = undefined) => await User.aggregate(bookmarksAggregationPipeline(userId, lastBookmarkId));
 const findFollowingByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
 const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
+const findFollowRequestsSentByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsSentAggregationPipeline(userId, lastFollowRequestId));
+const findFollowRequestsReceivedByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsReceivedAggregationPipeline(userId, lastFollowRequestId));
 const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
 const findBlocksByUserId = async (userId, lastBlockId = undefined) => await Block.aggregate(blocksAggregationPipeline(userId, lastBlockId));
 const findMutedUsersByUserId = async (userId, lastMuteId = undefined) => await MutedUser.aggregate(mutedUsersAggregationPipeline(userId, lastMuteId));
@@ -162,6 +172,34 @@ const getUserFollowers = async (req, res, next) => {
 		next(err);
 	}
 };
+const getUserFollowRequestsSent = async (req, res, next) => {
+	const handle = req.params.handle;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
+	try {
+		const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, req.query.lastFollowRequestId);
+		res.status(200).json({ followRequests });
+	} catch (err) {
+		next(err);
+	}
+};
+const getUserFollowRequestsReceived = async (req, res, next) => {
+	const handle = req.params.handle;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
+	try {
+		const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, req.query.lastFollowRequestId);
+		res.status(200).json({ followRequests });
+	} catch (err) {
+		next(err);
+	}
+};
 const getUserMentions = async (req, res, next) => {
 	const handle = req.params.handle;
 	const lastMentionId = req.query.lastMentionId;
@@ -272,11 +310,44 @@ const activateUser = async (req, res, next) => {
 };
 const deleteUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
+	const session = await mongoose.startSession();
 	try {
-		const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true });
-		res.status(200).json({ deleted });
+		await session.withTransaction(async () => {
+			const userFilter = { user: userId };
+			const ownerFilter = { owner: userId };
+			const mutedByFilter = { mutedBy: userId };
+			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
+			await Promise.all([
+				Block.deleteMany({
+					$or: [userFilter, { blockedBy: userId }]
+				}).session(session),
+				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
+				EmailVerification.deleteMany(userFilter).session(session),
+				Favourite.deleteMany({ favouritedBy: userId }).session(session),
+				FollowRequest.deleteMany({
+					$or: [userFilter, { favouritedBy: userId }]
+				}).session(session),
+				Follow.deleteMany({
+					$or: [userFilter, { followedBy: userId }]
+				}).session(session),
+				ListMember.deleteMany({
+					$or: [userFilter, { list: await List.find(ownerFilter, { _id: 1 }) }]
+				}).session(session),
+				List.deleteMany(ownerFilter).session(session),
+				Mention.deleteMany({ mentioned: userId }).session(session),
+				MutedPost.deleteMany(mutedByFilter).session(session),
+				MutedUser.deleteMany({
+					$or: [userFilter, mutedByFilter]
+				}).session(session),
+				MutedWord.deleteMany(mutedByFilter).session(session),
+				Settings.deleteMany(userFilter).session(session)
+			]);
+			res.status(200).json({ deleted });
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 
@@ -285,11 +356,6 @@ module.exports = {
 	findActiveUserByHandle,
 	findUserById,
 	findUserByHandle,
-	findPostsByUserId,
-	findFavouritesByUserId,
-	findFollowingByUserId,
-	findFollowersByUserId,
-	findMentionsByUserId,
 	getUser,
 	getUserPosts,
 	getUserTopmost,
@@ -297,6 +363,8 @@ module.exports = {
 	getUserBookmarks,
 	getUserFollowing,
 	getUserFollowers,
+	getUserFollowRequestsSent,
+	getUserFollowRequestsReceived,
 	getUserMentions,
 	getBlocks,
 	getMutedUsers,
