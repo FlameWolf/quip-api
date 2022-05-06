@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 
-const blocksAggregationPipeline = (userId, lastBlockId) => [
+const blocksAggregationPipeline = (userId, lastBlockId = undefined) => [
 	{
 		$match: {
 			blockedBy: ObjectId(userId)
