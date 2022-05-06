@@ -28,7 +28,7 @@ const listSchema = new mongoose.Schema(
 		}
 	}
 );
-listSchema.index({ owner: 1, name: 1 }, { unique: true, uniqueCaseInsensitive: true });
+listSchema.index({ owner: 1, name: 1 }, { unique: true });
 listSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("List", listSchema);
