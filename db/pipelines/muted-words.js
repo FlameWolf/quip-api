@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 
-const mutedWordsAggregationPipeline = (userId, lastMuteId) => [
+const mutedWordsAggregationPipeline = (userId, lastMuteId = undefined) => [
 	{
 		$match: {
 			mutedBy: ObjectId(userId)

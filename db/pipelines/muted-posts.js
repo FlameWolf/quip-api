@@ -4,7 +4,7 @@ const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 const interactionsAggregationPipeline = require("./interactions");
 
-const mutedPostsAggregationPipeline = (userId, lastMuteId) => [
+const mutedPostsAggregationPipeline = (userId, lastMuteId = undefined) => [
 	{
 		$match: {
 			mutedBy: ObjectId(userId)
