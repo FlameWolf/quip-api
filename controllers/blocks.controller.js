@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const usersController = require("./users.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
+const List = require("../models/list.model");
+const ListMember = require("../models/list-member.model");
 const Block = require("../models/block.model");
 
 const blockUser = async (req, res, next) => {
@@ -40,6 +42,14 @@ const blockUser = async (req, res, next) => {
 				Follow.deleteOne({
 					user: blockerUserId,
 					followedBy: blockeeUserId
+				}).session(session),
+				ListMember.deleteMany({
+					list: await List.find({ owner: blockerUserId }, { _id: 1 }),
+					user: blockeeUserId
+				}).session(session),
+				ListMember.deleteMany({
+					list: await List.find({ owner: blockeeUserId }, { _id: 1 }),
+					user: blockerUserId
 				}).session(session)
 			]);
 			res.status(200).json({ blocked });
