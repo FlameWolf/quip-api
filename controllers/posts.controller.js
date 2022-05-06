@@ -49,7 +49,7 @@ const deletePostWithCascade = async post => {
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
 		await Post.deleteOne(post).session(session);
-		const filter = { post: postId };
+		const postFilter = { post: postId };
 		const attachmentsId = post.attachments;
 		if (attachmentsId) {
 			const attachments = await Attachments.findByIdAndDelete(attachmentsId).session(session);
@@ -72,10 +72,10 @@ const deletePostWithCascade = async post => {
 			Post.deleteMany({
 				repeatPost: postId
 			}).session(session),
-			Mention.deleteMany(filter).session(session),
-			Favourite.deleteMany(filter).session(session),
-			Bookmark.deleteMany(filter).session(session),
-			MutedPost.deleteMany(filter).session(session)
+			Mention.deleteMany(postFilter).session(session),
+			Favourite.deleteMany(postFilter).session(session),
+			Bookmark.deleteMany(postFilter).session(session),
+			MutedPost.deleteMany(postFilter).session(session)
 		]);
 	});
 	await session.endSession();
