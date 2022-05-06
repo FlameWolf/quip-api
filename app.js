@@ -20,6 +20,7 @@ const requireAuthentication = require("./middleware/require-authentication");
 const indexRouter = require("./routes/index.router");
 const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
+const listsRouter = require("./routes/lists.router");
 const postsRouter = require("./routes/posts.router");
 const searchRouter = require("./routes/search.router");
 const settingsRouter = require("./routes/settings.router");
@@ -58,6 +59,7 @@ app.use((req, res, next) => {
 app.use("/", authenticateRequest, indexRouter);
 app.use("/auth", authRouter);
 app.use("/users", authenticateRequest, usersRouter);
+app.use("/lists", authenticateRequest, requireAuthentication, listsRouter);
 app.use("/posts", authenticateRequest, postsRouter);
 app.use("/search", authenticateRequest, searchRouter);
 app.use("/settings", authenticateRequest, requireAuthentication, settingsRouter);
