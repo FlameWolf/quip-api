@@ -318,28 +318,28 @@ const deleteUser = async (req, res, next) => {
 			const mutedByFilter = { mutedBy: userId };
 			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
 			await Promise.all([
-				Block.deleteMany({
-					$or: [userFilter, { blockedBy: userId }]
+				Follow.deleteMany({
+					$or: [userFilter, { followedBy: userId }]
 				}).session(session),
-				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
-				EmailVerification.deleteMany(userFilter).session(session),
-				Favourite.deleteMany({ favouritedBy: userId }).session(session),
 				FollowRequest.deleteMany({
 					$or: [userFilter, { favouritedBy: userId }]
 				}).session(session),
-				Follow.deleteMany({
-					$or: [userFilter, { followedBy: userId }]
+				Block.deleteMany({
+					$or: [userFilter, { blockedBy: userId }]
 				}).session(session),
 				ListMember.deleteMany({
 					$or: [userFilter, { list: await List.find(ownerFilter, { _id: 1 }) }]
 				}).session(session),
 				List.deleteMany(ownerFilter).session(session),
-				Mention.deleteMany({ mentioned: userId }).session(session),
+				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
+				Favourite.deleteMany({ favouritedBy: userId }).session(session),
 				MutedPost.deleteMany(mutedByFilter).session(session),
 				MutedUser.deleteMany({
 					$or: [userFilter, mutedByFilter]
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
+				Mention.deleteMany({ mentioned: userId }).session(session),
+				EmailVerification.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
 			res.status(200).json({ deleted });
