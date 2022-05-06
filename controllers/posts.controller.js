@@ -9,6 +9,10 @@ const Post = require("../models/post.model");
 const MediaFile = require("../models/media-file.model");
 const Attachments = require("../models/attachments.model");
 const Mention = require("../models/mention.model");
+const User = require("../models/user.model");
+const Favourite = require("../models/favourite.model");
+const Bookmark = require("../models/bookmark.model");
+const MutedPost = require("../models/muted.post.model");
 
 const validateContent = (content, attachment = undefined) => {
 	if (!(content || attachment)) {
@@ -39,6 +43,42 @@ const updateMentions = async (content, postId, session) => {
 const createMediaAttachment = async (fileType, src, description, session) => {
 	const mediaFile = await new MediaFile({ fileType, src, description }).save({ session });
 	return await new Attachments({ mediaFile }).save({ session });
+};
+const deletePostWithCascade = async post => {
+	const postId = post._id;
+	const session = await mongoose.startSession();
+	await session.withTransaction(async () => {
+		await Post.deleteOne(post).session(session);
+		const filter = { post: postId };
+		const attachmentsId = post.attachments;
+		if (attachmentsId) {
+			const attachments = await Attachments.findByIdAndDelete(attachmentsId).session(session);
+			if (attachments) {
+				const mediaFileId = attachments.mediaFile;
+				if (mediaFileId) {
+					await MediaFile.findByIdAndDelete(attachments.mediaFile).session(session);
+				}
+			}
+		}
+		await Promise.all([
+			User.findOneAndUpdate(
+				{
+					pinnedPost: postId
+				},
+				{
+					pinnedPost: undefined
+				}
+			).session(session),
+			Post.deleteMany({
+				repeatPost: postId
+			}).session(session),
+			Mention.deleteMany(filter).session(session),
+			Favourite.deleteMany(filter).session(session),
+			Bookmark.deleteMany(filter).session(session),
+			MutedPost.deleteMany(filter).session(session)
+		]);
+	});
+	await session.endSession();
 };
 const createPost = async (req, res, next) => {
 	const { content, "media-description": mediaDescription } = req.body;
@@ -220,11 +260,17 @@ const deletePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const deleted = await Post.findOneAndDelete({
-			_id: postId,
-			author: userId
-		});
-		res.status(200).json({ deleted });
+		const post = await Post.findById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		if (post.author !== userId) {
+			res.status(403).send("You are not allowed to perform this action");
+			return;
+		}
+		await deletePostWithCascade(post);
+		res.status(200).json({ deleted: post });
 	} catch (err) {
 		next(err);
 	}
