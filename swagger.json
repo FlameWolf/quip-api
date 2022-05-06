@@ -173,6 +173,74 @@
 					}
 				}
 			}
+		},
+		"List": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"required": true,
+								"type": "string"
+							},
+							"includeRepeats": {
+								"type": "boolean",
+								"default": true
+							},
+							"includeReplies": {
+								"type": "boolean",
+								"default": true
+							}
+						}
+					}
+				}
+			}
+		},
+		"ListUpdate": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"required": true,
+								"type": "string"
+							},
+							"newName": {
+								"type": "string"
+							},
+							"includeRepeats": {
+								"type": "boolean",
+								"default": true
+							},
+							"includeReplies": {
+								"type": "boolean",
+								"default": true
+							}
+						}
+					}
+				}
+			}
+		},
+		"ListMember": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"required": true,
+								"type": "string"
+							},
+							"handle": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"paths": {
@@ -325,6 +393,34 @@
 						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
 					}
 				]
+			}
+		},
+		"/lists/create": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/List"
+				}
+			}
+		},
+		"/lists/update": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/ListUpdate"
+				}
+			}
+		},
+		"/lists/add-member": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/ListMember"
+				}
+			}
+		},
+		"/lists/remove-member": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/ListMember"
+				}
 			}
 		},
 		"/settings": {
