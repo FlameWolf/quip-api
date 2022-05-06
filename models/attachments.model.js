@@ -2,7 +2,6 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const MediaFile = require("./media-file.model");
 
 const attachmentsSchema = new mongoose.Schema(
 	{
@@ -17,11 +16,5 @@ const attachmentsSchema = new mongoose.Schema(
 		}
 	}
 );
-attachmentsSchema.post("findOneAndDelete", async attachments => {
-	const mediaFileId = attachments?.mediaFile;
-	if (mediaFileId) {
-		await MediaFile.findByIdAndDelete(mediaFileId);
-	}
-});
 
 module.exports = mongoose.model("Attachments", attachmentsSchema);
