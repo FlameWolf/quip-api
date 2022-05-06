@@ -10,7 +10,6 @@ const bookmarksController = require("../controllers/bookmarks.controller");
 const mutesController = require("../controllers/mutes.controller");
 
 router.post("/create", requireAuthentication, multerCloudStorageController.uploadMediaFileToCloud, postsController.createPost);
-router.get("/:postId", postsController.getPost);
 router.get("/favourite/:postId", requireAuthentication, favouritesController.addFavourite);
 router.get("/unfavourite/:postId", requireAuthentication, favouritesController.removeFavourite);
 router.get("/bookmark/:postId", requireAuthentication, bookmarksController.addBookmark);
@@ -22,5 +21,6 @@ router.post("/reply/:postId", requireAuthentication, multerCloudStorageControlle
 router.get("/mute/:postId", requireAuthentication, mutesController.mutePost);
 router.get("/unmute/:postId", requireAuthentication, mutesController.unmutePost);
 router.delete("/delete/:postId", requireAuthentication, postsController.deletePost);
+router.get("/:postId", postsController.getPost);
 
 module.exports = router;
