@@ -12,6 +12,8 @@ const followersAggregationPipeline = require("../db/pipelines/followers");
 const followRequestsSentAggregationPipeline = require("../db/pipelines/follow-requests-sent");
 const followRequestsReceivedAggregationPipeline = require("../db/pipelines/follow-requests-received");
 const mentionsAggregationPipeline = require("../db/pipelines/mentions");
+const listsAggregationPipeline = require("../db/pipelines/lists");
+const listMembersAggregationPipeline = require("../db/pipelines/list-members");
 const blocksAggregationPipeline = require("../db/pipelines/blocks");
 const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
 const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
@@ -44,6 +46,8 @@ const findFollowersByUserId = async (userId, lastFollowId = undefined) => await 
 const findFollowRequestsSentByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsSentAggregationPipeline(userId, lastFollowRequestId));
 const findFollowRequestsReceivedByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsReceivedAggregationPipeline(userId, lastFollowRequestId));
 const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
+const findListsByUserId = async (userId, memberId = undefined, lastListId = undefined) => await List.aggregate(listsAggregationPipeline(userId, memberId, lastListId));
+const findMembersByListId = async (listId, lastMemberId = undefined) => await ListMember.aggregate(listMembersAggregationPipeline(listId, lastMemberId));
 const findBlocksByUserId = async (userId, lastBlockId = undefined) => await Block.aggregate(blocksAggregationPipeline(userId, lastBlockId));
 const findMutedUsersByUserId = async (userId, lastMuteId = undefined) => await MutedUser.aggregate(mutedUsersAggregationPipeline(userId, lastMuteId));
 const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await MutedPost.aggregate(mutedPostsAggregationPipeline(userId, lastMuteId));
@@ -215,6 +219,36 @@ const getUserMentions = async (req, res, next) => {
 		next(err);
 	}
 };
+const getLists = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const { memberHandle, lastListId } = req.query;
+	try {
+		const member = await findUserByHandle(memberHandle);
+		if (memberHandle && !member) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const lists = await findListsByUserId(userId, member?._id, lastListId);
+		res.status(200).json({ lists });
+	} catch (err) {
+		next(err);
+	}
+};
+const getListMembers = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const { listName, lastMemberId } = req.query;
+	try {
+		const list = await List.findOne({ name: listName, owner: userId });
+		if (!list) {
+			res.status(404).send("List not found");
+			return;
+		}
+		const members = await findMembersByListId(list._id, lastMemberId);
+		res.status(200).json({ members });
+	} catch (err) {
+		next(err);
+	}
+};
 const getBlocks = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const lastBlockId = req.query.lastBlockId;
@@ -366,6 +400,8 @@ module.exports = {
 	getUserFollowRequestsSent,
 	getUserFollowRequestsReceived,
 	getUserMentions,
+	getLists,
+	getListMembers,
 	getBlocks,
 	getMutedUsers,
 	getMutedPosts,
