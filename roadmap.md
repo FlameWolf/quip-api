@@ -9,6 +9,3 @@ To add:
 - Media search
 - User search
 - Location search
-- Lists
-- Check blocks for lists
-- Update lists on block
