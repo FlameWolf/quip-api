@@ -1,12 +1,14 @@
 "use strict";
 
 const mongoose = require("mongoose");
+const listPostsAggregationPipeline = require("../db/pipelines/list-posts");
 const usersController = require("./users.controller");
 const Follow = require("../models/follow.model");
 const Block = require("../models/block.model");
 const List = require("../models/list.model");
 const ListMember = require("../models/list-member.model");
 
+const findListPostsByNameAndOwnerId = async (listName, ownerId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => await List.aggregate(listPostsAggregationPipeline(listName, ownerId, includeRepeats, includeReplies, lastPostId));
 const createList = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const { name, includeRepeats, includeReplies } = req.body;
@@ -92,6 +94,17 @@ const removeMember = async (req, res, next) => {
 		next(err);
 	}
 };
+const getPosts = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const name = req.params.name;
+	const { includeRepeats, includeReplies, lastPostId } = req.query;
+	try {
+		const posts = await findListPostsByNameAndOwnerId(name, userId, includeRepeats, includeReplies, lastPostId);
+		res.status(200).json({ posts });
+	} catch (err) {
+		next(err);
+	}
+};
 const deleteList = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const name = req.params.name;
@@ -116,5 +129,6 @@ module.exports = {
 	updateList,
 	addMember,
 	removeMember,
+	getPosts,
 	deleteList
 };
