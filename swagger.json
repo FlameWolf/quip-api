@@ -455,6 +455,34 @@
 				}
 			}
 		},
+		"/lists/{name}/posts": {
+			"get": {
+				"parameters": [
+					{
+						"name": "name",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "includeRepeats",
+						"in": "query",
+						"type": "boolean",
+						"default": true
+					},
+					{
+						"name": "includeReplies",
+						"in": "query",
+						"type": "boolean",
+						"default": true
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/settings": {
 			"post": {
 				"requestBody": {
