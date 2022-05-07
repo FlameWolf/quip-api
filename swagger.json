@@ -395,6 +395,22 @@
 				]
 			}
 		},
+		"/lists": {
+			"get": {
+				"parameters": [
+					{
+						"name": "memberHandle",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "lastListId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/lists/create": {
 			"post": {
 				"requestBody": {
@@ -407,6 +423,22 @@
 				"requestBody": {
 					"$ref": "#/requestBodies/ListUpdate"
 				}
+			}
+		},
+		"/lists/{name}/members": {
+			"get": {
+				"parameters": [
+					{
+						"name": "name",
+						"in": "path",
+						"type": "string"
+					},
+					{
+						"name": "lastMemberId",
+						"in": "query",
+						"type": "string"
+					}
+				]
 			}
 		},
 		"/lists/add-member": {
