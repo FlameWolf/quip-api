@@ -63,13 +63,45 @@ const getUser = async (req, res, next) => {
 		}
 		if (selfId) {
 			const targetId = user._id;
-			user.blockedMe = await Block.countDocuments({ user: selfId, blockedBy: targetId });
-			user.blockedByMe = await Block.countDocuments({ user: targetId, blockedBy: selfId });
-			user.followedMe = await Follow.countDocuments({ user: selfId, followedBy: targetId });
-			user.followedByMe = await Follow.countDocuments({ user: targetId, followedBy: selfId });
-			user.requestedToFollowMe = await FollowRequest.countDocuments({ user: selfId, requestedBy: targetId });
-			user.requestedToFollowByMe = await FollowRequest.countDocuments({ user: targetId, requestedBy: selfId });
-			user.mutedByMe = await MutedUser.countDocuments({ user: targetId, mutedBy: selfId });
+			[
+				user.blockedMe,
+				user.blockedByMe,
+				user.followedMe,
+				user.followedByMe,
+				user.requestedToFollowMe,
+				user.requestedToFollowByMe,
+				user.mutedByMe
+			] = await Promise.all
+			([
+				Block.countDocuments({
+					user: selfId,
+					blockedBy: targetId
+				}),
+				Block.countDocuments({
+					user: targetId,
+					blockedBy: selfId
+				}),
+				Follow.countDocuments({
+					user: selfId,
+					followedBy: targetId
+				}),
+				Follow.countDocuments({
+					user: targetId,
+					followedBy: selfId
+				}),
+				FollowRequest.countDocuments({
+					user: selfId,
+					requestedBy: targetId
+				}),
+				FollowRequest.countDocuments({
+					user: targetId,
+					requestedBy: selfId
+				}),
+				MutedUser.countDocuments({
+					user: targetId,
+					mutedBy: selfId
+				})
+			]);
 		}
 		res.status(200).json({ user });
 	} catch (err) {
