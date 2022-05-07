@@ -8,9 +8,9 @@ const listsController = require("../controllers/lists.controller");
 router.get("/", userController.getLists);
 router.post("/create", listsController.createList);
 router.post("/update", listsController.updateList);
-router.get("/members", userController.getListMembers);
 router.post("/add-member", listsController.addMember);
 router.post("/remove-member", listsController.removeMember);
 router.post("/delete/:name", listsController.deleteList);
+router.get("/:name/members", userController.getListMembers);
 
 module.exports = router;

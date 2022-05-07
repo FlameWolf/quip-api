@@ -273,9 +273,10 @@ const getLists = async (req, res, next) => {
 };
 const getListMembers = async (req, res, next) => {
 	const userId = req.userInfo.userId;
-	const { listName, lastMemberId } = req.query;
+	const name = req.params.name;
+	const lastMemberId = req.query.lastMemberId;
 	try {
-		const list = await List.findOne({ name: listName, owner: userId });
+		const list = await List.findOne({ name, owner: userId });
 		if (!list) {
 			res.status(404).send("List not found");
 			return;
