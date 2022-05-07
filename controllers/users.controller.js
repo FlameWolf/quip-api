@@ -54,17 +54,22 @@ const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await M
 const findMutedWordsByUserId = async (userId, lastMuteId = undefined) => await MutedWord.aggregate(mutedWordsAggregationPipeline(userId, lastMuteId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
-	const userId = req.userInfo?.userId;
+	const selfId = req.userInfo?.userId;
 	try {
 		const user = await findActiveUserByHandle(handle);
 		if (!user) {
 			res.status(404).send("User not found");
 			return;
 		}
-		if (userId) {
+		if (selfId) {
 			const targetId = user._id;
-			user.blocked = Block.countDocuments({ user: targetId, blockedBy: userId });
-			user.muted = MutedUser.countDocuments({ user: targetId, mutedBy: userId });
+			user.blockedMe = await Block.countDocuments({ user: selfId, blockedBy: targetId });
+			user.blockedByMe = await Block.countDocuments({ user: targetId, blockedBy: selfId });
+			user.followedMe = await Follow.countDocuments({ user: selfId, followedBy: targetId });
+			user.followedByMe = await Follow.countDocuments({ user: targetId, followedBy: selfId });
+			user.requestedToFollowMe = await FollowRequest.countDocuments({ user: selfId, requestedBy: targetId });
+			user.requestedToFollowByMe = await FollowRequest.countDocuments({ user: targetId, requestedBy: selfId });
+			user.mutedByMe = await MutedUser.countDocuments({ user: targetId, mutedBy: selfId });
 		}
 		res.status(200).json({ user });
 	} catch (err) {
