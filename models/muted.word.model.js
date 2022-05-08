@@ -15,9 +15,15 @@ const mutedWordSchema = new mongoose.Schema(
 			validate: {
 				validator: value => value.match(contentLengthRegExp).length <= maxMutedWordLength,
 				message: "Word length exceeds the maximum allowed limit"
-			}
+			},
+			index: true
 		},
-		match: { type: String, enum: ["exact", "contains", "startsWith", "endsWith"], required: true },
+		match: {
+			type: String,
+			enum: ["exact", "contains", "startsWith", "endsWith"],
+			required: true,
+			index: true
+		},
 		mutedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
