@@ -7,7 +7,7 @@ const mentionSchema = new mongoose.Schema(
 	{
 		post: { type: ObjectId, ref: "Post", index: true },
 		mentioned: {
-			type: [{ type: ObjectId, ref: "User", index: true }],
+			type: [{ type: ObjectId, ref: "User" }],
 			index: true
 		}
 	},
