@@ -6,7 +6,7 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const mutedUserSchema = new mongoose.Schema(
 	{
-		user: { type: ObjectId, ref: "User", required: true },
+		user: { type: ObjectId, ref: "User", required: true, index: true },
 		mutedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
