@@ -9,6 +9,7 @@ const rounds = 10;
 const authTokenLife = 1000 * 60 * 5;
 const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
+const maxPollOptionLength = 32;
 const maxMutedWordLength = 256;
 const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
@@ -49,6 +50,7 @@ module.exports = {
 	authTokenLife,
 	contentLengthRegExp,
 	maxContentLength,
+	maxPollOptionLength,
 	maxMutedWordLength,
 	megaByte,
 	noReplyEmail,
