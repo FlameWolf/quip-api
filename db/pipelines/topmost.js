@@ -99,9 +99,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "") => {
 		},
 		{
 			$lookup: {
-				from: "attachments",
-				localField: "attachments",
-				foreignField: "_id",
+				from: "posts",
 				let: {
 					postId: "$_id"
 				},
@@ -109,7 +107,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "") => {
 					{
 						$match: {
 							$expr: {
-								$eq: ["$post", "$$postId"]
+								$eq: ["$attachments.post", "$$postId"]
 							}
 						}
 					},

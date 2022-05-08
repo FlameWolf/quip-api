@@ -6,9 +6,6 @@ const { contentLengthRegExp, maxContentLength } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
-const MediaFile = require("../models/media-file.model");
-const Attachments = require("../models/attachments.model");
-const Mention = require("../models/mention.model");
 const User = require("../models/user.model");
 const Favourite = require("../models/favourite.model");
 const Bookmark = require("../models/bookmark.model");
@@ -22,7 +19,7 @@ const validateContent = (content, attachment = undefined) => {
 		throw new Error("Content too long");
 	}
 };
-const updateMentions = async (content, postId, session) => {
+const updateMentions = async (content, post) => {
 	const userIds = [];
 	for (const word of content.split(/\s+|\.+/)) {
 		if (word.startsWith("@")) {
@@ -35,14 +32,7 @@ const updateMentions = async (content, postId, session) => {
 			}
 		}
 	}
-	await new Mention({
-		post: postId,
-		mentioned: userIds
-	}).save({ session });
-};
-const createMediaAttachment = async (fileType, src, description, session) => {
-	const mediaFile = await new MediaFile({ fileType, src, description }).save({ session });
-	return await new Attachments({ mediaFile }).save({ session });
+	post.mentions = [...post.mentions, ...new Set(userIds)];
 };
 const deletePostWithCascade = async post => {
 	const postId = post._id;
@@ -50,16 +40,6 @@ const deletePostWithCascade = async post => {
 	await session.withTransaction(async () => {
 		await Post.deleteOne(post).session(session);
 		const postFilter = { post: postId };
-		const attachmentsId = post.attachments;
-		if (attachmentsId) {
-			const attachments = await Attachments.findByIdAndDelete(attachmentsId).session(session);
-			if (attachments) {
-				const mediaFileId = attachments.mediaFile;
-				if (mediaFileId) {
-					await MediaFile.findByIdAndDelete(attachments.mediaFile).session(session);
-				}
-			}
-		}
 		await Promise.all([
 			User.findOneAndUpdate(
 				{
@@ -72,7 +52,6 @@ const deletePostWithCascade = async post => {
 			Post.deleteMany({
 				repeatPost: postId
 			}).session(session),
-			Mention.deleteMany(postFilter).session(session),
 			Favourite.deleteMany(postFilter).session(session),
 			Bookmark.deleteMany(postFilter).session(session),
 			MutedPost.deleteMany(postFilter).session(session)
@@ -90,25 +69,26 @@ const createPost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const post = await new Post({
-				content,
-				author: userId,
-				...(media && {
-					attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
-				})
-			}).save({ session });
-			if (content) {
-				await updateMentions(content, post._id, session);
-			}
-			res.status(201).json({ post });
-		});
+		const post = await new Post({
+			content,
+			author: userId,
+			...(media && {
+				attachments: {
+					mediaFile: {
+						fileType: req.fileType,
+						src: media.linkUrl,
+						description: mediaDescription
+					}
+				}
+			})
+		}).save();
+		if (content) {
+			await updateMentions(content, post);
+		}
+		res.status(201).json({ post });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const getPost = async (req, res, next) => {
@@ -149,31 +129,28 @@ const quotePost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const attachments = media ? await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session) : new Attachments();
-			attachments.post = postId;
-			await attachments.save({ session });
-			const quote = await new Post({
-				content,
-				author: userId,
-				attachments
-			}).save({ session });
-			const quoteId = quote._id;
-			await new Mention({
-				post: quoteId,
-				mentioned: [originalPost.author]
-			}).save({ session });
-			if (content) {
-				await updateMentions(content, quoteId, session);
+		const quote = await new Post({
+			content,
+			author: userId,
+			attachments: {
+				post: postId,
+				...(media && {
+					mediaFile: {
+						fileType: req.fileType,
+						src: media.linkUrl,
+						description: mediaDescription
+					}
+				})
 			}
-			res.status(201).json({ quote });
-		});
+		}).save();
+		quote.mentions = [originalPost.author];
+		if (content) {
+			await updateMentions(content, quote);
+		}
+		res.status(201).json({ quote });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -229,31 +206,28 @@ const replyToPost = async (req, res, next) => {
 		res.status(404).send("Post not found");
 		return;
 	}
-	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const reply = await new Post({
-				content,
-				author: userId,
-				replyTo,
+		const reply = await new Post({
+			content,
+			author: userId,
+			replyTo,
+			attachments: {
 				...(media && {
-					attachments: await createMediaAttachment(req.fileType, media.linkUrl, mediaDescription, session)
+					mediaFile: {
+						fileType: req.fileType,
+						src: media.linkUrl,
+						description: mediaDescription
+					}
 				})
-			}).save({ session });
-			const replyId = reply._id;
-			new Mention({
-				post: replyId,
-				mentioned: [originalPost.author]
-			}).save({ session });
-			if (content) {
-				await updateMentions(content, replyId, session);
 			}
-			res.status(201).json({ reply });
-		});
+		}).save();
+		reply.mentions = [originalPost.author];
+		if (content) {
+			await updateMentions(content, reply);
+		}
+		res.status(201).json({ reply });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const deletePost = async (req, res, next) => {

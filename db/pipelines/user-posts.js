@@ -1,7 +1,6 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const attachmentsAggregationPipeline = require("./attachments");
 
 const userPostsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
 	const matchConditions = {
@@ -79,21 +78,6 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 					},
 					{
 						$limit: 20
-					},
-					{
-						$lookup: {
-							from: "attachments",
-							localField: "attachments",
-							foreignField: "_id",
-							pipeline: attachmentsAggregationPipeline,
-							as: "attachments"
-						}
-					},
-					{
-						$unwind: {
-							path: "$attachments",
-							preserveNullAndEmptyArrays: true
-						}
 					},
 					{
 						$lookup: {

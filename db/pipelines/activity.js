@@ -2,7 +2,6 @@
 
 const { ObjectId } = require("bson");
 const filtersAggregationPipeline = require("./filters");
-const attachmentsAggregationPipeline = require("./attachments");
 
 const activityAggregationPipeline = (userId, period = "", lastEntryId = undefined) => {
 	const maxDate = new Date();
@@ -137,30 +136,6 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 								$gte: maxDate
 							}
 						}
-					},
-					{
-						$lookup: {
-							from: "attachments",
-							localField: "attachments",
-							foreignField: "_id",
-							pipeline: [
-								{
-									$lookup: {
-										from: "posts",
-										localField: "post",
-										foreignField: "_id",
-										as: "post"
-									}
-								},
-								{
-									$unwind: "$post"
-								}
-							],
-							as: "attachments"
-						}
-					},
-					{
-						$unwind: "$attachments"
 					},
 					{
 						$group: {
@@ -365,21 +340,6 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		{
 			$unwind: {
 				path: "$entry.post.author",
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$lookup: {
-				from: "attachments",
-				localField: "entry.post.attachments",
-				foreignField: "_id",
-				pipeline: attachmentsAggregationPipeline,
-				as: "entry.post.attachments"
-			}
-		},
-		{
-			$unwind: {
-				path: "$entry.post.attachments",
 				preserveNullAndEmptyArrays: true
 			}
 		},

@@ -1,6 +1,5 @@
 "use strict";
 
-const attachmentsAggregationPipeline = require("./attachments");
 const interactionsAggregationPipeline = require("./interactions");
 
 const postAggregationPipeline = (userId = undefined) => {
@@ -22,21 +21,6 @@ const postAggregationPipeline = (userId = undefined) => {
 		},
 		{
 			$unwind: "$author"
-		},
-		{
-			$lookup: {
-				from: "attachments",
-				localField: "attachments",
-				foreignField: "_id",
-				pipeline: attachmentsAggregationPipeline,
-				as: "attachments"
-			}
-		},
-		{
-			$unwind: {
-				path: "$attachments",
-				preserveNullAndEmptyArrays: true
-			}
 		},
 		...interactionsAggregationPipeline(userId)
 	];
