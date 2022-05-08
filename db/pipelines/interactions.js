@@ -65,6 +65,35 @@ const interactionsAggregationPipeline = (userId = undefined) => {
 					$arrayElemAt: ["$repeated.result", 0]
 				}
 			}
+		},
+		{
+			$lookup: {
+				from: "votes",
+				localField: "attachments.poll._id",
+				foreignField: "poll",
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ["$user", userObjectId]
+							}
+						}
+					},
+					{
+						$project: {
+							option: 1
+						}
+					}
+				],
+				as: "voted"
+			}
+		},
+		{
+			$addFields: {
+				voted: {
+					$arrayElemAt: ["$voted.option", 0]
+				}
+			}
 		}
 	];
 };
