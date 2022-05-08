@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const { contentLengthRegExp, maxContentLength, maxPollOptionLength } = require("../library");
+const { contentLengthRegExp, maxContentLength, maxPollOptionLength, minPollDuration, maxPollDuration } = require("../library");
 
 const Schema = mongoose.Schema;
 const validatePollOption = {
@@ -31,25 +31,12 @@ const postSchema = new Schema(
 		attachments: new Schema({
 			post: { type: ObjectId, ref: "Post" },
 			poll: new Schema({
-				first: {
-					type: String,
-					required: true,
-					validate: validatePollOption
-				},
-				second: {
-					type: String,
-					required: true,
-					validate: validatePollOption
-				},
-				third: {
-					type: String,
-					validate: validatePollOption
-				},
-				fourth: {
-					type: String,
-					validate: validatePollOption
-				},
-				nota: { type: Boolean }
+				first: { type: String, required: true, validate: validatePollOption },
+				second: { type: String, required: true, validate: validatePollOption },
+				third: { type: String, validate: validatePollOption },
+				fourth: { type: String, validate: validatePollOption },
+				nota: { type: Boolean },
+				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true }
 			}),
 			mediaFile: new Schema({
 				fileType: {
