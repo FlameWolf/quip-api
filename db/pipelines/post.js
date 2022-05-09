@@ -25,6 +25,26 @@ const postAggregationPipeline = (userId = undefined) => {
 			$unwind: "$author"
 		},
 		{
+			$addFields: {
+				"attachments.poll.expired": {
+					$cond: [
+						{
+							$gt: ["$attachments.poll", null]
+						},
+						{
+							$gt: [
+								new Date(),
+								{
+									$add: ["$createdAt", "$attachments.poll.duration"]
+								}
+							]
+						},
+						"$$REMOVE"
+					]
+				}
+			}
+		},
+		{
 			$lookup: {
 				from: "votes",
 				localField: "attachments.poll._id",
