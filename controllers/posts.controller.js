@@ -23,20 +23,28 @@ const validateContent = (content, attachment = {}) => {
 		throw new Error("Content too long");
 	}
 };
-const updateMentions = async (content, post) => {
-	const userIds = [];
+const updateMentionsAndHashtags = async (content, post) => {
+	const userIds = new Set(post.mentions);
+	const hashtags = new Set(post.hashtags);
 	for (const word of content.split(/\s+|\.+/)) {
 		if (word.startsWith("@")) {
 			const handle = word.match(/\w+/g).shift();
 			if (handle) {
 				const user = await userController.findUserByHandle(handle);
 				if (user) {
-					userIds.push(user._id);
+					userIds.add(user._id);
 				}
 			}
 		}
+		if (word.startsWith("#")) {
+			const hashtag = word.match(/\w+/g).shift();
+			if (hashtag) {
+				hashtags.add(hashtag);
+			}
+		}
 	}
-	post.mentions = [...post.mentions, ...new Set(userIds)];
+	post.mentions = [...userIds];
+	post.hashtags = [...hashtags];
 };
 const deletePostWithCascade = async post => {
 	const postId = post._id;
@@ -93,7 +101,7 @@ const createPost = async (req, res, next) => {
 			})
 		}).save();
 		if (content) {
-			await updateMentions(content, post);
+			await updateMentionsAndHashtags(content, post);
 		}
 		res.status(201).json({ post });
 	} catch (err) {
@@ -158,7 +166,7 @@ const quotePost = async (req, res, next) => {
 		}).save();
 		quote.mentions = [originalPost.author];
 		if (content) {
-			await updateMentions(content, quote);
+			await updateMentionsAndHashtags(content, quote);
 		}
 		res.status(201).json({ quote });
 	} catch (err) {
@@ -240,7 +248,7 @@ const replyToPost = async (req, res, next) => {
 		}).save();
 		reply.mentions = [originalPost.author];
 		if (content) {
-			await updateMentions(content, reply);
+			await updateMentionsAndHashtags(content, reply);
 		}
 		res.status(201).json({ reply });
 	} catch (err) {
