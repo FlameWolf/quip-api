@@ -20,6 +20,7 @@ router.get("/unrepeat/:postId", requireAuthentication, postsController.unrepeatP
 router.post("/reply/:postId", requireAuthentication, multerCloudStorageController.uploadMediaFileToCloud, postsController.replyToPost);
 router.get("/mute/:postId", requireAuthentication, mutesController.mutePost);
 router.get("/unmute/:postId", requireAuthentication, mutesController.unmutePost);
+router.get("/vote/:postId", requireAuthentication, postsController.castVote);
 router.delete("/delete/:postId", requireAuthentication, postsController.deletePost);
 router.get("/:postId", postsController.getPost);
 
