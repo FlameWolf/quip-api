@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const interactionsAggregationPipeline = require("./interactions");
 
 const userPostsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
 	const matchConditions = {
@@ -79,35 +80,7 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 					{
 						$limit: 20
 					},
-					{
-						$lookup: {
-							from: "favourites",
-							localField: "_id",
-							foreignField: "post",
-							pipeline: [
-								{
-									$match: {
-										$expr: {
-											$eq: ["$favouritedBy", "$$userId"]
-										}
-									}
-								},
-								{
-									$addFields: {
-										result: true
-									}
-								}
-							],
-							as: "favourited"
-						}
-					},
-					{
-						$addFields: {
-							favourited: {
-								$arrayElemAt: ["$favourited.result", 0]
-							}
-						}
-					}
+					...interactionsAggregationPipeline(userId)
 				],
 				as: "posts"
 			}

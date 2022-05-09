@@ -9,6 +9,25 @@ const blocksAggregationPipeline = (userId, lastBlockId = undefined) => [
 		}
 	},
 	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
+		$match: lastBlockId
+			? {
+				_id: {
+					$lt: ObjectId(lastBlockId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
+	},
+	{
 		$lookup: {
 			from: "users",
 			localField: "user",
@@ -27,28 +46,9 @@ const blocksAggregationPipeline = (userId, lastBlockId = undefined) => [
 		$unwind: "$user"
 	},
 	{
-		$sort: {
-			createdAt: -1
-		}
-	},
-	{
 		$project: {
 			user: 1
 		}
-	},
-	{
-		$match: lastBlockId
-			? {
-				_id: {
-					$lt: ObjectId(lastBlockId)
-				}
-			}
-			: {
-				$expr: true
-			}
-	},
-	{
-		$limit: 20
 	}
 ];
 

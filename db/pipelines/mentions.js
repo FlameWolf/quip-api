@@ -3,44 +3,24 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 const filtersAggregationPipeline = require("./filters");
-const interactionsAggregationPipeline = require("./interactions");
 
-const mentionsAggregationPipeline = (userId, lastMentionId = undefined) => [
+const mentionsAggregationPipeline = (userId, lastPostId = undefined) => [
 	{
 		$match: {
-			mentioned: ObjectId(userId)
+			mentions: ObjectId(userId)
 		}
-	},
-	{
-		$lookup: {
-			from: "posts",
-			localField: "post",
-			foreignField: "_id",
-			pipeline: [
-				...postAggregationPipeline(),
-				...filtersAggregationPipeline(userId),
-				{
-					$sort: {
-						createdAt: -1
-					}
-				}
-			],
-			as: "post"
-		}
-	},
-	{
-		$unwind: "$post"
 	},
 	{
 		$sort: {
 			createdAt: -1
 		}
 	},
+	filtersAggregationPipeline(userId),
 	{
-		$match: lastMentionId
+		$match: lastPostId
 			? {
 				_id: {
-					$lt: ObjectId(lastMentionId)
+					$lt: ObjectId(lastPostId)
 				}
 			}
 			: {
@@ -50,18 +30,7 @@ const mentionsAggregationPipeline = (userId, lastMentionId = undefined) => [
 	{
 		$limit: 20
 	},
-	{
-		$lookup: {
-			from: "posts",
-			localField: "post._id",
-			foreignField: "_id",
-			pipeline: interactionsAggregationPipeline(userId),
-			as: "post"
-		}
-	},
-	{
-		$unwind: "$post"
-	}
+	postAggregationPipeline(userId)
 ];
 
 module.exports = mentionsAggregationPipeline;

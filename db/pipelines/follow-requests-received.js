@@ -8,24 +8,6 @@ const followRequestsReceivedAggregationPipeline = (userId, lastFollowRequestId =
 		}
 	},
 	{
-		$lookup: {
-			from: "users",
-			localField: "requestedBy",
-			foreignField: "_id",
-			pipeline: [
-				{
-					$project: {
-						handle: 1
-					}
-				}
-			],
-			as: "requestedBy"
-		}
-	},
-	{
-		$unwind: "$requestedBy"
-	},
-	{
 		$sort: {
 			createdAt: -1
 		}
@@ -43,6 +25,24 @@ const followRequestsReceivedAggregationPipeline = (userId, lastFollowRequestId =
 	},
 	{
 		$limit: 20
+	},
+	{
+		$lookup: {
+			from: "users",
+			localField: "requestedBy",
+			foreignField: "_id",
+			pipeline: [
+				{
+					$project: {
+						handle: 1
+					}
+				}
+			],
+			as: "requestedBy"
+		}
+	},
+	{
+		$unwind: "$requestedBy"
 	},
 	{
 		$project: {

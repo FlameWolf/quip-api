@@ -9,6 +9,25 @@ const listMembersAggregationPipeline = (listId, lastMemberId = undefined) => [
 		}
 	},
 	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
+		$match: lastMemberId
+			? {
+				_id: {
+					$lt: ObjectId(lastMemberId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
+	},
+	{
 		$lookup: {
 			from: "users",
 			localField: "user",
@@ -27,28 +46,9 @@ const listMembersAggregationPipeline = (listId, lastMemberId = undefined) => [
 		$unwind: "$user"
 	},
 	{
-		$sort: {
-			createdAt: -1
-		}
-	},
-	{
 		$project: {
 			user: 1
 		}
-	},
-	{
-		$match: lastMemberId
-			? {
-				_id: {
-					$lt: ObjectId(lastMemberId)
-				}
-			}
-			: {
-				$expr: true
-			}
-	},
-	{
-		$limit: 20
 	}
 ];
 

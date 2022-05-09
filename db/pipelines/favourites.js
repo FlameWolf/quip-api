@@ -24,47 +24,25 @@ const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 					}
 				},
 				{
+					$match: lastFavouriteId
+						? {
+							_id: {
+								$lt: ObjectId(lastFavouriteId)
+							}
+						}
+						: {
+							$expr: true
+						}
+				},
+				{
+					$limit: 20
+				},
+				{
 					$lookup: {
 						from: "posts",
 						localField: "post",
 						foreignField: "_id",
-						pipeline: [
-							...postAggregationPipeline(),
-							{
-								$addFields: {
-									favourited: true
-								}
-							},
-							{
-								$lookup: {
-									from: "posts",
-									localField: "_id",
-									foreignField: "repeatPost",
-									pipeline: [
-										{
-											$match: {
-												$expr: {
-													$eq: ["$author", "$$userId"]
-												}
-											}
-										},
-										{
-											$addFields: {
-												result: true
-											}
-										}
-									],
-									as: "repeated"
-								}
-							},
-							{
-								$addFields: {
-									repeated: {
-										$arrayElemAt: ["$repeated.result", 0]
-									}
-								}
-							}
-						],
+						pipeline: postAggregationPipeline(userId),
 						as: "post"
 					}
 				},
@@ -85,20 +63,6 @@ const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 	},
 	{
 		$replaceWith: "$favourites"
-	},
-	{
-		$match: lastFavouriteId
-			? {
-				_id: {
-					$lt: ObjectId(lastFavouriteId)
-				}
-			}
-			: {
-				$expr: true
-			}
-	},
-	{
-		$limit: 20
 	}
 ];
 

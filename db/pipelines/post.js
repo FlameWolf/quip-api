@@ -12,7 +12,9 @@ const postAggregationPipeline = (userId = undefined) => {
 				pipeline: [
 					{
 						$project: {
-							handle: 1
+							handle: {
+								$cond: ["$deleted", "[deleted]", "$handle"]
+							}
 						}
 					}
 				],

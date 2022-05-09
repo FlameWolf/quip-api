@@ -24,18 +24,25 @@ const bookmarksAggregationPipeline = (userId, lastBookmarkId = undefined) => [
 					}
 				},
 				{
+					$match: lastBookmarkId
+						? {
+							_id: {
+								$lt: ObjectId(lastBookmarkId)
+							}
+						}
+						: {
+							$expr: true
+						}
+				},
+				{
+					$limit: 20
+				},
+				{
 					$lookup: {
 						from: "posts",
 						localField: "post",
 						foreignField: "_id",
-						pipeline: [
-							...postAggregationPipeline(userId),
-							{
-								$addFields: {
-									bookmarked: true
-								}
-							}
-						],
+						pipeline: postAggregationPipeline(userId),
 						as: "post"
 					}
 				},
@@ -56,20 +63,6 @@ const bookmarksAggregationPipeline = (userId, lastBookmarkId = undefined) => [
 	},
 	{
 		$replaceWith: "$bookmarks"
-	},
-	{
-		$match: lastBookmarkId
-			? {
-				_id: {
-					$lt: ObjectId(lastBookmarkId)
-				}
-			}
-			: {
-				$expr: true
-			}
-	},
-	{
-		$limit: 20
 	}
 ];
 

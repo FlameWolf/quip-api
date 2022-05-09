@@ -8,24 +8,6 @@ const followingAggregationPipeline = (userId, lastFollowId = undefined) => [
 		}
 	},
 	{
-		$lookup: {
-			from: "users",
-			localField: "user",
-			foreignField: "_id",
-			pipeline: [
-				{
-					$project: {
-						handle: 1
-					}
-				}
-			],
-			as: "user"
-		}
-	},
-	{
-		$unwind: "$user"
-	},
-	{
 		$sort: {
 			createdAt: -1
 		}
@@ -43,6 +25,24 @@ const followingAggregationPipeline = (userId, lastFollowId = undefined) => [
 	},
 	{
 		$limit: 20
+	},
+	{
+		$lookup: {
+			from: "users",
+			localField: "user",
+			foreignField: "_id",
+			pipeline: [
+				{
+					$project: {
+						handle: 1
+					}
+				}
+			],
+			as: "user"
+		}
+	},
+	{
+		$unwind: "$user"
 	},
 	{
 		$project: {

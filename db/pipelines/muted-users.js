@@ -9,6 +9,25 @@ const mutedUsersAggregationPipeline = (userId, lastMuteId = undefined) => [
 		}
 	},
 	{
+		$sort: {
+			createdAt: -1
+		}
+	},
+	{
+		$match: lastMuteId
+			? {
+				_id: {
+					$lt: ObjectId(lastMuteId)
+				}
+			}
+			: {
+				$expr: true
+			}
+	},
+	{
+		$limit: 20
+	},
+	{
 		$lookup: {
 			from: "users",
 			localField: "user",
@@ -27,28 +46,9 @@ const mutedUsersAggregationPipeline = (userId, lastMuteId = undefined) => [
 		$unwind: "$user"
 	},
 	{
-		$sort: {
-			createdAt: -1
-		}
-	},
-	{
 		$project: {
 			user: 1
 		}
-	},
-	{
-		$match: lastMuteId
-			? {
-				_id: {
-					$lt: ObjectId(lastMuteId)
-				}
-			}
-			: {
-				$expr: true
-			}
-	},
-	{
-		$limit: 20
 	}
 ];
 

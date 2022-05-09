@@ -1,6 +1,5 @@
 "use strict";
 
-const { ObjectId } = require("bson");
 const filtersAggregationPipeline = require("./filters");
 const postAggregationPipeline = require("./post");
 

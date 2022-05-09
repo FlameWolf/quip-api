@@ -1,7 +1,6 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const interactionsAggregationPipeline = require("./interactions");
 const postAggregationPipeline = require("./post");
 
 const searchPostsAggregationPipeline = (
@@ -148,14 +147,13 @@ const searchPostsAggregationPipeline = (
 		{
 			$sort: sortConditions
 		},
-		...postAggregationPipeline(),
 		{
 			$match: Object.assign(matchConditions, pageConditions)
 		},
 		{
 			$limit: 20
 		},
-		...interactionsAggregationPipeline(userId)
+		...postAggregationPipeline(userId)
 	];
 };
 
