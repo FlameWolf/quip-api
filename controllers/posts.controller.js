@@ -78,7 +78,9 @@ const createPost = async (req, res, next) => {
 			content,
 			author: userId,
 			attachments: {
-				poll,
+				...(poll && {
+					poll: JSON.parse(poll)
+				}),
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
@@ -139,7 +141,9 @@ const quotePost = async (req, res, next) => {
 			content,
 			author: userId,
 			attachments: {
-				poll,
+				...(poll && {
+					poll: JSON.parse(poll)
+				}),
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
@@ -218,7 +222,9 @@ const replyToPost = async (req, res, next) => {
 			author: userId,
 			replyTo,
 			attachments: {
-				poll,
+				...(poll && {
+					poll: JSON.parse(poll)
+				}),
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
