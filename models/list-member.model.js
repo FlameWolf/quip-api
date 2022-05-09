@@ -10,7 +10,10 @@ const listMemberSchema = new mongoose.Schema(
 		user: { type: ObjectId, ref: "User", required: true }
 	},
 	{
-		timestamps: true,
+		timestamps: {
+			createdAt: true,
+			updatedAt: false
+		},
 		collation: {
 			locale: "en",
 			strength: 2

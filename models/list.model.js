@@ -21,7 +21,10 @@ const listSchema = new mongoose.Schema(
 		includeReplies: { type: Boolean, default: true }
 	},
 	{
-		timestamps: true,
+		timestamps: {
+			createdAt: true,
+			updatedAt: false
+		},
 		collation: {
 			locale: "en",
 			strength: 2

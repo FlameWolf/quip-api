@@ -27,7 +27,10 @@ const mutedWordSchema = new mongoose.Schema(
 		mutedBy: { type: ObjectId, ref: "User", required: true }
 	},
 	{
-		timestamps: true,
+		timestamps: {
+			createdAt: true,
+			updatedAt: false
+		},
 		collation: {
 			locale: "en",
 			strength: 2

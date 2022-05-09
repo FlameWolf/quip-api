@@ -71,7 +71,10 @@ const postSchema = new Schema(
 		}
 	},
 	{
-		timestamps: true,
+		timestamps: {
+			createdAt: true,
+			updatedAt: false
+		},
 		collation: {
 			locale: "en",
 			strength: 2

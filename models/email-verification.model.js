@@ -10,7 +10,10 @@ const emailVerificationSchema = new mongoose.Schema(
 		token: { type: ObjectId, required: true }
 	},
 	{
-		timestamps: true,
+		timestamps: {
+			createdAt: true,
+			updatedAt: false
+		},
 		collation: {
 			locale: "en",
 			strength: 2
