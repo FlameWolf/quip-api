@@ -20,18 +20,19 @@ const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
 const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
 const emailController = require("./email.controller");
 const User = require("../models/user.model");
+const Post = require("../models/post.model");
+const Favourite = require("../models/favourite.model");
+const Bookmark = require("../models/bookmark.model");
 const Follow = require("../models/follow.model");
 const FollowRequest = require("../models/follow-request.model");
-const Post = require("../models/post.model");
+const List = require("../models/list.model");
+const ListMember = require("../models/list-member.model");
 const Block = require("../models/block.model");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 const EmailVerification = require("../models/email-verification.model");
-const Bookmark = require("../models/bookmark.model");
-const List = require("../models/list.model");
-const ListMember = require("../models/list-member.model");
-const Favourite = require("../models/favourite.model");
+const Vote = require("../models/vote.model");
 const Settings = require("../models/settings.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
@@ -390,27 +391,28 @@ const deleteUser = async (req, res, next) => {
 			const mutedByFilter = { mutedBy: userId };
 			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
 			await Promise.all([
+				Favourite.deleteMany({ favouritedBy: userId }).session(session),
+				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
 				Follow.deleteMany({
 					$or: [userFilter, { followedBy: userId }]
 				}).session(session),
 				FollowRequest.deleteMany({
 					$or: [userFilter, { favouritedBy: userId }]
 				}).session(session),
-				Block.deleteMany({
-					$or: [userFilter, { blockedBy: userId }]
-				}).session(session),
+				List.deleteMany(ownerFilter).session(session),
 				ListMember.deleteMany({
 					$or: [userFilter, { list: await List.find(ownerFilter, { _id: 1 }) }]
 				}).session(session),
-				List.deleteMany(ownerFilter).session(session),
-				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
-				Favourite.deleteMany({ favouritedBy: userId }).session(session),
+				Block.deleteMany({
+					$or: [userFilter, { blockedBy: userId }]
+				}).session(session),
 				MutedPost.deleteMany(mutedByFilter).session(session),
 				MutedUser.deleteMany({
 					$or: [userFilter, mutedByFilter]
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
 				EmailVerification.deleteMany(userFilter).session(session),
+				Vote.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
 			res.status(200).json({ deleted });
