@@ -77,18 +77,20 @@ const createPost = async (req, res, next) => {
 		const post = await new Post({
 			content,
 			author: userId,
-			attachments: {
-				...(poll && {
-					poll: JSON.parse(poll)
-				}),
-				...(media && {
-					mediaFile: {
-						fileType: req.fileType,
-						src: media.linkUrl,
-						description: mediaDescription
-					}
-				})
-			}
+			...((poll || media) && {
+				attachments: {
+					...(poll && {
+						poll: JSON.parse(poll)
+					}),
+					...(media && {
+						mediaFile: {
+							fileType: req.fileType,
+							src: media.linkUrl,
+							description: mediaDescription
+						}
+					})
+				}
+			})
 		}).save();
 		if (content) {
 			await updateMentions(content, post);
@@ -221,18 +223,20 @@ const replyToPost = async (req, res, next) => {
 			content,
 			author: userId,
 			replyTo,
-			attachments: {
-				...(poll && {
-					poll: JSON.parse(poll)
-				}),
-				...(media && {
-					mediaFile: {
-						fileType: req.fileType,
-						src: media.linkUrl,
-						description: mediaDescription
-					}
-				})
-			}
+			...((poll || media) && {
+				attachments: {
+					...(poll && {
+						poll: JSON.parse(poll)
+					}),
+					...(media && {
+						mediaFile: {
+							fileType: req.fileType,
+							src: media.linkUrl,
+							description: mediaDescription
+						}
+					})
+				}
+			})
 		}).save();
 		reply.mentions = [originalPost.author];
 		if (content) {
