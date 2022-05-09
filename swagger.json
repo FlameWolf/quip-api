@@ -54,6 +54,28 @@
 								"type": "string",
 								"format": "textarea"
 							},
+							"poll": {
+								"type": "object",
+								"properties": {
+									"first": {
+										"required": true,
+										"type": "string"
+									},
+									"second": {
+										"required": true,
+										"type": "string"
+									},
+									"third": {
+										"type": "string"
+									},
+									"fourth": {
+										"type": "string"
+									},
+									"nota": {
+										"type": "boolean"
+									}
+								}
+							},
 							"media": {
 								"type": "file"
 							},
