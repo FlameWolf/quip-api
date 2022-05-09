@@ -123,11 +123,6 @@ const quotePost = async (req, res, next) => {
 	const { content, poll, "media-description": mediaDescription } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
-	const originalPost = await Post.findById(postId);
-	if (!originalPost) {
-		res.status(404).send("Post not found");
-		return;
-	}
 	try {
 		validateContent(content, media);
 	} catch (err) {
@@ -135,6 +130,11 @@ const quotePost = async (req, res, next) => {
 		return;
 	}
 	try {
+		const originalPost = await Post.findById(postId);
+		if (!originalPost) {
+			res.status(404).send("Post not found");
+			return;
+		}
 		const quote = await new Post({
 			content,
 			author: userId,
@@ -207,12 +207,12 @@ const replyToPost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	const originalPost = await Post.findById(replyTo);
-	if (!originalPost) {
-		res.status(404).send("Post not found");
-		return;
-	}
 	try {
+		const originalPost = await Post.findById(replyTo);
+		if (!originalPost) {
+			res.status(404).send("Post not found");
+			return;
+		}
 		const reply = await new Post({
 			content,
 			author: userId,
@@ -241,14 +241,25 @@ const castVote = async (req, res, next) => {
 	const postId = req.params.postId;
 	const option = req.query.option;
 	const userId = req.userInfo.userId;
-	const post = await Post.findById(postId);
-	if (!post) {
-		res.status(404).send("Post not found");
-		return;
-	}
 	try {
+		const post = await Post.findById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		const poll = post.attachment.poll;
+		if (!poll) {
+			res.status(422).send("Post does not contain a poll");
+			return;
+		}
+		const pollExpiryDate = post.createdAt;
+		pollExpiryDate.setMilliseconds(pollExpiryDate.getMilliseconds() + poll.duration);
+		if (new Date() > pollExpiryDate) {
+			res.status(422).send("Poll has expired");
+			return;
+		}
 		const vote = await new Vote({
-			poll: post.attachments.poll,
+			poll: poll._id,
 			user: userId,
 			option
 		}).save();
