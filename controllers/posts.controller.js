@@ -11,11 +11,14 @@ const Favourite = require("../models/favourite.model");
 const Bookmark = require("../models/bookmark.model");
 const MutedPost = require("../models/muted.post.model");
 
-const validateContent = (content, attachment = undefined) => {
-	if (!(content || attachment)) {
-		throw new Error("No content");
+const validateContent = (content, attachment = {}) => {
+	if (!content) {
+		const { poll, mediaFile, post } = attachment;
+		if (poll || !(mediaFile || post)) {
+			throw new Error("No content");
+		}
 	}
-	if (content.match(contentLengthRegExp) > maxContentLength) {
+	if (content?.match(contentLengthRegExp) > maxContentLength) {
 		throw new Error("Content too long");
 	}
 };
@@ -60,7 +63,7 @@ const deletePostWithCascade = async post => {
 	await session.endSession();
 };
 const createPost = async (req, res, next) => {
-	const { content, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
@@ -75,6 +78,7 @@ const createPost = async (req, res, next) => {
 			author: userId,
 			...(media && {
 				attachments: {
+					poll,
 					mediaFile: {
 						fileType: req.fileType,
 						src: media.linkUrl,
@@ -115,7 +119,7 @@ const getPost = async (req, res, next) => {
 };
 const quotePost = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	const originalPost = await Post.findById(postId);
@@ -134,14 +138,15 @@ const quotePost = async (req, res, next) => {
 			content,
 			author: userId,
 			attachments: {
-				post: postId,
+				poll,
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
 						src: media.linkUrl,
 						description: mediaDescription
 					}
-				})
+				}),
+				post: postId
 			}
 		}).save();
 		quote.mentions = [originalPost.author];
@@ -191,7 +196,7 @@ const unrepeatPost = async (req, res, next) => {
 	}
 };
 const replyToPost = async (req, res, next) => {
-	const { content, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription } = req.body;
 	const media = req.file;
 	const replyTo = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -212,6 +217,7 @@ const replyToPost = async (req, res, next) => {
 			author: userId,
 			replyTo,
 			attachments: {
+				poll,
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
