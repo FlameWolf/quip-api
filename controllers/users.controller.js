@@ -22,7 +22,7 @@ const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Follow = require("../models/follow.model");
 const FollowRequest = require("../models/follow-request.model");
-const Mention = require("../models/mention.model");
+const Post = require("../models/post.model");
 const Block = require("../models/block.model");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
@@ -45,7 +45,7 @@ const findFollowingByUserId = async (userId, lastFollowId = undefined) => await 
 const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
 const findFollowRequestsSentByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsSentAggregationPipeline(userId, lastFollowRequestId));
 const findFollowRequestsReceivedByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsReceivedAggregationPipeline(userId, lastFollowRequestId));
-const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Mention.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
+const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Post.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
 const findListsByUserId = async (userId, memberId = undefined, lastListId = undefined) => await List.aggregate(listsAggregationPipeline(userId, memberId, lastListId));
 const findMembersByListId = async (listId, lastMemberId = undefined) => await ListMember.aggregate(listMembersAggregationPipeline(listId, lastMemberId));
 const findBlocksByUserId = async (userId, lastBlockId = undefined) => await Block.aggregate(blocksAggregationPipeline(userId, lastBlockId));
@@ -410,7 +410,6 @@ const deleteUser = async (req, res, next) => {
 					$or: [userFilter, mutedByFilter]
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
-				Mention.deleteMany({ mentioned: userId }).session(session),
 				EmailVerification.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
