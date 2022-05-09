@@ -43,8 +43,8 @@ const updateMentionsAndHashtags = async (content, post) => {
 			}
 		}
 	}
-	post.mentions = [...userIds];
-	post.hashtags = [...hashtags];
+	post.mentions = userIds.size > 0 ? [...userIds] : undefined;
+	post.hashtags = hashtags.size > 0 ? [...hashtags] : undefined;
 };
 const deletePostWithCascade = async post => {
 	const postId = post._id;
