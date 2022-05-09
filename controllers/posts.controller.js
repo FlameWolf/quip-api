@@ -6,6 +6,7 @@ const { contentLengthRegExp, maxContentLength } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
+const Vote = require("../models/vote.model");
 const User = require("../models/user.model");
 const Favourite = require("../models/favourite.model");
 const Bookmark = require("../models/bookmark.model");
@@ -236,6 +237,26 @@ const replyToPost = async (req, res, next) => {
 		next(err);
 	}
 };
+const castVote = async (req, res, next) => {
+	const postId = req.params.postId;
+	const option = req.query.option;
+	const userId = req.userInfo.userId;
+	const post = await Post.findById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
+	}
+	try {
+		const vote = await new Vote({
+			poll: post.attachments.poll,
+			user: userId,
+			option
+		}).save();
+		res.status(201).json({ vote });
+	} catch (err) {
+		next(err);
+	}
+};
 const deletePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -263,5 +284,6 @@ module.exports = {
 	repeatPost,
 	unrepeatPost,
 	replyToPost,
+	castVote,
 	deletePost
 };
