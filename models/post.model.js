@@ -61,10 +61,12 @@ const postSchema = new Schema(
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" },
 		mentions: {
 			type: [{ type: ObjectId, ref: "User" }],
+			default: undefined,
 			index: true
 		},
 		hashtags: {
 			type: [{ type: String }],
+			default: undefined,
 			index: true
 		}
 	},
