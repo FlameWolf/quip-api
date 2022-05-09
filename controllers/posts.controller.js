@@ -77,16 +77,16 @@ const createPost = async (req, res, next) => {
 		const post = await new Post({
 			content,
 			author: userId,
-			...(media && {
-				attachments: {
-					poll,
+			attachments: {
+				poll,
+				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
 						src: media.linkUrl,
 						description: mediaDescription
 					}
-				}
-			})
+				})
+			}
 		}).save();
 		if (content) {
 			await updateMentions(content, post);
