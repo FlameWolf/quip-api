@@ -29,7 +29,6 @@ const postSchema = new Schema(
 		repeatPost: { type: ObjectId, ref: "Post", index: true },
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: new Schema({
-			post: { type: ObjectId, ref: "Post" },
 			poll: new Schema({
 				first: { type: String, required: true, validate: validatePollOption },
 				second: { type: String, required: true, validate: validatePollOption },
@@ -56,7 +55,8 @@ const postSchema = new Schema(
 						}
 					}
 				}
-			})
+			}),
+			post: { type: ObjectId, ref: "Post" }
 		}),
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" },
 		mentions: {
