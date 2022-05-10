@@ -47,11 +47,27 @@ const updateMentionsAndHashtags = async (content, post) => {
 	post.hashtags = hashtags.size > 0 ? [...hashtags] : undefined;
 };
 const deletePostWithCascade = async post => {
-	const postId = post._id;
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
-		await Post.deleteOne(post).session(session);
+		const postId = post._id;
 		const postFilter = { post: postId };
+		const quotedPostId = post.attachments?.post;
+		const repliedToPostId = post.replyTo;
+		await Post.deleteOne(post).session(session);
+		if (quotedPostId) {
+			await Post.findByIdAndUpdate(quotedPostId, {
+				$inc: {
+					score: -2
+				}
+			}).session(session);
+		}
+		if (repliedToPostId) {
+			await Post.findByIdAndUpdate(repliedToPostId, {
+				$inc: {
+					score: -2
+				}
+			}).session(session);
+		}
 		await Promise.all([
 			User.findOneAndUpdate(
 				{
@@ -141,36 +157,43 @@ const quotePost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
 		const originalPost = await Post.findById(postId);
 		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const quote = await new Post({
-			content,
-			author: userId,
-			attachments: {
-				...(poll && {
-					poll: JSON.parse(poll)
-				}),
-				...(media && {
-					mediaFile: {
-						fileType: req.fileType,
-						src: media.linkUrl,
-						description: mediaDescription
-					}
-				}),
-				post: postId
+		await session.withTransaction(async () => {
+			const quote = await new Post({
+				content,
+				author: userId,
+				attachments: {
+					...(poll && {
+						poll: JSON.parse(poll)
+					}),
+					...(media && {
+						mediaFile: {
+							fileType: req.fileType,
+							src: media.linkUrl,
+							description: mediaDescription
+						}
+					}),
+					post: postId
+				}
+			}).save({ session });
+			quote.mentions = [originalPost.author];
+			if (content) {
+				await updateMentionsAndHashtags(content, quote);
 			}
-		}).save();
-		quote.mentions = [originalPost.author];
-		if (content) {
-			await updateMentionsAndHashtags(content, quote);
-		}
-		res.status(201).json({ quote });
+			originalPost.score += 2;
+			await originalPost.save({ session });
+			res.status(201).json({ quote });
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const repeatPost = async (req, res, next) => {
@@ -187,8 +210,15 @@ const repeatPost = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			await Post.deleteOne(payload).session(session);
+			const result = await Post.deleteOne(payload).session(session);
 			const repeated = await new Post(payload).save({ session });
+			if (result.deletedCount === 0) {
+				await Post.findByIdAndUpdate(postId, {
+					$inc: {
+						score: 4
+					}
+				}).session(session);
+			}
 			res.status(201).json({ repeated });
 		});
 	} catch (err) {
@@ -200,20 +230,32 @@ const repeatPost = async (req, res, next) => {
 const unrepeatPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
+	const session = await mongoose.startSession();
 	try {
-		const unrepeated = await Post.findOneAndDelete({
-			author: userId,
-			repeatPost: postId
+		await session.withTransaction(async () => {
+			const unrepeated = await Post.findOneAndDelete({
+				author: userId,
+				repeatPost: postId
+			}).session(session);
+			if (unrepeated) {
+				await Post.findByIdAndUpdate(postId, {
+					$inc: {
+						score: -4
+					}
+				}).session(session);
+			}
+			res.status(200).json({ unrepeated });
 		});
-		res.status(200).json({ unrepeated });
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const replyToPost = async (req, res, next) => {
 	const { content, poll, "media-description": mediaDescription } = req.body;
 	const media = req.file;
-	const replyTo = req.params.postId;
+	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content, media);
@@ -221,44 +263,55 @@ const replyToPost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
+	const session = await mongoose.startSession();
 	try {
-		const originalPost = await Post.findById(replyTo);
+		const originalPost = await Post.findById(postId);
 		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const reply = await new Post({
-			content,
-			author: userId,
-			replyTo,
-			...((poll || media) && {
-				attachments: {
-					...(poll && {
-						poll: JSON.parse(poll)
-					}),
-					...(media && {
-						mediaFile: {
-							fileType: req.fileType,
-							src: media.linkUrl,
-							description: mediaDescription
-						}
-					})
+		await session.withTransaction(async () => {
+			const reply = await new Post({
+				content,
+				author: userId,
+				replyTo: postId,
+				...((poll || media) && {
+					attachments: {
+						...(poll && {
+							poll: JSON.parse(poll)
+						}),
+						...(media && {
+							mediaFile: {
+								fileType: req.fileType,
+								src: media.linkUrl,
+								description: mediaDescription
+							}
+						})
+					}
+				})
+			}).save({ session });
+			reply.mentions = [originalPost.author];
+			if (content) {
+				await updateMentionsAndHashtags(content, reply);
+			}
+			await Post.findOneAndUpdate(postId, {
+				$inc: {
+					score: 2
 				}
-			})
-		}).save();
-		reply.mentions = [originalPost.author];
-		if (content) {
-			await updateMentionsAndHashtags(content, reply);
-		}
-		res.status(201).json({ reply });
+			}).session(session);
+			res.status(201).json({ reply });
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const castVote = async (req, res, next) => {
 	const postId = req.params.postId;
 	const option = req.query.option;
 	const userId = req.userInfo.userId;
+	const session = await mongoose.startSession();
 	try {
 		const post = await Post.findById(postId);
 		if (!post) {
@@ -276,14 +329,23 @@ const castVote = async (req, res, next) => {
 			res.status(422).send("Poll has expired");
 			return;
 		}
-		const vote = await new Vote({
-			poll: poll._id,
-			user: userId,
-			option
-		}).save();
-		res.status(201).json({ vote });
+		await session.withTransaction(async () => {
+			const vote = await new Vote({
+				poll: poll._id,
+				user: userId,
+				option
+			}).save({ session });
+			await Post.findByIdAndUpdate(postId, {
+				$inc: {
+					score: 2
+				}
+			}).session(session);
+			res.status(201).json({ vote });
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const deletePost = async (req, res, next) => {
