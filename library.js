@@ -13,6 +13,11 @@ const maxPollOptionLength = 32;
 const maxMutedWordLength = 256;
 const minPollDuration = 1000 * 60 * 30;
 const maxPollDuration = 1000 * 60 * 60 * 24 * 7;
+const favouriteScore = 1;
+const quoteScore = 2;
+const replyScore = 2;
+const voteScore = 2;
+const repeatScore = 4;
 const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
 
@@ -56,6 +61,11 @@ module.exports = {
 	maxMutedWordLength,
 	minPollDuration,
 	maxPollDuration,
+	favouriteScore,
+	quoteScore,
+	replyScore,
+	voteScore,
+	repeatScore,
 	megaByte,
 	noReplyEmail,
 	setProperty,
