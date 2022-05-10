@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const { contentLengthRegExp, maxContentLength } = require("../library");
+const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
@@ -57,14 +57,14 @@ const deletePostWithCascade = async post => {
 		if (quotedPostId) {
 			await Post.findByIdAndUpdate(quotedPostId, {
 				$inc: {
-					score: -2
+					score: -quoteScore
 				}
 			}).session(session);
 		}
 		if (repliedToPostId) {
 			await Post.findByIdAndUpdate(repliedToPostId, {
 				$inc: {
-					score: -2
+					score: -replyScore
 				}
 			}).session(session);
 		}
@@ -186,7 +186,7 @@ const quotePost = async (req, res, next) => {
 			if (content) {
 				await updateMentionsAndHashtags(content, quote);
 			}
-			originalPost.score += 2;
+			originalPost.score += quoteScore;
 			await originalPost.save({ session });
 			res.status(201).json({ quote });
 		});
@@ -215,7 +215,7 @@ const repeatPost = async (req, res, next) => {
 			if (result.deletedCount === 0) {
 				await Post.findByIdAndUpdate(postId, {
 					$inc: {
-						score: 4
+						score: repeatScore
 					}
 				}).session(session);
 			}
@@ -240,7 +240,7 @@ const unrepeatPost = async (req, res, next) => {
 			if (unrepeated) {
 				await Post.findByIdAndUpdate(postId, {
 					$inc: {
-						score: -4
+						score: -repeatScore
 					}
 				}).session(session);
 			}
@@ -296,7 +296,7 @@ const replyToPost = async (req, res, next) => {
 			}
 			await Post.findOneAndUpdate(postId, {
 				$inc: {
-					score: 2
+					score: replyScore
 				}
 			}).session(session);
 			res.status(201).json({ reply });
@@ -337,7 +337,7 @@ const castVote = async (req, res, next) => {
 			}).save({ session });
 			await Post.findByIdAndUpdate(postId, {
 				$inc: {
-					score: 2
+					score: voteScore
 				}
 			}).session(session);
 			res.status(201).json({ vote });
