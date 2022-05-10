@@ -1,6 +1,7 @@
 "use strict";
 
 const mongoose = require("mongoose");
+const { favouriteScore } = require("../library");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
 
@@ -20,7 +21,7 @@ const addFavourite = async (req, res, next) => {
 			}).save({ session });
 			await Post.findByIdAndUpdate(postId, {
 				$inc: {
-					score: 1
+					score: favouriteScore
 				}
 			}).session(session);
 			res.status(200).json({ favourited });
@@ -41,11 +42,13 @@ const removeFavourite = async (req, res, next) => {
 				post: postId,
 				favouritedBy: userId
 			}).session(session);
-			await Post.findByIdAndUpdate(postId, {
-				$inc: {
-					score: -1
-				}
-			}).session(session);
+			if (unfavourited) {
+				await Post.findByIdAndUpdate(postId, {
+					$inc: {
+						score: -favouriteScore
+					}
+				}).session(session);
+			}
 			res.status(200).json({ unfavourited });
 		});
 	} catch (err) {
