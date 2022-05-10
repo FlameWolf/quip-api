@@ -68,7 +68,8 @@ const postSchema = new Schema(
 			type: [{ type: String }],
 			default: undefined,
 			index: true
-		}
+		},
+		score: { type: Number, default: 0, index: true }
 	},
 	{
 		timestamps: {
@@ -81,5 +82,6 @@ const postSchema = new Schema(
 		}
 	}
 );
+postSchema.index({ createdAt: 1 });
 
 module.exports = mongoose.model("Post", postSchema);
