@@ -10,8 +10,8 @@ const ListMember = require("../models/list-member.model");
 
 const findListPostsByNameAndOwnerId = async (listName, ownerId, includeRepeats = true, includeReplies = true, lastPostId = undefined) => await List.aggregate(listPostsAggregationPipeline(listName, ownerId, includeRepeats, includeReplies, lastPostId));
 const createList = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { name, includeRepeats, includeReplies } = req.body;
+	const userId = req.userInfo.userId;
 	try {
 		const list = await new List({ name, owner: userId, includeRepeats, includeReplies }).save();
 		res.status(201).json({ list });
@@ -20,8 +20,8 @@ const createList = async (req, res, next) => {
 	}
 };
 const updateList = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { name, newName, includeRepeats, includeReplies } = req.body;
+	const userId = req.userInfo.userId;
 	try {
 		const filter = { name, owner: userId };
 		if (!(await List.countDocuments(filter))) {
@@ -41,8 +41,8 @@ const updateList = async (req, res, next) => {
 	}
 };
 const addMember = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { name, handle } = req.body;
+	const userId = req.userInfo.userId;
 	try {
 		const list = await List.findOne({ name, owner: userId });
 		if (!list) {
@@ -74,8 +74,8 @@ const addMember = async (req, res, next) => {
 	}
 };
 const removeMember = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { name, handle } = req.body;
+	const userId = req.userInfo.userId;
 	try {
 		const list = await List.findOne({ name, owner: userId });
 		if (!list) {
@@ -95,8 +95,8 @@ const removeMember = async (req, res, next) => {
 	}
 };
 const getPosts = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const name = req.params.name;
+	const userId = req.userInfo.userId;
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
 	try {
 		const posts = await findListPostsByNameAndOwnerId(name, userId, includeRepeats, includeReplies, lastPostId);
@@ -106,8 +106,8 @@ const getPosts = async (req, res, next) => {
 	}
 };
 const deleteList = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const name = req.params.name;
+	const userId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {

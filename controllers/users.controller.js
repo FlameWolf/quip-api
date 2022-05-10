@@ -126,7 +126,8 @@ const getUserPosts = async (req, res, next) => {
 };
 const getUserTopmost = async (req, res, next) => {
 	const { handle, period } = req.params;
-	const userId = req.userInfo?.userId;
+	const { lastScore, lastPostId } = req.query;
+	const selfId = req.userInfo?.userId;
 	try {
 		const filter = { handle };
 		if (!(await User.countDocuments(filter))) {
@@ -142,7 +143,7 @@ const getUserTopmost = async (req, res, next) => {
 					from: "posts",
 					localField: "_id",
 					foreignField: "author",
-					pipeline: topmostAggregationPipeline(userId, period),
+					pipeline: topmostAggregationPipeline(selfId, period, lastScore, lastPostId),
 					as: "posts"
 				}
 			},
@@ -258,8 +259,8 @@ const getUserMentions = async (req, res, next) => {
 	}
 };
 const getLists = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { memberHandle, lastListId } = req.query;
+	const userId = req.userInfo.userId;
 	try {
 		const member = await findUserByHandle(memberHandle);
 		if (memberHandle && !member) {
@@ -273,9 +274,9 @@ const getLists = async (req, res, next) => {
 	}
 };
 const getListMembers = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const name = req.params.name;
 	const lastMemberId = req.query.lastMemberId;
+	const userId = req.userInfo.userId;
 	try {
 		const list = await List.findOne({ name, owner: userId });
 		if (!list) {
@@ -289,8 +290,8 @@ const getListMembers = async (req, res, next) => {
 	}
 };
 const getBlocks = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const lastBlockId = req.query.lastBlockId;
+	const userId = req.userInfo.userId;
 	try {
 		const blockedUsers = await findBlocksByUserId(userId, lastBlockId);
 		res.status(200).json({ blockedUsers });
@@ -299,8 +300,8 @@ const getBlocks = async (req, res, next) => {
 	}
 };
 const getMutedUsers = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const lastMuteId = req.query.lastMuteId;
+	const userId = req.userInfo.userId;
 	try {
 		const mutedUsers = await findMutedUsersByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedUsers });
@@ -309,8 +310,8 @@ const getMutedUsers = async (req, res, next) => {
 	}
 };
 const getMutedPosts = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const lastMuteId = req.query.lastMuteId;
+	const userId = req.userInfo.userId;
 	try {
 		const mutedPosts = await findMutedPostsByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedPosts });
@@ -319,8 +320,8 @@ const getMutedPosts = async (req, res, next) => {
 	}
 };
 const getMutedWords = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const lastMuteId = req.query.lastMuteId;
+	const userId = req.userInfo.userId;
 	try {
 		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
 		res.status(200).json({ mutedWords });
@@ -329,8 +330,8 @@ const getMutedWords = async (req, res, next) => {
 	}
 };
 const updateEmail = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { oldEmail, newEmail } = req.body;
+	const userId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {

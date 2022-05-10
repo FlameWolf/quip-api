@@ -10,8 +10,8 @@ const Post = require("../models/post.model");
 const EmailVerification = require("../models/email-verification.model");
 
 const timeline = async (req, res, next) => {
-	const userId = req.userInfo.userId;
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
+	const userId = req.userInfo.userId;
 	try {
 		const posts = await User.aggregate(timelineAggregationPipeline(userId, includeRepeats !== "false", includeReplies !== "false", lastPostId));
 		res.status(200).json({ posts });
@@ -20,9 +20,9 @@ const timeline = async (req, res, next) => {
 	}
 };
 const activity = async (req, res, next) => {
-	const userId = req.userInfo?.userId;
 	const period = req.params.period;
 	const lastPostId = req.query.lastPostId;
+	const userId = req.userInfo?.userId;
 	try {
 		const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
 		res.status(200).json({ entries });
@@ -31,10 +31,11 @@ const activity = async (req, res, next) => {
 	}
 };
 const topmost = async (req, res, next) => {
-	const userId = req.userInfo?.userId;
 	const period = req.params.period;
+	const { lastScore, lastPostId } = req.query;
+	const userId = req.userInfo?.userId;
 	try {
-		const posts = await Post.aggregate(topmostAggregationPipeline(userId, period));
+		const posts = await Post.aggregate(topmostAggregationPipeline(userId, period, lastScore, lastPostId));
 		res.status(200).json({ posts });
 	} catch (err) {
 		next(err);
