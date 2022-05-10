@@ -31,7 +31,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 		});
 	}
 	if (lastScore && lastPostId) {
-		const parsedLastScore = parseFloat(lastScore);
+		const parsedLastScore = parseInt(lastScore);
 		Object.assign(pageConditions, {
 			$expr: {
 				$or: [
