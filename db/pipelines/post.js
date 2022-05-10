@@ -5,6 +5,9 @@ const interactionsAggregationPipeline = require("./interactions");
 const postAggregationPipeline = (userId = undefined) => {
 	return [
 		{
+			$unset: "score"
+		},
+		{
 			$lookup: {
 				from: "users",
 				localField: "author",
