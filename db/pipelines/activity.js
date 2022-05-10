@@ -2,6 +2,7 @@
 
 const { ObjectId } = require("bson");
 const filtersAggregationPipeline = require("./filters");
+const postAggregationPipeline = require("./post");
 
 const activityAggregationPipeline = (userId, period = "", lastEntryId = undefined) => {
 	const maxDate = new Date();
@@ -167,6 +168,59 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		},
 		{
 			$lookup: {
+				from: "votes",
+				localField: "following",
+				foreignField: "user",
+				pipeline: [
+					{
+						$match: {
+							createdAt: {
+								$gte: maxDate
+							}
+						}
+					},
+					{
+						$group: {
+							_id: "$poll",
+							latestId: {
+								$max: "$_id"
+							},
+							votedBy: {
+								$addToSet: "$author"
+							},
+							createdAt: {
+								$max: "$createdAt"
+							}
+						}
+					},
+					{
+						$lookup: {
+							from: "posts",
+							localField: "_id",
+							foreignField: "attachments.poll._id",
+							as: "post"
+						}
+					},
+					{
+						$unwind: "$post"
+					},
+					,
+					{
+						$project: {
+							_id: "$latestId",
+							post: "$post",
+							votedBy: {
+								$size: "$votedBy"
+							},
+							createdAt: 1
+						}
+					}
+				],
+				as: "voted"
+			}
+		},
+		{
+			$lookup: {
 				from: "posts",
 				localField: "following",
 				foreignField: "author",
@@ -257,12 +311,12 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		{
 			$project: {
 				entry: {
-					$concatArrays: ["$favourited", "$quoted", "$replied", "$followed"]
+					$concatArrays: ["$favourited", "$quoted", "$voted", "$replied", "$followed"]
 				}
 			}
 		},
 		{
-			$unset: ["favourited", "quoted", "replied", "followed"]
+			$unset: ["favourited", "quoted", "$voted", "replied", "followed"]
 		},
 		{
 			$unwind: "$entry"
@@ -272,7 +326,7 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 				from: "posts",
 				localField: "entry.post._id",
 				foreignField: "_id",
-				pipeline: filtersAggregationPipeline(userId),
+				pipeline: [...filtersAggregationPipeline(userId), ...postAggregationPipeline(userId)],
 				as: "entry.post"
 			}
 		},
@@ -290,13 +344,13 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		{
 			$match: lastEntryId
 				? {
-					"entry._id": {
-						$lt: ObjectId(lastEntryId)
-					}
-				}
+						"entry._id": {
+							$lt: ObjectId(lastEntryId)
+						}
+				  }
 				: {
-					$expr: true
-				}
+						$expr: true
+				  }
 		},
 		{
 			$limit: 20
@@ -319,123 +373,6 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 		{
 			$unwind: {
 				path: "$entry.user",
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$lookup: {
-				from: "users",
-				localField: "entry.post.author",
-				foreignField: "_id",
-				pipeline: [
-					{
-						$project: {
-							handle: 1
-						}
-					}
-				],
-				as: "entry.post.author"
-			}
-		},
-		{
-			$unwind: {
-				path: "$entry.post.author",
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$lookup: {
-				from: "favourites",
-				localField: "entry.post._id",
-				foreignField: "post",
-				let: {
-					userId: "$_id"
-				},
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$eq: ["$favouritedBy", "$$userId"]
-							}
-						}
-					},
-					{
-						$addFields: {
-							result: true
-						}
-					}
-				],
-				as: "favourited"
-			}
-		},
-		{
-			$addFields: {
-				"entry.post.favourited": {
-					$arrayElemAt: ["$favourited.result", 0]
-				}
-			}
-		},
-		{
-			$unset: "favourited"
-		},
-		{
-			$lookup: {
-				from: "posts",
-				localField: "entry.post._id",
-				foreignField: "repeatPost",
-				let: {
-					userId: "$_id"
-				},
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{
-										$gt: ["$repeatPost", null]
-									},
-									{
-										$eq: ["$author", "$$userId"]
-									}
-								]
-							}
-						}
-					},
-					{
-						$addFields: {
-							result: true
-						}
-					}
-				],
-				as: "repeated"
-			}
-		},
-		{
-			$addFields: {
-				"entry.post.repeated": {
-					$arrayElemAt: ["$repeated.result", 0]
-				}
-			}
-		},
-		{
-			$unset: "repeated"
-		},
-		{
-			$addFields: {
-				"entry.post": {
-					$cond: [
-						{
-							$eq: ["$entry.post", {}]
-						},
-						[],
-						"$entry.post"
-					]
-				}
-			}
-		},
-		{
-			$unwind: {
-				path: "$entry.post",
 				preserveNullAndEmptyArrays: true
 			}
 		},
