@@ -348,6 +348,22 @@
 				}
 			}
 		},
+		"/posts/vote/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"type": "string"
+					},
+					{
+						"name": "option",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/settings/mute": {
 			"post": {
 				"requestBody": {
@@ -402,7 +418,6 @@
 				"parameters": [
 					{
 						"name": "period",
-						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month"]
@@ -460,7 +475,6 @@
 				"parameters": [
 					{
 						"name": "name",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -490,7 +504,6 @@
 				"parameters": [
 					{
 						"name": "name",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -525,8 +538,6 @@
 				"parameters": [
 					{
 						"name": "path",
-						"in": "path",
-						"required": true,
 						"type": "string"
 					}
 				]
@@ -535,8 +546,6 @@
 				"parameters": [
 					{
 						"name": "path",
-						"in": "path",
-						"required": true,
 						"type": "string"
 					},
 					{
@@ -603,7 +612,6 @@
 				"parameters": [
 					{
 						"name": "period",
-						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
@@ -626,7 +634,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -662,12 +669,10 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
 						"name": "period",
-						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
@@ -680,7 +685,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -696,7 +700,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -712,7 +715,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -728,7 +730,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
@@ -744,7 +745,6 @@
 				"parameters": [
 					{
 						"name": "handle",
-						"in": "path",
 						"type": "string"
 					},
 					{
