@@ -339,11 +339,13 @@ const castVote = async (req, res, next) => {
 				user: userId,
 				option
 			}).save({ session });
-			await Post.findByIdAndUpdate(postId, {
-				$inc: {
-					score: voteScore
-				}
-			}).session(session);
+			if (option !== "nota") {
+				await Post.findByIdAndUpdate(postId, {
+					$inc: {
+						score: voteScore
+					}
+				}).session(session);
+			}
 			res.status(201).json({ vote });
 		});
 	} catch (err) {
