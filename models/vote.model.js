@@ -6,8 +6,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const voteSchema = new mongoose.Schema(
 	{
-		poll: { type: ObjectId, ref: "", required: true, index: true },
-		user: { type: ObjectId, ref: "", required: true },
+		poll: { type: ObjectId, ref: "Post.attachments.poll", required: true, index: true },
+		user: { type: ObjectId, ref: "User", required: true },
 		option: {
 			type: String,
 			enum: ["first", "second", "third", "fourth", "nota"],
