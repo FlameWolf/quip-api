@@ -318,7 +318,7 @@ const castVote = async (req, res, next) => {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const poll = post.attachment.poll;
+		const poll = post.attachments?.poll;
 		if (!poll) {
 			res.status(422).send("Post does not contain a poll");
 			return;
