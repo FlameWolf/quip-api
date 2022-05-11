@@ -16,17 +16,18 @@ const userSchema = new mongoose.Schema(
 			validate: {
 				validator: value => handleRegExp.test(value),
 				message: "Handle is not valid"
-			}
+			},
+			index: true
 		},
 		password: {
 			type: String,
 			trim: true,
 			required: true,
-			select: false,
 			validate: {
 				validator: value => passwordRegExp.test(value),
 				message: "Password is not valid"
-			}
+			},
+			select: false
 		},
 		email: {
 			type: String,
