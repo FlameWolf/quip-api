@@ -1,7 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
-const interactionsAggregationPipeline = require("./interactions");
+const postAggregationPipeline = require("./post");
 
 const userPostsAggregationPipeline = (userId, includeRepeats = false, includeReplies = false, lastPostId = undefined) => {
 	const matchConditions = {
@@ -80,7 +80,7 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 					{
 						$limit: 20
 					},
-					...interactionsAggregationPipeline(userId)
+					...postAggregationPipeline(userId)
 				],
 				as: "posts"
 			}
