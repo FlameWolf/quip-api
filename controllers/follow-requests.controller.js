@@ -64,7 +64,7 @@ const acceptAllFollowRequests = async (req, res, next) => {
 		let requestsCount = 0;
 		await session.withTransaction(async () => {
 			do {
-				const followRequests = await FollowRequest.find({ user: acceptorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
+				const followRequests = await FollowRequest.find({ user: acceptorUserId }, { _id: 1 }).session(session).limit(pageSize);
 				await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
 				requestsCount = followRequests.length;
 				acceptedRequestsCount += requestsCount;
@@ -120,7 +120,7 @@ const rejectAllFollowRequests = async (req, res, next) => {
 		let requestsCount = 0;
 		await session.withTransaction(async () => {
 			do {
-				const followRequests = await FollowRequest.find({ user: rejectorUserId }).session(session).select({ _id: 1 }).limit(pageSize);
+				const followRequests = await FollowRequest.find({ user: rejectorUserId }, { _id: 1 }).session(session).limit(pageSize);
 				await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
 				requestsCount = followRequests.length;
 				rejectedRequestsCount += requestsCount;
