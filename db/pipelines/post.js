@@ -62,13 +62,7 @@ const postAggregationPipeline = (userId = undefined) => {
 						}
 					}
 				],
-				as: "results"
-			}
-		},
-		{
-			$unwind: {
-				path: "$results",
-				preserveNullAndEmptyArrays: true
+				as: "attachments.poll.results"
 			}
 		},
 		...interactionsAggregationPipeline(userId)
