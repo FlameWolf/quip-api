@@ -323,7 +323,7 @@ const castVote = async (req, res, next) => {
 			res.status(422).send("Post does not contain a poll");
 			return;
 		}
-		if (post.author === userId) {
+		if (post.author.valueOf() === userId) {
 			res.status(403).send("User cannot vote on their own poll");
 			return;
 		}
