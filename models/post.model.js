@@ -56,7 +56,7 @@ const postSchema = new Schema(
 					}
 				}
 			}),
-			post: { type: ObjectId, ref: "Post" }
+			post: { type: ObjectId, ref: "Post", index: true }
 		}),
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" },
 		mentions: {
@@ -69,7 +69,7 @@ const postSchema = new Schema(
 			default: undefined,
 			index: true
 		},
-		score: { type: Number, default: 0, index: true }
+		score: { type: Number, default: 0, index: true, select: false }
 	},
 	{
 		timestamps: {
