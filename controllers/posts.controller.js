@@ -323,6 +323,11 @@ const castVote = async (req, res, next) => {
 			res.status(422).send("Post does not contain a poll");
 			return;
 		}
+		const isOptionNota = option === "nota";
+		if (!(isOptionNota || poll[option])) {
+			res.status(422).send("Poll does not contain the specified option");
+			return;
+		}
 		if (post.author.valueOf() === userId) {
 			res.status(403).send("User cannot vote on their own poll");
 			return;
@@ -339,7 +344,7 @@ const castVote = async (req, res, next) => {
 				user: userId,
 				option
 			}).save({ session });
-			if (option !== "nota") {
+			if (!isOptionNota) {
 				await Post.findByIdAndUpdate(postId, {
 					$inc: {
 						score: voteScore
