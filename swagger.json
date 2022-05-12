@@ -71,10 +71,6 @@
 									"fourth": {
 										"type": "string"
 									},
-									"nota": {
-										"type": "boolean",
-										"default": false
-									},
 									"duration": {
 										"required": true,
 										"type": "integer",
