@@ -34,7 +34,6 @@ const postSchema = new Schema(
 				second: { type: String, required: true, validate: validatePollOption },
 				third: { type: String, validate: validatePollOption },
 				fourth: { type: String, validate: validatePollOption },
-				nota: { type: Boolean },
 				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true }
 			}),
 			mediaFile: new Schema({
