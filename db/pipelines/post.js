@@ -65,6 +65,36 @@ const postAggregationPipeline = (userId = undefined) => {
 				as: "attachments.poll.results"
 			}
 		},
+		{
+			$addFields: {
+				attachments: {
+					$cond: [
+						{
+							$or: [
+								{
+									$and: [
+										{
+											$gt: ["$attachments.poll.first", null]
+										},
+										{
+											$gt: ["$attachments.poll.second", null]
+										}
+									]
+								},
+								{
+									$gt: ["$attachments.post", null]
+								},
+								{
+									$gt: ["$attachments.mediaFile", null]
+								}
+							]
+						},
+						"$attachments",
+						"$$REMOVE"
+					]
+				}
+			}
+		},
 		...interactionsAggregationPipeline(userId)
 	];
 };
