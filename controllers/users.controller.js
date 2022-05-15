@@ -6,6 +6,7 @@ const { noReplyEmail } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
+const votesAggregationPipeline = require("../db/pipelines/votes");
 const bookmarksAggregationPipeline = require("../db/pipelines/bookmarks");
 const followingAggregationPipeline = require("../db/pipelines/following");
 const followersAggregationPipeline = require("../db/pipelines/followers");
@@ -22,6 +23,7 @@ const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
+const Vote = require("../models/vote.model");
 const Bookmark = require("../models/bookmark.model");
 const Follow = require("../models/follow.model");
 const FollowRequest = require("../models/follow-request.model");
@@ -32,7 +34,6 @@ const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 const EmailVerification = require("../models/email-verification.model");
-const Vote = require("../models/vote.model");
 const Settings = require("../models/settings.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
@@ -41,6 +42,7 @@ const findUserById = async userId => await User.findOne({ _id: userId, deleted: 
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
 const findPostsByUserId = async (userId, includeRepeats, includeReplies, lastPostId = undefined) => await User.aggregate(userPostsAggregationPipeline(userId, includeRepeats, includeReplies, lastPostId));
 const findFavouritesByUserId = async (userId, lastFavouriteId = undefined) => await User.aggregate(favouritesAggregationPipeline(userId, lastFavouriteId));
+const findVotesByUserId = async (userId, lastVoteId = undefined) => await User.aggregate(votesAggregationPipeline(userId, lastVoteId));
 const findBookmarksByUserId = async (userId, lastBookmarkId = undefined) => await User.aggregate(bookmarksAggregationPipeline(userId, lastBookmarkId));
 const findFollowingByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followingAggregationPipeline(userId, lastFollowId));
 const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
@@ -169,6 +171,20 @@ const getUserFavourites = async (req, res, next) => {
 	try {
 		const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
 		res.status(200).json({ favourites });
+	} catch (err) {
+		next(err);
+	}
+};
+const getUserVotes = async (req, res, next) => {
+	const handle = req.params.handle;
+	const userInfo = req.userInfo;
+	if (userInfo.handle !== handle) {
+		res.sendStatus(401);
+		return;
+	}
+	try {
+		const votes = await findVotesByUserId(userInfo.userId, req.query.lastVoteId);
+		res.status(200).json({ votes });
 	} catch (err) {
 		next(err);
 	}
@@ -393,6 +409,7 @@ const deleteUser = async (req, res, next) => {
 			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
 			await Promise.all([
 				Favourite.deleteMany({ favouritedBy: userId }).session(session),
+				Vote.deleteMany(userFilter).session(session),
 				Bookmark.deleteMany({ bookmarkedBy: userId }).session(session),
 				Follow.deleteMany({
 					$or: [userFilter, { followedBy: userId }]
@@ -413,7 +430,6 @@ const deleteUser = async (req, res, next) => {
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
 				EmailVerification.deleteMany(userFilter).session(session),
-				Vote.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
 			res.status(200).json({ deleted });
@@ -434,6 +450,7 @@ module.exports = {
 	getUserPosts,
 	getUserTopmost,
 	getUserFavourites,
+	getUserVotes,
 	getUserBookmarks,
 	getUserFollowing,
 	getUserFollowers,
