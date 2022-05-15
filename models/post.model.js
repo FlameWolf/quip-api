@@ -33,13 +33,34 @@ const postSchema = new Schema(
 				first: { type: String, required: true, validate: validatePollOption },
 				second: { type: String, required: true, validate: validatePollOption },
 				third: { type: String, validate: validatePollOption },
-				fourth: { type: String, validate: validatePollOption },
+				fourth: {
+					type: String,
+					validate: [
+						{
+							validator: function () {
+								return Boolean(this.third);
+							},
+							message: "Cannot specify fourth option when third option is blank"
+						},
+						validatePollOption
+					]
+				},
 				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true },
 				votes: {
 					first: { type: Number, default: 0 },
 					second: { type: Number, default: 0 },
-					third: { type: Number, default: 0 },
-					fourth: { type: Number, default: 0 },
+					third: {
+						type: Number,
+						default: function () {
+							return this.third && 0;
+						}
+					},
+					fourth: {
+						type: Number,
+						default: function () {
+							return this.fourth && 0;
+						}
+					},
 					nota: { type: Number, default: 0 }
 				}
 			}),
