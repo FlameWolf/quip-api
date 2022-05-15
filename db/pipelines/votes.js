@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const postAggregationPipeline = require("./post");
 
 const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 	{
@@ -31,6 +32,17 @@ const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 						}
 				},
 				{
+					$lookup: {
+						from: "posts",
+						foreignField: "attachments.poll._id",
+						localField: "poll",
+						as: "post"
+					}
+				},
+				{
+					$unwind: "$post"
+				},
+				{
 					$limit: 20
 				}
 			],
@@ -41,8 +53,9 @@ const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 		$unwind: "$votes"
 	},
 	{
-		$replaceWith: "$votes"
-	}
+		$replaceWith: "$votes.post"
+	},
+	postAggregationPipeline(userId)
 ];
 
 module.exports = votesAggregationPipeline;
