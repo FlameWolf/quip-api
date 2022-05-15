@@ -691,6 +691,21 @@
 				]
 			}
 		},
+		"/users/{handle}/votes": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"type": "string"
+					},
+					{
+						"name": "lastVoteId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/users/{handle}/bookmarks": {
 			"get": {
 				"parameters": [
