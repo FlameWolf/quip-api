@@ -111,9 +111,6 @@ const searchPostsAggregationPipeline = (
 				$expr: {
 					$or: [
 						{
-							$lt: ["$score", parsedLastScore]
-						},
-						{
 							$and: [
 								{
 									$eq: ["$score", parsedLastScore]
@@ -122,6 +119,9 @@ const searchPostsAggregationPipeline = (
 									$lt: ["$_id", lastPostObjectId]
 								}
 							]
+						},
+						{
+							$lt: ["$score", parsedLastScore]
 						}
 					]
 				}
