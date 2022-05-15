@@ -36,9 +36,6 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 			$expr: {
 				$or: [
 					{
-						$lt: ["$score", parsedLastScore]
-					},
-					{
 						$and: [
 							{
 								$eq: ["$score", parsedLastScore]
@@ -47,6 +44,9 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 								$lt: ["$_id", ObjectId(lastPostId)]
 							}
 						]
+					},
+					{
+						$lt: ["$score", parsedLastScore]
 					}
 				]
 			}
