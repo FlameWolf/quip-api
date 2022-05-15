@@ -344,6 +344,8 @@ const castVote = async (req, res, next) => {
 				user: userId,
 				option
 			}).save({ session });
+			poll.votes[option] += 1;
+			await post.save({ session });
 			if (!isOptionNota) {
 				await Post.findByIdAndUpdate(postId, {
 					$inc: {
