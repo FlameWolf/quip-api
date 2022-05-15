@@ -47,54 +47,6 @@ const postAggregationPipeline = (userId = undefined) => {
 				}
 			}
 		},
-		{
-			$lookup: {
-				from: "votes",
-				localField: "attachments.poll._id",
-				foreignField: "poll",
-				pipeline: [
-					{
-						$group: {
-							_id: "$option",
-							votes: {
-								$sum: 1
-							}
-						}
-					}
-				],
-				as: "attachments.poll.results"
-			}
-		},
-		{
-			$addFields: {
-				attachments: {
-					$cond: [
-						{
-							$or: [
-								{
-									$and: [
-										{
-											$gt: ["$attachments.poll.first", null]
-										},
-										{
-											$gt: ["$attachments.poll.second", null]
-										}
-									]
-								},
-								{
-									$gt: ["$attachments.post", null]
-								},
-								{
-									$gt: ["$attachments.mediaFile", null]
-								}
-							]
-						},
-						"$attachments",
-						"$$REMOVE"
-					]
-				}
-			}
-		},
 		...interactionsAggregationPipeline(userId)
 	];
 };
