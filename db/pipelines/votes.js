@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 
-const votesAggregationPipeline = (userId, lastVoteId) => [
+const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 	{
 		$match: {
 			_id: ObjectId(userId)
