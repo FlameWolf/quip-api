@@ -34,7 +34,14 @@ const postSchema = new Schema(
 				second: { type: String, required: true, validate: validatePollOption },
 				third: { type: String, validate: validatePollOption },
 				fourth: { type: String, validate: validatePollOption },
-				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true }
+				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true },
+				votes: {
+					first: { type: Number, default: 0 },
+					second: { type: Number, default: 0 },
+					third: { type: Number, default: 0 },
+					fourth: { type: Number, default: 0 },
+					nota: { type: Number, default: 0 }
+				}
 			}),
 			mediaFile: new Schema({
 				fileType: {
