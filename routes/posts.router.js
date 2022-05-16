@@ -23,5 +23,7 @@ router.get("/unmute/:postId", requireAuthentication, mutesController.unmutePost)
 router.get("/vote/:postId", requireAuthentication, postsController.castVote);
 router.delete("/delete/:postId", requireAuthentication, postsController.deletePost);
 router.get("/:postId", postsController.getPost);
+router.get("/:postId/replies", postsController.getPostReplies);
+router.get("/:postId/parent", postsController.getPostParent);
 
 module.exports = router;
