@@ -72,7 +72,6 @@
 										"type": "string"
 									},
 									"duration": {
-										"required": true,
 										"type": "integer",
 										"format": "int64",
 										"minimum": 1800000,
