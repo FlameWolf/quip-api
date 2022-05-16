@@ -1,8 +1,9 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const postAggregationPipeline = require("./post");
 
-const postParentAggregationPipeline = postId => [
+const postParentAggregationPipeline = (postId, userId = undefined) => [
 	{
 		$match: {
 			_id: ObjectId(postId)
@@ -21,7 +22,8 @@ const postParentAggregationPipeline = postId => [
 	},
 	{
 		$replaceWith: "$parent"
-	}
+	},
+	...postAggregationPipeline(userId)
 ];
 
 module.exports = postParentAggregationPipeline;
