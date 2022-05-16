@@ -4,6 +4,8 @@ const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
+const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
+const postParentAggregationPipeline = require("../db/pipelines/post-parent");
 const userController = require("./users.controller");
 const Post = require("../models/post.model");
 const Vote = require("../models/vote.model");
@@ -148,6 +150,33 @@ const getPost = async (req, res, next) => {
 				...postAggregationPipeline(req.userInfo?.userId)
 			])
 		).shift();
+		res.status(200).json({ post });
+	} catch (err) {
+		next(err);
+	}
+};
+const getPostReplies = async (req, res, next) => {
+	const postId = req.params.postId;
+	const lastReplyId = req.query.lastReplyId;
+	try {
+		if (!(await Post.countDocuments({ _id: postId }))) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		const posts = await Post.aggregate(postRepliesAggregationPipeline(postId, req.userInfo?.userId, lastReplyId));
+		res.status(200).json({ posts });
+	} catch (err) {
+		next(err);
+	}
+};
+const getPostParent = async (req, res, next) => {
+	const postId = req.params.postId;
+	try {
+		if (!(await Post.countDocuments({ _id: postId }))) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		const post = await Post.aggregate(postParentAggregationPipeline(postId)).shift();
 		res.status(200).json({ post });
 	} catch (err) {
 		next(err);
@@ -391,6 +420,8 @@ const deletePost = async (req, res, next) => {
 module.exports = {
 	createPost,
 	getPost,
+	getPostReplies,
+	getPostParent,
 	quotePost,
 	repeatPost,
 	unrepeatPost,
