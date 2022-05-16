@@ -76,7 +76,8 @@
 										"type": "integer",
 										"format": "int64",
 										"minimum": 1800000,
-										"maximum": 604800000
+										"maximum": 604800000,
+										"default": 86400000
 									}
 								}
 							},

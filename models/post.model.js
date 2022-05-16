@@ -45,7 +45,12 @@ const postSchema = new Schema(
 						validatePollOption
 					]
 				},
-				duration: { type: Number, min: minPollDuration, max: maxPollDuration, required: true },
+				duration: {
+					type: Number,
+					min: minPollDuration,
+					max: maxPollDuration,
+					default: 86400000
+				},
 				votes: {
 					first: { type: Number, default: 0 },
 					second: { type: Number, default: 0 },
