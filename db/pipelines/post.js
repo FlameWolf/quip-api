@@ -24,48 +24,6 @@ const authorLookupAndUnwind = [
 		$unwind: "$author"
 	}
 ];
-const addPollExpiredField = {
-	$addFields: {
-		attachments: {
-			$cond: [
-				{
-					$gt: ["$attachments", null]
-				},
-				{
-					$mergeObjects: [
-						"$attachments",
-						{
-							poll: {
-								$cond: [
-									{
-										$gt: ["$attachments.poll", null]
-									},
-									{
-										$mergeObjects: [
-											"$attachments.poll",
-											{
-												expired: {
-													$gt: [
-														new Date(),
-														{
-															$add: ["$createdAt", "$attachments.poll.duration"]
-														}
-													]
-												}
-											}
-										]
-									},
-									"$$REMOVE"
-								]
-							}
-						}
-					]
-				},
-				"$$REMOVE"
-			]
-		}
-	}
-};
 const postAggregationPipeline = (userId = undefined) => {
 	return [
 		{
@@ -77,7 +35,7 @@ const postAggregationPipeline = (userId = undefined) => {
 				from: "posts",
 				localField: "attachments.post",
 				foreignField: "_id",
-				pipeline: [...authorLookupAndUnwind, addPollExpiredField],
+				pipeline: authorLookupAndUnwind,
 				as: "attachments.post"
 			}
 		},
@@ -87,7 +45,48 @@ const postAggregationPipeline = (userId = undefined) => {
 				preserveNullAndEmptyArrays: true
 			}
 		},
-		addPollExpiredField,
+		{
+			$addFields: {
+				attachments: {
+					$cond: [
+						{
+							$gt: ["$attachments", null]
+						},
+						{
+							$mergeObjects: [
+								"$attachments",
+								{
+									poll: {
+										$cond: [
+											{
+												$gt: ["$attachments.poll", null]
+											},
+											{
+												$mergeObjects: [
+													"$attachments.poll",
+													{
+														expired: {
+															$gt: [
+																new Date(),
+																{
+																	$add: ["$createdAt", "$attachments.poll.duration"]
+																}
+															]
+														}
+													}
+												]
+											},
+											"$$REMOVE"
+										]
+									}
+								}
+							]
+						},
+						"$$REMOVE"
+					]
+				}
+			}
+		},
 		...interactionsAggregationPipeline(userId)
 	];
 };
