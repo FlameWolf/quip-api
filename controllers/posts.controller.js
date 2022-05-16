@@ -51,22 +51,29 @@ const deletePostWithCascade = async post => {
 	await session.withTransaction(async () => {
 		const postId = post._id;
 		const postFilter = { post: postId };
-		const quotedPostId = post.attachments?.post;
 		const repliedToPostId = post.replyTo;
+		const attachments = post.attachments;
 		await Post.deleteOne(post).session(session);
-		if (quotedPostId) {
-			await Post.findByIdAndUpdate(quotedPostId, {
-				$inc: {
-					score: -quoteScore
-				}
-			}).session(session);
-		}
 		if (repliedToPostId) {
 			await Post.findByIdAndUpdate(repliedToPostId, {
 				$inc: {
 					score: -replyScore
 				}
 			}).session(session);
+		}
+		if (attachments) {
+			const quotedPostId = attachments.post;
+			const poll = attachments.poll;
+			if (quotedPostId) {
+				await Post.findByIdAndUpdate(quotedPostId, {
+					$inc: {
+						score: -quoteScore
+					}
+				}).session(session);
+			}
+			if (poll) {
+				await Vote.deleteMany({ poll: poll._id }).session(session);
+			}
 		}
 		await Promise.all([
 			User.findOneAndUpdate(
