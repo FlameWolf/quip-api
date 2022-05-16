@@ -163,8 +163,8 @@ const getPostReplies = async (req, res, next) => {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const posts = await Post.aggregate(postRepliesAggregationPipeline(postId, req.userInfo?.userId, lastReplyId));
-		res.status(200).json({ posts });
+		const replies = await Post.aggregate(postRepliesAggregationPipeline(postId, req.userInfo?.userId, lastReplyId));
+		res.status(200).json({ replies });
 	} catch (err) {
 		next(err);
 	}
@@ -172,12 +172,17 @@ const getPostReplies = async (req, res, next) => {
 const getPostParent = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
-		if (!(await Post.countDocuments({ _id: postId }))) {
+		const post = await Post.findById(postId);
+		if (!post) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const post = await Post.aggregate(postParentAggregationPipeline(postId)).shift();
-		res.status(200).json({ post });
+		if (!post.replyTo) {
+			res.status(422).send("Post is not a reply");
+			return;
+		}
+		const parent = (await Post.aggregate(postParentAggregationPipeline(postId, req.userInfo?.userId))).shift();
+		res.status(200).json({ parent });
 	} catch (err) {
 		next(err);
 	}
