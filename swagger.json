@@ -316,12 +316,25 @@
 				}
 			}
 		},
+		"/posts/{postId}/replies": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"type": "string"
+					},
+					{
+						"name": "lastReplyId",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/posts/quote/{postId}": {
 			"post": {
 				"parameters": [
 					{
 						"name": "postId",
-						"required": true,
 						"type": "string"
 					}
 				],
@@ -335,7 +348,6 @@
 				"parameters": [
 					{
 						"name": "postId",
-						"required": true,
 						"type": "string"
 					}
 				],
