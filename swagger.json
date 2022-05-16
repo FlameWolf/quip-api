@@ -374,14 +374,14 @@
 				}
 			}
 		},
-		"/settings/accept_reqs": {
+		"/settings/accept-reqs": {
 			"post": {
 				"requestBody": {
 					"$ref": "#/requestBodies/FollowRequests"
 				}
 			}
 		},
-		"/settings/reject_reqs": {
+		"/settings/reject-reqs": {
 			"post": {
 				"requestBody": {
 					"$ref": "#/requestBodies/FollowRequests"
