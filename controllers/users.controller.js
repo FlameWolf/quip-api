@@ -2,7 +2,8 @@
 
 const mongoose = require("mongoose");
 const { ObjectId } = require("bson");
-const { noReplyEmail } = require("../library");
+const bcrypt = require("bcryptjs");
+const { noReplyEmail, passwordRegExp, rounds } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
@@ -34,6 +35,7 @@ const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 const EmailVerification = require("../models/email-verification.model");
+const PasswordReset = require("../models/password-reset.model");
 const Settings = require("../models/settings.model");
 
 const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
@@ -380,6 +382,27 @@ const updateEmail = async (req, res, next) => {
 		await session.endSession();
 	}
 };
+const changePassword = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	const { oldPassword, newPassword } = req.body;
+	try {
+		const user = await User.findById(userId).select("+password");
+		const authStatus = await bcrypt.compare(oldPassword, user.password);
+		if (!authStatus) {
+			res.status(403).send("Current password is incorrect");
+			return;
+		}
+		if (!(newPassword && passwordRegExp.test(newPassword))) {
+			res.status(400).send("New password is invalid");
+			return;
+		}
+		user.password = await bcrypt.hash(newPassword, rounds);
+		await user.save();
+		res.sendStatus(200);
+	} catch (err) {
+		next(err);
+	}
+};
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
@@ -430,6 +453,7 @@ const deleteUser = async (req, res, next) => {
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
 				EmailVerification.deleteMany(userFilter).session(session),
+				PasswordReset.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
 			res.status(200).json({ deleted });
@@ -464,6 +488,7 @@ module.exports = {
 	getMutedPosts,
 	getMutedWords,
 	updateEmail,
+	changePassword,
 	deactivateUser,
 	activateUser,
 	deleteUser
