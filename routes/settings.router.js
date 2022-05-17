@@ -24,6 +24,7 @@ router.get("/muted/users", usersController.getMutedUsers);
 router.get("/muted/posts", usersController.getMutedPosts);
 router.get("/muted/words", usersController.getMutedWords);
 router.post("/update-email", usersController.updateEmail);
+router.post("/change-password", usersController.changePassword);
 router.get("/deactivate", usersController.deactivateUser);
 router.get("/activate", usersController.activateUser);
 router.delete("/delete", usersController.deleteUser);
