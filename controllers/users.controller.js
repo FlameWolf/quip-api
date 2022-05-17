@@ -374,7 +374,7 @@ const updateEmail = async (req, res, next) => {
 			res.status(200).json({ updated });
 		});
 		if (oldEmail) {
-			await emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
+			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`).catch();
 		}
 	} catch (err) {
 		next(err);
@@ -399,6 +399,10 @@ const changePassword = async (req, res, next) => {
 		user.password = await bcrypt.hash(newPassword, rounds);
 		await user.save();
 		res.sendStatus(200);
+		const email = user.email;
+		if (email && user.emailVerified) {
+			emailController.sendEmail(noReplyEmail, email, "Password change notification", `Hi @${user.handle}, your Quip password was changed on ${new Date()}.`).catch();
+		}
 	} catch (err) {
 		next(err);
 	}
