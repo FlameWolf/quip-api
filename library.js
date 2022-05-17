@@ -20,6 +20,17 @@ const voteScore = 2;
 const repeatScore = 4;
 const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
+const emailTemplates = {
+	actions: {
+		verifyEmail: (handle, url) => `Hi @${handle}, your email address on Quip was updated on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.`,
+		resetPassword: (handle, url) => `Hi @${handle}, a password reset request was raised for your Quip account on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to reset your password.`
+	},
+	notifications: {
+		emailVerified: handle => `Hi @${handle}, your email address on Quip has been verified on ${new Date()}.`,
+		passwordChanged: handle => `Hi @${handle}, your sign in password on Quip was changed on ${new Date()}.`,
+		passwordReset: handle => `Hi @${handle}, your sign in password on Quip was reset on ${new Date()}.`
+	}
+};
 
 const setProperty = (operand, path, value) => {
 	const segments = Array.isArray(path) ? path : path.split(".");
@@ -68,6 +79,7 @@ module.exports = {
 	repeatScore,
 	megaByte,
 	noReplyEmail,
+	emailTemplates,
 	setProperty,
 	getProperty,
 	escapeRegExp
