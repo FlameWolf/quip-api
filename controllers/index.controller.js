@@ -3,10 +3,11 @@
 const mongoose = require("mongoose");
 const { ObjectId } = require("bson");
 const bcrypt = require("bcryptjs");
-const { noReplyEmail, passwordRegExp, rounds } = require("../library");
+const { noReplyEmail, emailTemplates, passwordRegExp, rounds } = require("../library");
 const timelineAggregationPipeline = require("../db/pipelines/timeline");
 const activityAggregationPipeline = require("../db/pipelines/activity");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
+const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const EmailVerification = require("../models/email-verification.model");
@@ -54,8 +55,9 @@ const verifyEmail = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
+			const user = await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
+			await emailController.sendEmail(noReplyEmail, user.email, "Email verified", emailTemplates.notifications.emailVerified(user.handle));
 			res.sendStatus(200);
 		});
 	} catch (err) {
@@ -80,7 +82,8 @@ const forgotPassword = async (req, res, next) => {
 			user: user._id,
 			token: new ObjectId()
 		}).save();
-		res.status(200).send({ passwordReset });
+		await emailController.sendEmail(noReplyEmail, email, "Reset password", emailTemplates.actions.resetPassword(handle, `${process.env.ALLOW_ORIGIN}/reset-password/${passwordReset.token}`));
+		res.sendStatus(200);
 	} catch (err) {
 		next(err);
 	}
@@ -101,8 +104,9 @@ const resetPassword = async (req, res, next) => {
 		}
 		await session.withTransaction(async () => {
 			const passwordHash = await bcrypt.hash(password, rounds);
-			await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).session(session);
+			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).session(session);
 			await PasswordReset.deleteOne(passwordReset).session(session);
+			await emailController.sendEmail(noReplyEmail, user.email, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
 			res.sendStatus(200);
 		});
 	} catch (err) {
