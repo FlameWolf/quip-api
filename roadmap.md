@@ -1,7 +1,5 @@
 To add:
 
-- Change password
-- Reset password
 - Pinned post
 - Add location to post
 - Hashtag search
