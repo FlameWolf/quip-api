@@ -2,7 +2,6 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const emailVerificationSchema = new mongoose.Schema(
 	{
@@ -21,6 +20,5 @@ const emailVerificationSchema = new mongoose.Schema(
 	}
 );
 emailVerificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 7 });
-emailVerificationSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("EmailVerification", emailVerificationSchema);
