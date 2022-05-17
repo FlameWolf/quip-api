@@ -20,7 +20,6 @@ const blocksAggregationPipeline = require("../db/pipelines/blocks");
 const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
 const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
 const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
-const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
@@ -353,28 +352,21 @@ const updateEmail = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {
-			const updated = await User.findOneAndUpdate(
+			await User.findOneAndUpdate(
 				{
 					_id: userId,
-					email: oldEmail || { $exists: false }
+					email: oldEmail || { $eq: undefined }
 				},
 				{
 					email: newEmail,
 					emailVerified: false
-				},
-				{
-					new: true
 				}
 			).session(session);
 			const emailVerification = await new EmailVerification({
 				user: userId,
 				token: new ObjectId()
 			}).save({ session });
-			await emailController.sendEmail(noReplyEmail, newEmail, "Verify your email", `Hi @${handle}, your email address on Quip was updated from to ${newEmail} on ${new Date()}. Click <a href="${req.protocol}://${req.get("Host")}/verify-email/${emailVerification.token}">here</a> to verify that this is correct.`);
-			if (oldEmail) {
-				await emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
-			}
-			res.status(200).json({ updated });
+			res.status(200).json({ emailVerification });
 		});
 	} catch (err) {
 		next(err);
@@ -398,10 +390,6 @@ const changePassword = async (req, res, next) => {
 		}
 		const passwordHash = await bcrypt.hash(newPassword, rounds);
 		await User.findByIdAndUpdate(userId, { password: passwordHash });
-		const email = user.email;
-		if (email && user.emailVerified) {
-			await emailController.sendEmail(noReplyEmail, email, "Password change notification", `Hi @${user.handle}, your Quip password was changed on ${new Date()}.`);
-		}
 		res.sendStatus(200);
 	} catch (err) {
 		next(err);
