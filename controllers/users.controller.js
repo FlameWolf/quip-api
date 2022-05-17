@@ -349,7 +349,7 @@ const getMutedWords = async (req, res, next) => {
 };
 const updateEmail = async (req, res, next) => {
 	const { oldEmail, newEmail } = req.body;
-	const userId = req.userInfo.userId;
+	const { handle, userId } = req.userInfo;
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {
@@ -370,12 +370,12 @@ const updateEmail = async (req, res, next) => {
 				user: userId,
 				token: new ObjectId()
 			}).save({ session });
-			await emailController.sendEmail(noReplyEmail, newEmail, "Verify your email", `Hi @${req.userInfo.handle}, your email address on Quip was updated from to ${newEmail} on ${new Date()}. Click <a href="${req.protocol}://${req.get("Host")}/verify-email/${emailVerification.token}">here</a> to verify that this is correct.`);
+			await emailController.sendEmail(noReplyEmail, newEmail, "Verify your email", `Hi @${handle}, your email address on Quip was updated from to ${newEmail} on ${new Date()}. Click <a href="${req.protocol}://${req.get("Host")}/verify-email/${emailVerification.token}">here</a> to verify that this is correct.`);
+			if (oldEmail) {
+				await emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`);
+			}
 			res.status(200).json({ updated });
 		});
-		if (oldEmail) {
-			emailController.sendEmail(noReplyEmail, oldEmail, "Email change notification", `Hi @${req.userInfo.handle}, your email address on Quip was updated from ${oldEmail} to ${newEmail} on ${new Date()}.`).catch();
-		}
 	} catch (err) {
 		next(err);
 	} finally {
@@ -396,13 +396,13 @@ const changePassword = async (req, res, next) => {
 			res.status(400).send("New password is invalid");
 			return;
 		}
-		user.password = await bcrypt.hash(newPassword, rounds);
-		await user.save();
-		res.sendStatus(200);
+		const passwordHash = await bcrypt.hash(newPassword, rounds);
+		await User.findByIdAndUpdate(userId, { password: passwordHash });
 		const email = user.email;
 		if (email && user.emailVerified) {
-			emailController.sendEmail(noReplyEmail, email, "Password change notification", `Hi @${user.handle}, your Quip password was changed on ${new Date()}.`).catch();
+			await emailController.sendEmail(noReplyEmail, email, "Password change notification", `Hi @${user.handle}, your Quip password was changed on ${new Date()}.`);
 		}
+		res.sendStatus(200);
 	} catch (err) {
 		next(err);
 	}

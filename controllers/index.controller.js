@@ -57,8 +57,8 @@ const verifyEmail = async (req, res, next) => {
 		await session.withTransaction(async () => {
 			const user = User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
+			await emailController.sendEmail(noReplyEmail, user.email, "Email verified", `Hi @${user.handle}, your email address on Quip has been verified on ${new Date()}.`);
 			res.status(200).json({ user });
-			emailController.sendEmail(noReplyEmail, user.email, "Email verified", `Hi @${user.handle}, your email address on Quip has been verified on ${new Date()}.`).catch();
 		});
 	} catch (err) {
 		next(err);
@@ -106,11 +106,11 @@ const resetPassword = async (req, res, next) => {
 			const passwordHash = await bcrypt.hash(password, rounds);
 			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).session(session);
 			await PasswordReset.deleteOne(passwordReset).session(session);
-			res.status(200).json({ user });
 			const email = user.email;
 			if (email && user.emailVerified) {
-				emailController.sendEmail(noReplyEmail, email, "Password reset notification", `Hi @${user.handle}, your Quip password was reset on ${new Date()}.`).catch();
+				await emailController.sendEmail(noReplyEmail, email, "Password reset notification", `Hi @${user.handle}, your Quip password was reset on ${new Date()}.`);
 			}
+			res.status(200).json({ user });
 		});
 	} catch (err) {
 		next(err);
