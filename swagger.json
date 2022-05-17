@@ -369,7 +369,7 @@
 				}
 			}
 		},
-		"/reset-password": {
+		"/reset-password/{token}": {
 			"post": {
 				"parameters": [
 					{
