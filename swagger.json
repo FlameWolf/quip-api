@@ -200,6 +200,59 @@
 				}
 			}
 		},
+		"PasswordUpdate": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"oldPassword": {
+								"required": true,
+								"type": "string"
+							},
+							"newPassword": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ForgotPassword": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"handle": {
+								"required": true,
+								"type": "string"
+							},
+							"email": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"PasswordReset": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"password": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
 		"List": {
 			"content": {
 				"application/json": {
@@ -306,6 +359,26 @@
 				],
 				"requestBody": {
 					"$ref": "#/requestBodies/RefreshToken"
+				}
+			}
+		},
+		"/forgot-password": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/ForgotPassword"
+				}
+			}
+		},
+		"/reset-password": {
+			"post": {
+				"parameters": [
+					{
+						"name": "token",
+						"type": "string"
+					}
+				],
+				"requestBody": {
+					"$ref": "#/requestBodies/PasswordReset"
 				}
 			}
 		},
@@ -568,6 +641,13 @@
 			"post": {
 				"requestBody": {
 					"$ref": "#/requestBodies/EmailUpdate"
+				}
+			}
+		},
+		"/settings/change-password": {
+			"post": {
+				"requestBody": {
+					"$ref": "#/requestBodies/PasswordUpdate"
 				}
 			}
 		},
