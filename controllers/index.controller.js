@@ -1,6 +1,9 @@
 "use strict";
 
 const mongoose = require("mongoose");
+const { ObjectId } = require("bson");
+const bcrypt = require("bcryptjs");
+const { noReplyEmail, passwordRegExp, rounds } = require("../library");
 const timelineAggregationPipeline = require("../db/pipelines/timeline");
 const activityAggregationPipeline = require("../db/pipelines/activity");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
@@ -8,6 +11,7 @@ const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const EmailVerification = require("../models/email-verification.model");
+const PasswordReset = require("../models/password-reset.model");
 
 const timeline = async (req, res, next) => {
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
@@ -51,9 +55,62 @@ const verifyEmail = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			await User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
+			const user = User.findByIdAndUpdate(emailVerification.user, { emailVerified: true }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
-			res.status(200).send(`<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body><p>Email verified successfully.</p></body></html>`);
+			res.status(200).json({ user });
+			emailController.sendEmail(noReplyEmail, user.email, "Email verified", `Hi @${user.handle}, your email address on Quip has been verified on ${new Date()}.`).catch();
+		});
+	} catch (err) {
+		next(err);
+	} finally {
+		await session.endSession();
+	}
+};
+const forgotPassword = async (req, res, next) => {
+	const { handle, email } = req.body;
+	try {
+		const user = await User.findOne({ handle, deleted: false });
+		if (!user) {
+			res.status(400).send("User not found");
+			return;
+		}
+		if (!(user.email === email && user.emailVerified)) {
+			res.status(403).send("Email address is incorrect or unverified");
+			return;
+		}
+		const passwordReset = await new PasswordReset({
+			user: user._id,
+			token: new ObjectId()
+		}).save();
+		await emailController.sendEmail(noReplyEmail, email, "Reset password", `Hi @${user.handle}, a password reset request was raised for your Quip account on ${new Date()}. Click <a href="${req.protocol}://${req.get("Host")}/reset-password/${passwordReset.token}">here</a> to reset your password.`);
+		res.sendStatus(200);
+	} catch (err) {
+		next(err);
+	}
+};
+const resetPassword = async (req, res, next) => {
+	const token = req.params.token;
+	const password = req.body.password;
+	const session = await mongoose.startSession();
+	try {
+		const passwordReset = await PasswordReset.findOne({ token });
+		if (!passwordReset) {
+			res.status(404).send("Reset token not found or expired");
+			return;
+		}
+		if (!(password && passwordRegExp.test(password))) {
+			res.status(400).send("Invalid password");
+			return;
+		}
+		await session.withTransaction(async () => {
+			const passwordHash = await bcrypt.hash(password, rounds);
+			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).session(session);
+			await PasswordReset.deleteOne(passwordReset).session(session);
+			res.status(200).json({ user });
+			const email = user.email;
+			if (email && user.emailVerified) {
+				emailController.sendEmail(noReplyEmail, email, "Password reset notification", `Hi @${user.handle}, your Quip password was reset on ${new Date()}.`).catch();
+			}
 		});
 	} catch (err) {
 		next(err);
@@ -66,5 +123,7 @@ module.exports = {
 	timeline,
 	activity,
 	topmost,
-	verifyEmail
+	verifyEmail,
+	forgotPassword,
+	resetPassword
 };
