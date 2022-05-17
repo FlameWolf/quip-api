@@ -16,7 +16,7 @@ router.get("/timeline", requireAuthentication, indexController.timeline);
 router.get("/activity/:period?", requireAuthentication, indexController.activity);
 router.get("/topmost/:period?", indexController.topmost);
 router.get("/verify-email/:token", indexController.verifyEmail);
-router.get("/forgot-password", indexController.forgotPassword);
-router.get("/reset-password/:token", indexController.resetPassword);
+router.post("/forgot-password", indexController.forgotPassword);
+router.post("/reset-password/:token", indexController.resetPassword);
 
 module.exports = router;
