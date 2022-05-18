@@ -348,6 +348,34 @@ const getMutedWords = async (req, res, next) => {
 		next(err);
 	}
 };
+const pinPost = async (req, res, next) => {
+	const postId = req.params.postId;
+	const userId = req.userInfo.userId;
+	try {
+		const post = await Post.findById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		if (post.author.valueOf() !== userId) {
+			res.status(403).send("User can pin only their own post");
+			return;
+		}
+		const pinned = await User.findByIdAndUpdate(userId, { pinnedPost: postId }, { new: true });
+		res.status(200).json({ pinned });
+	} catch (err) {
+		next(err);
+	}
+};
+const unpinPost = async (req, res, next) => {
+	const userId = req.userInfo.userId;
+	try {
+		const unpinned = await User.findByIdAndUpdate(userId, { pinnedPost: undefined }, { new: true });
+		res.status(200).json({ unpinned });
+	} catch (err) {
+		next(err);
+	}
+};
 const updateEmail = async (req, res, next) => {
 	const newEmail = req.body.email;
 	const { handle, userId } = req.userInfo;
@@ -504,6 +532,8 @@ module.exports = {
 	getMutedUsers,
 	getMutedPosts,
 	getMutedWords,
+	pinPost,
+	unpinPost,
 	updateEmail,
 	changePassword,
 	deactivateUser,
