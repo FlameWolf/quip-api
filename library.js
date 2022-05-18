@@ -22,13 +22,16 @@ const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
 const emailTemplates = {
 	actions: {
-		verifyEmail: (handle, url) => `Hi @${handle}, your email address on Quip was updated on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.`,
-		resetPassword: (handle, url) => `Hi @${handle}, a password reset request was raised for your Quip account on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to reset your password.`
+		verifyEmail: (handle, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was updated on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.`,
+		resetPassword: (handle, url) => `Hi @<strong>${handle}</strong>, a password reset request was raised for your Quip account on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to reset your password.`
 	},
 	notifications: {
-		emailVerified: handle => `Hi @${handle}, your email address on Quip has been verified on ${new Date()}.`,
-		passwordChanged: handle => `Hi @${handle}, your sign in password on Quip was changed on ${new Date()}.`,
-		passwordReset: handle => `Hi @${handle}, your sign in password on Quip was reset on ${new Date()}.`
+		emailVerified: handle => `Hi @<strong>${handle}</strong>, your email address on Quip has been verified on ${new Date()}.`,
+		passwordChanged: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was changed on ${new Date()}.`,
+		passwordReset: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was reset on ${new Date()}.`,
+		deactivated: handle => `Hi @<strong>${handle}</strong>, your Quip account was deactivated on ${new Date()}.`,
+		activated: handle => `Hi @<strong>${handle}</strong>, your Quip account was activated on ${new Date()}.`,
+		deleted: handle => `Hi @<strong>${handle}</strong>, your Quip account was deleted on ${new Date()}. Goodbye!`
 	}
 };
 
