@@ -3,7 +3,7 @@
 const mongoose = require("mongoose");
 const { ObjectId } = require("bson");
 const bcrypt = require("bcryptjs");
-const { noReplyEmail, passwordRegExp, rounds } = require("../library");
+const { noReplyEmail, passwordRegExp, rounds, emailTemplates } = require("../library");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
@@ -349,31 +349,22 @@ const getMutedWords = async (req, res, next) => {
 	}
 };
 const updateEmail = async (req, res, next) => {
-	const { oldEmail, newEmail } = req.body;
+	const newEmail = req.body.email;
 	const { handle, userId } = req.userInfo;
-	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			await User.findOneAndUpdate(
-				{
-					_id: userId,
-					email: oldEmail || { $eq: undefined }
-				},
-				{
-					email: newEmail,
-					emailVerified: false
-				}
-			).session(session);
-			const emailVerification = await new EmailVerification({
-				user: userId,
-				token: new ObjectId()
-			}).save({ session });
-			res.status(200).json({ emailVerification });
-		});
+		const { email: currentEmail } = await User.findById(userId, { email: 1 });
+		const emailVerification = await new EmailVerification({
+			user: userId,
+			email: newEmail,
+			token: new ObjectId()
+		}).save();
+		res.status(200).json({ emailVerification });
+		if (currentEmail) {
+			emailController.sendEmail(noReplyEmail, currentEmail, "Email address changed", emailTemplates.actions.rejectEmail(handle, currentEmail, `${process.env.ALLOW_ORIGIN}/reject-email/${emailVerification.token}`));
+		}
+		emailController.sendEmail(noReplyEmail, newEmail, "Verify email address", emailTemplates.actions.verifyEmail(handle, newEmail, `${process.env.ALLOW_ORIGIN}/verify-email/${emailVerification.token}`));
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const changePassword = async (req, res, next) => {
@@ -381,6 +372,7 @@ const changePassword = async (req, res, next) => {
 	const { oldPassword, newPassword } = req.body;
 	try {
 		const user = await User.findById(userId).select("+password");
+		const email = user.email;
 		const authStatus = await bcrypt.compare(oldPassword, user.password);
 		if (!authStatus) {
 			res.status(403).send("Current password is incorrect");
@@ -391,8 +383,11 @@ const changePassword = async (req, res, next) => {
 			return;
 		}
 		const passwordHash = await bcrypt.hash(newPassword, rounds);
-		await User.findByIdAndUpdate(userId, { password: passwordHash });
+		await User.updateOne(user, { password: passwordHash });
 		res.sendStatus(200);
+		if (email) {
+			emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
+		}
 	} catch (err) {
 		next(err);
 	}
@@ -411,8 +406,12 @@ const deactivateUser = async (req, res, next) => {
 					new: true
 				}
 			).session(session);
+			const email = deactivated.email;
 			await RefreshToken.deleteMany({ user: userId }).session(session);
 			res.status(200).json({ deactivated });
+			if (email) {
+				emailController.sendEmail(noReplyEmail, email, "Account deactivated", emailTemplates.notifications.deactivated(deactivated.handle));
+			}
 		});
 	} catch (err) {
 		next(err);
@@ -424,7 +423,11 @@ const activateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const activated = await User.findByIdAndUpdate(userId, { deactivated: false }, { new: true });
+		const email = activated.email;
 		res.status(200).json({ activated });
+		if (email) {
+			emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(activated.handle));
+		}
 	} catch (err) {
 		next(err);
 	}
@@ -438,6 +441,7 @@ const deleteUser = async (req, res, next) => {
 			const ownerFilter = { owner: userId };
 			const mutedByFilter = { mutedBy: userId };
 			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
+			const email = deleted.email;
 			await Promise.all([
 				Favourite.deleteMany({ favouritedBy: userId }).session(session),
 				Vote.deleteMany(userFilter).session(session),
@@ -466,6 +470,9 @@ const deleteUser = async (req, res, next) => {
 				Settings.deleteMany(userFilter).session(session)
 			]);
 			res.status(200).json({ deleted });
+			if (email) {
+				emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(deleted.handle));
+			}
 		});
 	} catch (err) {
 		next(err);
