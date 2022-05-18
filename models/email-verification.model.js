@@ -15,7 +15,7 @@ const emailVerificationSchema = new mongoose.Schema(
 				message: "Email is not valid"
 			}
 		},
-		previousEmail: { type: String },
+		previousEmail: { type: String, trim: true },
 		token: { type: ObjectId, required: true }
 	},
 	{
