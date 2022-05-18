@@ -47,21 +47,26 @@ const topmost = async (req, res, next) => {
 };
 const rejectEmail = async (req, res, next) => {
 	const token = req.params.token;
+	const session = await mongoose.startSession();
 	try {
 		const emailVerification = await EmailVerification.findOne({ token });
 		if (!emailVerification) {
 			res.status(404).send("Verification token not found or expired");
 			return;
 		}
-		const user = await User.findById(emailVerification.user);
-		const email = user.email;
-		await EmailVerification.deleteOne(emailVerification);
-		res.sendStatus(200);
-		if (email) {
-			emailController.sendEmail(noReplyEmail, email, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email));
-		}
+		await session.withTransaction(async () => {
+			const previousEmail = emailVerification.previousEmail;
+			const user = await User.findByIdAndUpdate(emailVerification.user, { email: emailVerification.previousEmail }).session(session);
+			await EmailVerification.deleteOne(emailVerification).session(session);
+			res.sendStatus(200);
+			if (previousEmail) {
+				emailController.sendEmail(noReplyEmail, previousEmail, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email));
+			}
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const verifyEmail = async (req, res, next) => {
