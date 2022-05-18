@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife } = require("../library");
 const User = require("../models/user.model");
+const RefreshToken = require("../models/refresh-token.model");
 
 const generateAuthToken = (handle, userId) => {
 	return jwt.sign({ handle, userId }, process.env.JWT_AUTH_SECRET, { expiresIn: authTokenLife });
@@ -17,15 +18,23 @@ const validateHandle = handle => {
 const validatePassword = password => {
 	return password && passwordRegExp.test(password);
 };
-const authSuccess = (handle, userId, includeRefreshToken = true) => ({
-	userId,
-	authToken: generateAuthToken(handle, userId),
-	...(includeRefreshToken && {
-		refreshToken: generateRefreshToken(handle, userId)
-	}),
-	createdAt: Date.now(),
-	expiresIn: authTokenLife
-});
+const authSuccess = async (handle, userId, includeRefreshToken = true) => {
+	const payload = {
+		userId,
+		authToken: generateAuthToken(handle, userId),
+		createdAt: Date.now(),
+		expiresIn: authTokenLife
+	};
+	if (includeRefreshToken) {
+		const refreshToken = generateRefreshToken(handle, userId);
+		Object.assign(payload, { refreshToken });
+		await new RefreshToken({
+			user: userId,
+			token: refreshToken
+		}).save();
+	}
+	return payload;
+};
 const signUp = async (req, res, next) => {
 	const { handle, password } = req.body;
 	if (!(validateHandle(handle) && validatePassword(password))) {
@@ -40,7 +49,7 @@ const signUp = async (req, res, next) => {
 		const passwordHash = await bcrypt.hash(password, rounds);
 		const user = await new User({ handle, password: passwordHash }).save();
 		const userId = user._id;
-		res.status(201).json(authSuccess(handle, userId));
+		res.status(201).json(await authSuccess(handle, userId));
 	} catch (err) {
 		next(err);
 	}
@@ -59,25 +68,33 @@ const signIn = async (req, res, next) => {
 			return;
 		}
 		const userId = user._id;
-		res.status(200).json(authSuccess(handle, userId));
+		res.status(200).json(await authSuccess(handle, userId));
 	} catch (err) {
 		next(err);
 	}
 };
 const refreshToken = async (req, res, next) => {
+	const { refreshToken } = req.body;
+	const { "x-slug": handle, "x-uid": userId } = req.headers;
+	if (!refreshToken) {
+		res.status(400).send("Refresh token not found");
+		return;
+	}
 	try {
-		const { refreshToken } = req.body;
-		if (!refreshToken) {
-			throw new Error("Refresh token not found");
-		}
-		const { "x-slug": handle, "x-uid": userId } = req.headers;
 		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+		const filter = { user: userId, token: refreshToken };
 		if (userInfo.handle !== handle || userInfo.userId !== userId) {
-			throw new Error("Refresh token invalid");
+			res.status(401).send("Refresh token invalid");
+			return;
 		}
-		res.status(200).json(authSuccess(handle, userId, false));
+		if (!(await RefreshToken.countDocuments(filter))) {
+			res.status(401).send("Refresh token expired");
+			return;
+		}
+		await RefreshToken.findOneAndUpdate(filter, { lastUsed: new Date() });
+		res.status(200).json(await authSuccess(handle, userId, false));
 	} catch (err) {
-		res.status(401).send(err);
+		next(err);
 	}
 };
 const signOut = async (req, res, next) => {
