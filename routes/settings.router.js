@@ -23,6 +23,8 @@ router.get("/blocked", usersController.getBlocks);
 router.get("/muted/users", usersController.getMutedUsers);
 router.get("/muted/posts", usersController.getMutedPosts);
 router.get("/muted/words", usersController.getMutedWords);
+router.get("/pin/{postId}", usersController.pinPost);
+router.get("/unpin", usersController.unpinPost);
 router.post("/update-email", usersController.updateEmail);
 router.post("/change-password", usersController.changePassword);
 router.get("/deactivate", usersController.deactivateUser);
