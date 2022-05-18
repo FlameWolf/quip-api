@@ -356,6 +356,7 @@ const updateEmail = async (req, res, next) => {
 		const emailVerification = await new EmailVerification({
 			user: userId,
 			email: newEmail,
+			previousEmail: currentEmail,
 			token: new ObjectId()
 		}).save();
 		res.status(200).json({ emailVerification });
