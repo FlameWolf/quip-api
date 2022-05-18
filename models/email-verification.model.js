@@ -2,10 +2,19 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const { emailRegExp } = require("../library");
 
 const emailVerificationSchema = new mongoose.Schema(
 	{
 		user: { type: ObjectId, ref: "User", required: true, index: true },
+		email: {
+			type: String,
+			trim: true,
+			validate: {
+				validator: value => emailRegExp.test(value),
+				message: "Email is not valid"
+			}
+		},
 		token: { type: ObjectId, required: true }
 	},
 	{
