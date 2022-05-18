@@ -95,6 +95,9 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 							createdAt: -1
 						}
 					},
+					{
+						$limit: 10000
+					},
 					...(includeRepeats ?
 					[
 						{

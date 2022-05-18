@@ -62,6 +62,9 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 				createdAt: -1
 			}
 		},
+		{
+			$limit: 10000
+		},
 		...filtersAggregationPipeline(userId),
 		{
 			$match: pageConditions

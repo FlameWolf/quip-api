@@ -102,6 +102,9 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 							createdAt: -1
 						}
 					},
+					{
+						$limit: 10000
+					},
 					...(includeRepeats ?
 					[
 						{
