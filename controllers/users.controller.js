@@ -20,6 +20,7 @@ const blocksAggregationPipeline = require("../db/pipelines/blocks");
 const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
 const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
 const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
+const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
@@ -34,6 +35,7 @@ const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
 const EmailVerification = require("../models/email-verification.model");
+const RefreshToken = require("../models/refresh-token.model");
 const PasswordReset = require("../models/password-reset.model");
 const Settings = require("../models/settings.model");
 
@@ -397,11 +399,25 @@ const changePassword = async (req, res, next) => {
 };
 const deactivateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
+	const session = await mongoose.startSession();
 	try {
-		const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true }, { new: true });
-		res.status(200).json({ deactivated });
+		await session.withTransaction(async () => {
+			const deactivated = await User.findByIdAndUpdate(
+				userId,
+				{
+					deactivated: true
+				},
+				{
+					new: true
+				}
+			).session(session);
+			await RefreshToken.deleteMany({ user: userId }).session(session);
+			res.status(200).json({ deactivated });
+		});
 	} catch (err) {
 		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const activateUser = async (req, res, next) => {
@@ -445,6 +461,7 @@ const deleteUser = async (req, res, next) => {
 				}).session(session),
 				MutedWord.deleteMany(mutedByFilter).session(session),
 				EmailVerification.deleteMany(userFilter).session(session),
+				RefreshToken.deleteMany(userFilter).session(session),
 				PasswordReset.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
