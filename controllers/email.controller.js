@@ -11,10 +11,11 @@ const sendEmail = async (from, to, subject, body) => {
 			pass: process.env.SMTP_KEY
 		}
 	});
-	if (await transport.verify()) {
-		return await transport.sendMail({ from, to, subject, html: body });
+	try {
+		return (await transport.verify()) && (await transport.sendMail({ from, to, subject, html: body }));
+	} catch {
+		return false;
 	}
-	return false;
 };
 
 module.exports = { sendEmail };
