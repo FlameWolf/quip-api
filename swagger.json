@@ -188,10 +188,7 @@
 					"schema": {
 						"type": "object",
 						"properties": {
-							"oldEmail": {
-								"type": "string"
-							},
-							"newEmail": {
+							"email": {
 								"required": true,
 								"type": "string"
 							}
