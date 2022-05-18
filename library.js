@@ -22,16 +22,18 @@ const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
 const emailTemplates = {
 	actions: {
-		verifyEmail: (handle, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was updated on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.`,
-		resetPassword: (handle, url) => `Hi @<strong>${handle}</strong>, a password reset request was raised for your Quip account on ${new Date()}. Click <a target="_blank" href="${url}">here</a> to reset your password.`
+		rejectEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to reject this change if it was not initiated by you.<br/><br/><em>This link will be valid for only 7 days.</em>`,
+		verifyEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.<br/><br/><em>This link will be valid for only 7 days.</em>`,
+		resetPassword: (handle, url) => `Hi @<strong>${handle}</strong>, a password reset request was raised for your Quip account. Click <a target="_blank" href="${url}">here</a> to reset your password.<br/><br/><em>This link will be valid for only 7 days.</em>`
 	},
 	notifications: {
-		emailVerified: handle => `Hi @<strong>${handle}</strong>, your email address on Quip has been verified on ${new Date()}.`,
-		passwordChanged: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was changed on ${new Date()}.`,
-		passwordReset: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was reset on ${new Date()}.`,
-		deactivated: handle => `Hi @<strong>${handle}</strong>, your Quip account was deactivated on ${new Date()}.`,
-		activated: handle => `Hi @<strong>${handle}</strong>, your Quip account was activated on ${new Date()}.`,
-		deleted: handle => `Hi @<strong>${handle}</strong>, your Quip account was deleted on ${new Date()}. Goodbye!`
+		emailRejected: (handle, email) => `Hi @<strong>${handle}</strong>, your email address change to <strong>${email}</strong> on Quip was rejected.`,
+		emailVerified: (handle, email) => `Hi @<strong>${handle}</strong>, your email address <strong>${email}</strong> on Quip has been verified.`,
+		passwordChanged: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was changed.`,
+		passwordReset: handle => `Hi @<strong>${handle}</strong>, your sign in password on Quip was reset.`,
+		deactivated: handle => `Hi @<strong>${handle}</strong>, your Quip account was deactivated.`,
+		activated: handle => `Hi @<strong>${handle}</strong>, your Quip account was activated.`,
+		deleted: handle => `Hi @<strong>${handle}</strong>, your Quip account was deleted. Goodbye!`
 	}
 };
 
