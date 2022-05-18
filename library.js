@@ -22,8 +22,8 @@ const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
 const emailTemplates = {
 	actions: {
-		rejectEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to reject this change if it was not initiated by you.<br/><br/><em>This link will be valid for only 7 days.</em>`,
-		verifyEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.<br/><br/><em>This link will be valid for only 7 days.</em>`,
+		rejectEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to reject this change if it was not initiated by you.<br/><br/><em>Link valid for only 7 days.</em>`,
+		verifyEmail: (handle, email, url) => `Hi @<strong>${handle}</strong>, your email address on Quip was changed to <strong>${email}</strong> recently. Click <a target="_blank" href="${url}">here</a> to verify that this is your email address.<br/><br/><em>Link valid for only 7 days.</em>`,
 		resetPassword: (handle, url) => `Hi @<strong>${handle}</strong>, a password reset request was raised for your Quip account. Click <a target="_blank" href="${url}">here</a> to reset your password.<br/><br/><em>This link will be valid for only 7 days.</em>`
 	},
 	notifications: {
