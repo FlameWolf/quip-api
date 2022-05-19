@@ -1,7 +1,7 @@
 "use strict";
 
-const mongoose = require("mongoose");
 const { ObjectId } = require("bson");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { noReplyEmail, emailTemplates, passwordRegExp, rounds } = require("../library");
 const timelineAggregationPipeline = require("../db/pipelines/timeline");
