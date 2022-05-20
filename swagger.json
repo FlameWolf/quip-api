@@ -85,6 +85,23 @@
 							},
 							"media-description": {
 								"type": "string"
+							},
+							"location": {
+								"type": "object",
+								"properties": {
+									"longitude": {
+										"required": true,
+										"type": "integer",
+										"minimum": -180,
+										"maximum": 180
+									},
+									"latitude": {
+										"required": true,
+										"type": "integer",
+										"minimum": -90,
+										"maximum": 90
+									}
+								}
 							}
 						}
 					}
