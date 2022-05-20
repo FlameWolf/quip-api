@@ -97,7 +97,7 @@ const deletePostWithCascade = async post => {
 	await session.endSession();
 };
 const createPost = async (req, res, next) => {
-	const { content, poll, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
@@ -122,6 +122,12 @@ const createPost = async (req, res, next) => {
 							description: mediaDescription
 						}
 					})
+				}
+			}),
+			...(location && {
+				location: {
+					type: "Point",
+					coordinates: [location.longitude, location.latitude]
 				}
 			})
 		}).save();
@@ -189,7 +195,7 @@ const getPostParent = async (req, res, next) => {
 };
 const quotePost = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content, poll, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
@@ -221,7 +227,13 @@ const quotePost = async (req, res, next) => {
 						}
 					}),
 					post: postId
-				}
+				},
+				...(location && {
+					location: {
+						type: "Point",
+						coordinates: [location.longitude, location.latitude]
+					}
+				})
 			}).save({ session });
 			quote.mentions = [originalPost.author];
 			if (content) {
@@ -294,7 +306,7 @@ const unrepeatPost = async (req, res, next) => {
 	}
 };
 const replyToPost = async (req, res, next) => {
-	const { content, poll, "media-description": mediaDescription } = req.body;
+	const { content, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -328,6 +340,12 @@ const replyToPost = async (req, res, next) => {
 								description: mediaDescription
 							}
 						})
+					}
+				}),
+				...(location && {
+					location: {
+						type: "Point",
+						coordinates: [location.longitude, location.latitude]
 					}
 				})
 			}).save({ session });
