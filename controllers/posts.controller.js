@@ -34,7 +34,7 @@ const updateMentionsAndHashtags = async (content, post) => {
 			if (handle) {
 				const user = await userController.findUserByHandle(handle);
 				if (user) {
-					userIds.add(user._id);
+					userIds.add(user._id.valueOf());
 				}
 			}
 		}
@@ -107,7 +107,7 @@ const createPost = async (req, res, next) => {
 		return;
 	}
 	try {
-		const post = await new Post({
+		const model = {
 			content,
 			author: userId,
 			...((poll || media) && {
@@ -127,10 +127,11 @@ const createPost = async (req, res, next) => {
 			...(location && {
 				location: JSON.parse(location)
 			})
-		}).save();
+		};
 		if (content) {
-			await updateMentionsAndHashtags(content, post);
+			await updateMentionsAndHashtags(content, model);
 		}
+		const post = await new Post(model).save();
 		res.status(201).json({ post });
 	} catch (err) {
 		next(err);
@@ -209,7 +210,7 @@ const quotePost = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			const quote = await new Post({
+			const model = {
 				content,
 				author: userId,
 				attachments: {
@@ -228,13 +229,17 @@ const quotePost = async (req, res, next) => {
 				...(location && {
 					location: JSON.parse(location)
 				})
-			}).save({ session });
-			quote.mentions = [originalPost.author];
+			};
+			model.mentions = [originalPost.author];
 			if (content) {
-				await updateMentionsAndHashtags(content, quote);
+				await updateMentionsAndHashtags(content, model);
 			}
-			originalPost.score += quoteScore;
-			await originalPost.save({ session });
+			const quote = await new Post(model).save({ session });
+			await Post.findByIdAndUpdate(postId, {
+				$inc: {
+					score: quoteScore
+				}
+			}).session(session);
 			res.status(201).json({ quote });
 		});
 	} catch (err) {
@@ -318,7 +323,7 @@ const replyToPost = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			const reply = await new Post({
+			const model = {
 				content,
 				author: userId,
 				replyTo: postId,
@@ -339,11 +344,12 @@ const replyToPost = async (req, res, next) => {
 				...(location && {
 					location: JSON.parse(location)
 				})
-			}).save({ session });
-			reply.mentions = [originalPost.author];
+			};
+			model.mentions = [originalPost.author];
 			if (content) {
-				await updateMentionsAndHashtags(content, reply);
+				await updateMentionsAndHashtags(content, model);
 			}
+			const reply = await new Post(model).save({ session });
 			await Post.findOneAndUpdate(postId, {
 				$inc: {
 					score: replyScore
