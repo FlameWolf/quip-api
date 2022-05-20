@@ -125,10 +125,7 @@ const createPost = async (req, res, next) => {
 				}
 			}),
 			...(location && {
-				location: {
-					type: "Point",
-					coordinates: [location.longitude, location.latitude]
-				}
+				location: JSON.parse(location)
 			})
 		}).save();
 		if (content) {
@@ -229,10 +226,7 @@ const quotePost = async (req, res, next) => {
 					post: postId
 				},
 				...(location && {
-					location: {
-						type: "Point",
-						coordinates: [location.longitude, location.latitude]
-					}
+					location: JSON.parse(location)
 				})
 			}).save({ session });
 			quote.mentions = [originalPost.author];
@@ -343,10 +337,7 @@ const replyToPost = async (req, res, next) => {
 					}
 				}),
 				...(location && {
-					location: {
-						type: "Point",
-						coordinates: [location.longitude, location.latitude]
-					}
+					location: JSON.parse(location)
 				})
 			}).save({ session });
 			reply.mentions = [originalPost.author];
