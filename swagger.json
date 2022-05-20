@@ -89,17 +89,20 @@
 							"location": {
 								"type": "object",
 								"properties": {
-									"longitude": {
+									"type": {
 										"required": true,
-										"type": "integer",
-										"minimum": -180,
-										"maximum": 180
+										"type": "string",
+										"enum": ["Point"]
 									},
-									"latitude": {
+									"coordinates": {
 										"required": true,
-										"type": "integer",
-										"minimum": -90,
-										"maximum": 90
+										"type": "array",
+										"items": {
+											"required": true,
+											"type": "integer",
+											"minimum": -180,
+											"maximum": 180
+										}
 									}
 								}
 							}
