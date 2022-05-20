@@ -1,3 +1,5 @@
+"use strict";
+
 const mongoose = require("mongoose");
 const CastError = mongoose.Error.CastError;
 const NativeError = mongoose.NativeError;
