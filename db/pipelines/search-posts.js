@@ -13,7 +13,8 @@ const searchPostsAggregationPipeline = (
 		hasMedia: undefined,
 		notFrom: undefined
 	},
-	sortByDate = false,
+	sortBy = "text",
+	dateOrder = "desc",
 	lastScore = undefined,
 	lastPostId = undefined
 ) => {
@@ -86,47 +87,51 @@ const searchPostsAggregationPipeline = (
 			}
 		}
 	}
-	if (sortByDate) {
-		Object.assign(sortConditions, {
-			createdAt: -1,
-			score: -1
-		});
-	} else {
-		Object.assign(sortConditions, {
-			score: -1,
-			createdAt: -1
-		});
-	}
-	if (lastPostId) {
-		const lastPostObjectId = ObjectId(lastPostId);
-		if (sortByDate) {
-			Object.assign(pageConditions, {
-				lastPostId: {
-					$lt: lastPostObjectId
-				}
+	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
+	switch (sortBy) {
+		case "date":
+			Object.assign(sortConditions, {
+				createdAt: dateSort,
+				score: -1
 			});
-		} else if (lastScore) {
-			const parsedLastScore = parseFloat(lastScore);
-			Object.assign(pageConditions, {
-				$expr: {
-					$or: [
-						{
-							$and: [
-								{
-									$eq: ["$score", parsedLastScore]
-								},
-								{
-									$lt: ["$_id", lastPostObjectId]
-								}
-							]
-						},
-						{
-							$lt: ["$score", parsedLastScore]
-						}
-					]
-				}
+			if (lastPostId) {
+				Object.assign(pageConditions, {
+					lastPostId: {
+						[idCompare]: ObjectId(lastPostObjectId)
+					}
+				});
+			}
+			break;
+		case "popular":
+		case "text":
+		default:
+			Object.assign(sortConditions, {
+				score: -1,
+				createdAt: dateSort
 			});
-		}
+			if (lastScore && lastPostId) {
+				const parsedLastScore = parseFloat(lastScore);
+				Object.assign(pageConditions, {
+					$expr: {
+						$or: [
+							{
+								$and: [
+									{
+										$eq: ["$score", parsedLastScore]
+									},
+									{
+										[idCompare]: ["$_id", ObjectId(lastPostObjectId)]
+									}
+								]
+							},
+							{
+								$lt: ["$score", parsedLastScore]
+							}
+						]
+					}
+				});
+			}
+			break;
 	}
 	return [
 		{
@@ -137,13 +142,16 @@ const searchPostsAggregationPipeline = (
 				}
 			}
 		},
-		{
-			$addFields: {
-				score: {
-					$meta: "textScore"
+		...(sortBy !== "popular" ?
+		[
+			{
+				$addFields: {
+					score: {
+						$meta: "textScore"
+					}
 				}
 			}
-		},
+		] : []),
 		{
 			$sort: sortConditions
 		},
