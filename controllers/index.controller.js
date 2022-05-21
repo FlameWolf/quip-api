@@ -7,6 +7,7 @@ const { noReplyEmail, emailTemplates, passwordRegExp, rounds } = require("../lib
 const timelineAggregationPipeline = require("../db/pipelines/timeline");
 const activityAggregationPipeline = require("../db/pipelines/activity");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
+const hashtagAggregationPipeline = require("../db/pipelines/hashtag");
 const emailController = require("./email.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
@@ -40,6 +41,17 @@ const topmost = async (req, res, next) => {
 	const userId = req.userInfo?.userId;
 	try {
 		const posts = await Post.aggregate(topmostAggregationPipeline(userId, period, lastScore, lastPostId));
+		res.status(200).json({ posts });
+	} catch (err) {
+		next(err);
+	}
+};
+const hashtag = async (req, res, next) => {
+	const tagName = req.params.name;
+	const { sortBy, lastScore, lastPostId } = req.query;
+	const userId = req.userInfo?.userId;
+	try {
+		const posts = await Post.aggregate(hashtagAggregationPipeline(tagName, userId, sortBy, lastScore, lastPostId));
 		res.status(200).json({ posts });
 	} catch (err) {
 		next(err);
@@ -139,6 +151,7 @@ module.exports = {
 	timeline,
 	activity,
 	topmost,
+	hashtag,
 	rejectEmail,
 	verifyEmail,
 	forgotPassword,
