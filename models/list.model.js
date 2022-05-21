@@ -2,8 +2,8 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 const { handleRegExp } = require("../library");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const listSchema = new mongoose.Schema(
 	{

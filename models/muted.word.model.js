@@ -2,8 +2,8 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 const { contentLengthRegExp, maxMutedWordLength, escapeRegExp } = require("../library");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const mutedWordSchema = new mongoose.Schema(
 	{

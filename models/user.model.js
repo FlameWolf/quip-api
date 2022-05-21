@@ -2,8 +2,8 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 const { handleRegExp, passwordRegExp, emailRegExp } = require("../library");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const userSchema = new mongoose.Schema(
 	{
