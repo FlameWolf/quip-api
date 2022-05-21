@@ -946,9 +946,16 @@
 						"type": "string"
 					},
 					{
-						"name": "date-sort",
+						"name": "sort-by",
 						"in": "query",
-						"type": "string"
+						"type": "string",
+						"enum": ["text", "date", "popular"]
+					},
+					{
+						"name": "date-order",
+						"in": "query",
+						"type": "string",
+						"enum": ["desc", "asc"]
 					},
 					{
 						"name": "lastScore",
