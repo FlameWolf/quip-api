@@ -10,8 +10,8 @@ const Block = require("../models/block.model");
 
 const blockUser = async (req, res, next) => {
 	const blockeeHandle = req.params.handle;
-	const blockerHandle = req.userInfo.handle;
-	const blockerUserId = req.userInfo.userId;
+	const blockReason = req.query.reason;
+	const { handle: blockerHandle, userId: blockerUserId } = req.userInfo;
 	if (blockeeHandle === blockerHandle) {
 		res.status(422).send("User cannot block themselves");
 		return;
@@ -25,7 +25,11 @@ const blockUser = async (req, res, next) => {
 		}
 		await session.withTransaction(async () => {
 			const blockeeUserId = blockee._id;
-			const blocked = await new Block({ user: blockeeUserId, blockedBy: blockerUserId }).save({ session });
+			const blocked = await new Block({
+				user: blockeeUserId,
+				blockedBy: blockerUserId,
+				reason: blockReason
+			}).save({ session });
 			await Promise.all([
 				FollowRequest.deleteOne({
 					user: blockeeUserId,
@@ -62,8 +66,7 @@ const blockUser = async (req, res, next) => {
 };
 const unblockUser = async (req, res, next) => {
 	const unblockeeHandle = req.params.handle;
-	const unblockerHandle = req.userInfo.handle;
-	const unblockerUserId = req.userInfo.userId;
+	const { handle: unblockerHandle, userId: unblockerUserId } = req.userInfo;
 	if (unblockeeHandle === unblockerHandle) {
 		res.status(422).send("User cannot unblock themselves");
 		return;
