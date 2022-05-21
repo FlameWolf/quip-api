@@ -720,6 +720,16 @@
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
+					},
+					{
+						"name": "lastScore",
+						"in": "query",
+						"type": "integer"
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
 					}
 				]
 			}
@@ -730,6 +740,32 @@
 					{
 						"name": "description",
 						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
+					}
+				]
+			}
+		},
+		"/hashtag/{name}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"type": "string",
+						"enum": ["date", "popular"]
+					},
+					{
+						"name": "lastScore",
+						"in": "query",
+						"type": "integer"
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
 					}
 				]
 			}
@@ -917,7 +953,7 @@
 					{
 						"name": "lastScore",
 						"in": "query",
-						"type": "string"
+						"type": "integer"
 					},
 					{
 						"name": "lastPostId",
