@@ -949,7 +949,7 @@
 						"name": "sort-by",
 						"in": "query",
 						"type": "string",
-						"enum": ["text", "date", "popular"]
+						"enum": ["match", "date", "popular"]
 					},
 					{
 						"name": "date-order",

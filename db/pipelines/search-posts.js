@@ -13,7 +13,7 @@ const searchPostsAggregationPipeline = (
 		hasMedia: undefined,
 		notFrom: undefined
 	},
-	sortBy = "text",
+	sortBy = "match",
 	dateOrder = "desc",
 	lastScore = undefined,
 	lastPostId = undefined
@@ -103,7 +103,7 @@ const searchPostsAggregationPipeline = (
 			}
 			break;
 		case "popular":
-		case "text":
+		case "match":
 		default:
 			Object.assign(sortConditions, {
 				score: -1,
