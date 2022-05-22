@@ -2,6 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const cld = require("cld");
 const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
@@ -25,28 +26,38 @@ const validateContent = (content, attachment = {}) => {
 		throw new Error("Content too long");
 	}
 };
-const updateMentionsAndHashtags = async (content, post) => {
-	const userIds = new Set(post.mentions);
-	const hashtags = new Set(post.hashtags);
-	for (const word of content.split(/\s+|\.+/)) {
-		if (word.startsWith("@")) {
-			const handle = word.match(/\w+/g).shift();
-			if (handle) {
-				const user = await userController.findUserByHandle(handle);
-				if (user) {
-					userIds.add(user._id.valueOf());
-				}
-			}
-		}
-		if (word.startsWith("#")) {
-			const hashtag = word.match(/\w+/g).shift();
-			if (hashtag) {
-				hashtags.add(hashtag);
-			}
-		}
+const updateLanguages = async (content, post) => {
+	try {
+		post.languages = (await cld.detect(content)).languages.map(x => x.code);
+	} catch {
+		post.languages = ["xx"];
 	}
-	post.mentions = userIds.size > 0 ? [...userIds] : undefined;
-	post.hashtags = hashtags.size > 0 ? [...hashtags] : undefined;
+};
+const updateMentionsAndHashtags = async (content, post) => {
+	const postMentions = new Set(post.mentions);
+	const postHashtags = new Set(post.hashtags);
+	const contentMentions = content.match(/@\w+/g);
+	const contentHashtags = content.match(/#(\p{L}\p{M}?)+/gu);
+	if (contentMentions) {
+		const users = await User.find(
+			{
+				handle: {
+					$in: contentMentions.map(mention => mention.substring(1))
+				},
+				deactivated: false,
+				deleted: false
+			},
+			{
+				_id: 1
+			}
+		);
+		users.map(user => user._id.valueOf()).forEach(userId => postMentions.add(userId));
+	}
+	if (contentHashtags) {
+		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => postHashtags.add(hashtag));
+	}
+	post.mentions = postMentions.size > 0 ? [...postMentions] : undefined;
+	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
 };
 const deletePostWithCascade = async post => {
 	const session = await mongoose.startSession();
@@ -128,8 +139,8 @@ const createPost = async (req, res, next) => {
 				location: JSON.parse(location)
 			})
 		};
-		if (content) {
-			await updateMentionsAndHashtags(content, model);
+		if (content?.trim()) {
+			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 		}
 		const post = await new Post(model).save();
 		res.status(201).json({ post });
@@ -231,8 +242,8 @@ const quotePost = async (req, res, next) => {
 				})
 			};
 			model.mentions = [originalPost.author];
-			if (content) {
-				await updateMentionsAndHashtags(content, model);
+			if (content?.trim()) {
+				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const quote = await new Post(model).save({ session });
 			await Post.findByIdAndUpdate(postId, {
@@ -346,8 +357,8 @@ const replyToPost = async (req, res, next) => {
 				})
 			};
 			model.mentions = [originalPost.author];
-			if (content) {
-				await updateMentionsAndHashtags(content, model);
+			if (content?.trim()) {
+				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const reply = await new Post(model).save({ session });
 			await Post.findOneAndUpdate(postId, {
