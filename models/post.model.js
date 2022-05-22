@@ -90,6 +90,19 @@ const postSchema = new Schema(
 			}),
 			post: { type: ObjectId, ref: "Post", index: true }
 		}),
+		languages: {
+			type: [
+				{
+					type: String,
+					trim: true,
+					validate: {
+						validator: value => value.length === 2,
+						message: "Language code must be exactly two characters long"
+					}
+				}
+			],
+			index: true
+		},
 		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" },
 		mentions: {
 			type: [{ type: ObjectId, ref: "User" }],
