@@ -186,7 +186,7 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 								$max: "$_id"
 							},
 							votedBy: {
-								$addToSet: "$author"
+								$addToSet: "$user"
 							},
 							createdAt: {
 								$max: "$createdAt"
@@ -204,7 +204,6 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 					{
 						$unwind: "$post"
 					},
-					,
 					{
 						$project: {
 							_id: "$latestId",
@@ -316,7 +315,7 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 			}
 		},
 		{
-			$unset: ["favourited", "quoted", "$voted", "replied", "followed"]
+			$unset: ["favourited", "quoted", "voted", "replied", "followed"]
 		},
 		{
 			$unwind: "$entry"
