@@ -83,7 +83,7 @@ const getUser = async (req, res, next) => {
 					user: selfId,
 					blockedBy: targetId
 				}),
-				Block.countDocuments({
+				Block.findOne({
 					user: targetId,
 					blockedBy: selfId
 				}),
@@ -91,19 +91,19 @@ const getUser = async (req, res, next) => {
 					user: selfId,
 					followedBy: targetId
 				}),
-				Follow.countDocuments({
+				Follow.findOne({
 					user: targetId,
 					followedBy: selfId
 				}),
-				FollowRequest.countDocuments({
+				FollowRequest.findOne({
 					user: selfId,
 					requestedBy: targetId
 				}),
-				FollowRequest.countDocuments({
+				FollowRequest.findOne({
 					user: targetId,
 					requestedBy: selfId
 				}),
-				MutedUser.countDocuments({
+				MutedUser.findOne({
 					user: targetId,
 					mutedBy: selfId
 				})
