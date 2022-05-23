@@ -16,7 +16,6 @@ router.post("/received-reqs", usersController.getUserFollowRequestsReceived);
 router.get("/accept-req/:requestId", followRequestsController.acceptFollowRequest);
 router.post("/accept-reqs", followRequestsController.acceptSelectedFollowRequests);
 router.get("/accept-all-reqs", followRequestsController.acceptAllFollowRequests);
-router.get("/cancel-req/:handle", followRequestsController.cancelFollowRequest);
 router.get("/reject-req/:requestId", followRequestsController.rejectFollowRequest);
 router.post("/reject-reqs", followRequestsController.rejectSelectedFollowRequests);
 router.get("/reject-all-reqs", followRequestsController.rejectAllFollowRequests);
