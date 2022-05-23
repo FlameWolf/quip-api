@@ -5,10 +5,12 @@ const router = express.Router();
 const requireAuthentication = require("../middleware/require-authentication");
 const usersController = require("../controllers/users.controller");
 const followsController = require("../controllers/follows.controller");
+const followRequestsController = require("../controllers/follow-requests.controller");
 const mutesController = require("../controllers/mutes.controller");
 const blocksController = require("../controllers/blocks.controller");
 
 router.get("/follow/:handle", requireAuthentication, followsController.followUser);
+router.get("/cancel-req/:handle", requireAuthentication, followRequestsController.cancelFollowRequest);
 router.get("/unfollow/:handle", requireAuthentication, followsController.unfollowUser);
 router.get("/mute/:handle", requireAuthentication, mutesController.muteUser);
 router.get("/unmute/:handle", requireAuthentication, mutesController.unmuteUser);
