@@ -2,6 +2,7 @@
 
 const mongoose = require("mongoose");
 const batchSize = 65536;
+const usersController = require("./users.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
@@ -96,11 +97,29 @@ const acceptAllFollowRequests = async (req, res, next) => {
 		await session.endSession();
 	}
 };
+const cancelFollowRequest = async (req, res, next) => {
+	const handle = req.params.handle;
+	const cancellerUserId = req.userInfo.userId;
+	try {
+		const user = await usersController.findUserByHandle(handle);
+		if (!user) {
+			res.status(404).send("User not found");
+			return;
+		}
+		const cancelled = await FollowRequest.findOneAndDelete({
+			user: user._id,
+			requestedBy: cancellerUserId
+		});
+		res.status(200).json({ cancelled });
+	} catch (err) {
+		next(err);
+	}
+};
 const rejectFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;
 	const rejectorUserId = req.userInfo.userId;
 	try {
-		const rejected = await FollowRequest.deleteOne({
+		const rejected = await FollowRequest.findOneAndDelete({
 			user: rejectorUserId,
 			_id: followRequestId
 		});
@@ -138,6 +157,7 @@ module.exports = {
 	acceptFollowRequest,
 	acceptSelectedFollowRequests,
 	acceptAllFollowRequests,
+	cancelFollowRequest,
 	rejectFollowRequest,
 	rejectSelectedFollowRequests,
 	rejectAllFollowRequests
