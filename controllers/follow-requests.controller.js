@@ -1,37 +1,33 @@
 "use strict";
 
-const pageSize = 65536;
 const mongoose = require("mongoose");
+const batchSize = 65536;
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
 
-const deleteFollowRequest = async (followRequest, session, userId = undefined) => {
-	if (userId && userId !== followRequest.user) {
-		throw new Error("You are not allowed to perform this action");
-	}
-	await FollowRequest.deleteOne(followRequest).session(session);
-};
-const acceptHandler = async (followRequest, session, acceptorUserId = undefined) => {
-	await deleteFollowRequest(followRequest, session, acceptorUserId);
-	return await new Follow({
-		user: followRequest.user,
-		followedBy: followRequest.requestedBy
-	}).save({ session });
-};
-const rejectHandler = async (followRequest, session, rejectorUserId = undefined) => {
-	await deleteFollowRequest(followRequest, session, rejectorUserId);
-};
 const acceptFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;
 	const acceptorUserId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		const followRequest = await FollowRequest.findById(followRequestId);
+		const followRequest = await FollowRequest.findOne(
+			{
+				user: acceptorUserId,
+				_id: followRequestId
+			},
+			{
+				requestedBy: 1
+			}
+		);
 		if (!followRequest) {
 			res.status(404).send(new Error("Follow request not found"));
 		}
 		await session.withTransaction(async () => {
-			const accepted = await acceptHandler(followRequest, session, acceptorUserId);
+			await FollowRequest.deleteOne(followRequest).session(session);
+			const accepted = await new Follow({
+				user: acceptorUserId,
+				followedBy: followRequest.requestedBy
+			}).save({ session });
 			res.status(200).json({ accepted });
 		});
 	} catch (err) {
@@ -46,10 +42,23 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {
-			const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
-			await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
+			const filter = {
+				user: acceptorUserId,
+				_id: {
+					$in: followRequestIds
+				}
+			};
+			await FollowRequest.deleteMany(filter).session(session);
+			const result = await Follow.bulkSave(
+				await FollowRequest.find(filter, {
+					_id: 0,
+					user: acceptorUserId,
+					followedBy: "$requestedBy"
+				}).map(followRequest => new Follow(followRequest)),
+				{ session }
+			);
+			res.status(200).json({ acceptedRequestsCount: result.insertedCount });
 		});
-		res.status(200).json({ acceptedRequestIds: followRequestIds });
 	} catch (err) {
 		next(err);
 	} finally {
@@ -60,17 +69,27 @@ const acceptAllFollowRequests = async (req, res, next) => {
 	const acceptorUserId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		let acceptedRequestsCount = 0;
-		let requestsCount = 0;
+		let batchCount = 0;
+		let totalCount = 0;
 		await session.withTransaction(async () => {
+			const filter = { user: acceptorUserId };
 			do {
-				const followRequests = await FollowRequest.find({ user: acceptorUserId }, { _id: 1 }).session(session).limit(pageSize);
-				await Promise.all(followRequests.map(followRequest => acceptHandler(followRequest, session, acceptorUserId)));
-				requestsCount = followRequests.length;
-				acceptedRequestsCount += requestsCount;
-			} while (requestsCount === pageSize);
+				const followRequests = await FollowRequest.find(filter, { user: acceptorUserId, followedBy: "$requestedBy" }).limit(batchSize).session(session);
+				await FollowRequest.deleteMany({
+					_id: {
+						$in: followRequests.map(followRequest => followRequest._id)
+					}
+				}).session(session);
+				followRequests.forEach(followRequest => delete followRequest._id);
+				const result = await Follow.bulkSave(
+					followRequests.map(followRequest => new Follow(followRequest)),
+					{ session }
+				);
+				batchCount = result.insertedCount;
+				totalCount += batchCount;
+			} while (batchCount === batchSize);
 		});
-		res.status(200).json({ acceptedRequestsCount });
+		res.status(200).json({ acceptedRequestsCount: totalCount });
 	} catch (err) {
 		next(err);
 	} finally {
@@ -80,57 +99,38 @@ const acceptAllFollowRequests = async (req, res, next) => {
 const rejectFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;
 	const rejectorUserId = req.userInfo.userId;
-	const session = await mongoose.startSession();
 	try {
-		const followRequest = await FollowRequest.findById(followRequestId);
-		if (!followRequest) {
-			res.status(404).send(new Error("Follow request not found"));
-		}
-		await session.withTransaction(async () => {
-			await rejectHandler(followRequest, session, rejectorUserId);
+		const rejected = await FollowRequest.deleteOne({
+			user: rejectorUserId,
+			_id: followRequestId
 		});
-		res.status(200).json({ rejected: followRequest });
+		res.status(200).json({ rejected });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const rejectSelectedFollowRequests = async (req, res, next) => {
 	const followRequestIds = req.body.requestIds;
 	const rejectorUserId = req.userInfo.userId;
-	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const followRequests = await Promise.all(followRequestIds.map(id => FollowRequest.findById(id)));
-			await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
+		const result = await FollowRequest.deleteMany({
+			user: rejectorUserId,
+			_id: {
+				$in: followRequestIds
+			}
 		});
-		res.status(200).json({ rejectedRequestIds: followRequestIds });
+		res.status(200).json({ rejectedRequestsCount: result.deletedCount });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 const rejectAllFollowRequests = async (req, res, next) => {
 	const rejectorUserId = req.userInfo.userId;
-	const session = await mongoose.startSession();
 	try {
-		let rejectedRequestsCount = 0;
-		let requestsCount = 0;
-		await session.withTransaction(async () => {
-			do {
-				const followRequests = await FollowRequest.find({ user: rejectorUserId }, { _id: 1 }).session(session).limit(pageSize);
-				await Promise.all(followRequests.map(followRequest => rejectHandler(followRequest, session, rejectorUserId)));
-				requestsCount = followRequests.length;
-				rejectedRequestsCount += requestsCount;
-			} while (requestsCount === pageSize);
-		});
-		res.status(200).json({ rejectedRequestsCount });
+		const result = await FollowRequest.deleteMany({ user: rejectorUserId });
+		res.status(200).json({ rejectedRequestsCount: result.deletedCount });
 	} catch (err) {
 		next(err);
-	} finally {
-		await session.endSession();
 	}
 };
 
