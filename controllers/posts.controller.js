@@ -36,8 +36,8 @@ const updateLanguages = async (content, post) => {
 const updateMentionsAndHashtags = async (content, post) => {
 	const postMentions = new Set(post.mentions);
 	const postHashtags = new Set(post.hashtags);
-	const contentMentions = content.match(/@\w+/g);
-	const contentHashtags = content.match(/#(\p{L}\p{M}?)+/gu);
+	const contentMentions = content.match(/\B@\w+[^\p{P}]/g);
+	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+[^\p{P}]/gu);
 	if (contentMentions) {
 		const users = await User.find(
 			{
