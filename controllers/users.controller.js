@@ -68,46 +68,48 @@ const getUser = async (req, res, next) => {
 			return;
 		}
 		if (selfId) {
-			const targetId = user._id;
-			[
-				user.blockedMe,
-				user.blockedByMe,
-				user.followedMe,
-				user.followedByMe,
-				user.requestedToFollowMe,
-				user.requestedToFollowByMe,
-				user.mutedByMe
-			] = await Promise.all
-			([
-				Block.countDocuments({
-					user: selfId,
-					blockedBy: targetId
-				}),
-				Block.findOne({
-					user: targetId,
-					blockedBy: selfId
-				}),
-				Follow.countDocuments({
-					user: selfId,
-					followedBy: targetId
-				}),
-				Follow.findOne({
-					user: targetId,
-					followedBy: selfId
-				}),
-				FollowRequest.findOne({
-					user: selfId,
-					requestedBy: targetId
-				}),
-				FollowRequest.findOne({
-					user: targetId,
-					requestedBy: selfId
-				}),
-				MutedUser.findOne({
-					user: targetId,
-					mutedBy: selfId
-				})
-			]);
+			const targetId = user._id.valueOf();
+			if (targetId !== selfId) {
+				[
+					user.blockedMe,
+					user.blockedByMe,
+					user.followedMe,
+					user.followedByMe,
+					user.requestedToFollowMe,
+					user.requestedToFollowByMe,
+					user.mutedByMe
+				] = await Promise.all
+				([
+					Block.countDocuments({
+						user: selfId,
+						blockedBy: targetId
+					}),
+					Block.findOne({
+						user: targetId,
+						blockedBy: selfId
+					}),
+					Follow.countDocuments({
+						user: selfId,
+						followedBy: targetId
+					}),
+					Follow.findOne({
+						user: targetId,
+						followedBy: selfId
+					}),
+					FollowRequest.findOne({
+						user: selfId,
+						requestedBy: targetId
+					}),
+					FollowRequest.findOne({
+						user: targetId,
+						requestedBy: selfId
+					}),
+					MutedUser.findOne({
+						user: targetId,
+						mutedBy: selfId
+					})
+				]);
+			}
 		}
 		res.status(200).json({ user });
 	} catch (err) {
