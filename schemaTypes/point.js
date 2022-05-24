@@ -11,6 +11,7 @@ class Point extends mongoose.SchemaType {
 
 	cast(value) {
 		const { type, coordinates } = value;
+		const [longitude, latitude] = coordinates;
 		if (!type) {
 			throw new CastError(this.constructor.name, value, "type");
 		}
@@ -26,13 +27,13 @@ class Point extends mongoose.SchemaType {
 		if (coordinates.length !== 2) {
 			throw new CastError(this.constructor.name, value, "coordinates", new NativeError(`Property "coordinates" should contain exactly two items`));
 		}
-		if (typeof coordinates[0] !== "number" || typeof coordinates[1] !== "number") {
+		if (typeof longitude !== "number" || typeof latitude !== "number") {
 			throw new CastError(this.constructor.name, value, "coordinates", new NativeError("Both coordinates must be numbers"));
 		}
-		if (coordinates[0] > 180 || coordinates[0] < -180) {
+		if (longitude > 180 || longitude < -180) {
 			throw new CastError(this.constructor.name, value, "coordinates", new NativeError("Longitude must be within the range -180 to 180"));
 		}
-		if (coordinates[1] > 90 || coordinates[1] < -90) {
+		if (latitude > 90 || latitude < -90) {
 			throw new CastError(this.constructor.name, value, "coordinates", new NativeError("Latitude must be within the range -90 to 90"));
 		}
 		return { type, coordinates };
