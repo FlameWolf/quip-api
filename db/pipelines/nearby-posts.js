@@ -1,8 +1,9 @@
 "use strict";
 
+const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const nearbyPostsAggregationPipeline = (coordinates, maxDistance = 5000, userId = undefined, lastDistance = undefined, lastPostId = undefined) => {
+const nearbyPostsAggregationPipeline = ([longitude, latitude], maxDistance = 5000, userId = undefined, lastDistance = undefined, lastPostId = undefined) => {
 	const pageConditions = {};
 	if (lastDistance && lastPostId) {
 		const parsedLastDistance = parseFloat(lastDistance);
@@ -20,7 +21,7 @@ const nearbyPostsAggregationPipeline = (coordinates, maxDistance = 5000, userId 
 						]
 					},
 					{
-						$lt: ["$distance", parsedLastDistance]
+						$gt: ["$distance", parsedLastDistance]
 					}
 				]
 			}
@@ -31,7 +32,7 @@ const nearbyPostsAggregationPipeline = (coordinates, maxDistance = 5000, userId 
 			$geoNear: {
 				near: {
 					type: "Point",
-					coordinates
+					coordinates: [parseFloat(longitude), parseFloat(latitude)]
 				},
 				maxDistance: parseInt(maxDistance),
 				distanceField: "distance"
