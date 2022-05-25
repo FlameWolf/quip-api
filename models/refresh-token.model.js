@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const refreshTokenSchema = new mongoose.Schema(
 	{
 		user: { type: ObjectId, ref: "User", required: true, index: true },
-		token: { type: String, required: true, max: 512 },
+		token: { type: String, trim: true, required: true, max: 512 },
 		lastUsed: { type: Date, default: new Date() }
 	},
 	{
