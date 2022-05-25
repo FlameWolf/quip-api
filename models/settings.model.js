@@ -37,7 +37,12 @@ const settingsSchema = new Schema(
 				default: "light"
 			},
 			lang: {
-				type: String
+				type: String,
+				trim: true,
+				validate: {
+					validator: value => value.length === 2,
+					message: "Language code must be exactly two characters long"
+				}
 			}
 		})
 	},
