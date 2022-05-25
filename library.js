@@ -18,6 +18,7 @@ const quoteScore = 2;
 const replyScore = 2;
 const voteScore = 2;
 const repeatScore = 4;
+const nullId = "000000000000000000000000";
 const megaByte = 1024 * 1024;
 const noReplyEmail = "no-reply@quip-web-app.web.app";
 const emailTemplates = {
@@ -82,6 +83,7 @@ module.exports = {
 	replyScore,
 	voteScore,
 	repeatScore,
+	nullId,
 	megaByte,
 	noReplyEmail,
 	emailTemplates,
