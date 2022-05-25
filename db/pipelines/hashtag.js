@@ -1,5 +1,6 @@
 "use strict";
 
+const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
 const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date", lastScore = undefined, lastPostId = undefined) => {
