@@ -969,6 +969,49 @@
 					}
 				]
 			}
+		},
+		"/search/nearby": {
+			"get": {
+				"parameters": [
+					{
+						"name": "long",
+						"in": "query",
+						"required": true,
+						"type": "number",
+						"format": "float",
+						"minimum": -180,
+						"maximum": 180
+					},
+					{
+						"name": "lat",
+						"in": "query",
+						"required": true,
+						"type": "number",
+						"format": "float",
+						"minimum": -90,
+						"maximum": 90
+					},
+					{
+						"name": "max-dist",
+						"in": "query",
+						"required": true,
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 50000
+					},
+					{
+						"name": "lastDistance",
+						"in": "query",
+						"type": "number",
+						"format": "double"
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
 		}
 	}
 }
