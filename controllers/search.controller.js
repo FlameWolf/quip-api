@@ -1,6 +1,7 @@
 "use strict";
 
 const searchPostsAggregationPipeline = require("../db/pipelines/search-posts");
+const nearbyPostsAggregationPipeline = require("../db/pipelines/nearby-posts");
 const Post = require("../models/post.model");
 
 const searchPosts = async (req, res, next) => {
@@ -11,7 +12,7 @@ const searchPosts = async (req, res, next) => {
 		return;
 	}
 	try {
-		const result = await Post.aggregate(
+		const posts = await Post.aggregate(
 			searchPostsAggregationPipeline(
 				searchText,
 				userId,
@@ -28,10 +29,20 @@ const searchPosts = async (req, res, next) => {
 				lastPostId
 			)
 		);
-		res.status(200).json({ result });
+		res.status(200).json({ posts });
+	} catch (err) {
+		next(err);
+	}
+};
+const nearbyPosts = async (req, res, next) => {
+	const { long: longitude, lat: latitude, "max-dist": maxDistance, lastDistance, lastPostId } = req.query;
+	const userId = req.userInfo?.userId;
+	try {
+		const posts = await Post.aggregate(nearbyPostsAggregationPipeline([longitude, latitude], maxDistance, userId, lastDistance, lastPostId));
+		res.status(200).json({ posts });
 	} catch (err) {
 		next(err);
 	}
 };
 
-module.exports = { searchPosts };
+module.exports = { searchPosts, nearbyPosts };
