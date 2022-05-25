@@ -26,7 +26,7 @@ const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date"
 				}
 			});
 		} else if (lastScore) {
-			const parsedLastScore = parseFloat(lastScore);
+			const parsedLastScore = parseInt(lastScore);
 			Object.assign(pageConditions, {
 				$expr: {
 					$or: [
