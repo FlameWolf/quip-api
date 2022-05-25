@@ -7,7 +7,6 @@ const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore
 const postAggregationPipeline = require("../db/pipelines/post");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
 const postParentAggregationPipeline = require("../db/pipelines/post-parent");
-const userController = require("./users.controller");
 const Post = require("../models/post.model");
 const Vote = require("../models/vote.model");
 const User = require("../models/user.model");
@@ -16,7 +15,7 @@ const Bookmark = require("../models/bookmark.model");
 const MutedPost = require("../models/muted.post.model");
 
 const validateContent = (content, attachment = {}) => {
-	if (!content) {
+	if (!content.trim()) {
 		const { poll, mediaFile, post } = attachment;
 		if (poll || !(mediaFile || post)) {
 			throw new Error("No content");
@@ -108,7 +107,7 @@ const deletePostWithCascade = async post => {
 	await session.endSession();
 };
 const createPost = async (req, res, next) => {
-	const { content, poll, "media-description": mediaDescription, location } = req.body;
+	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
@@ -139,7 +138,7 @@ const createPost = async (req, res, next) => {
 				location: JSON.parse(location)
 			})
 		};
-		if (content?.trim()) {
+		if (content.trim()) {
 			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 		}
 		const post = await new Post(model).save();
@@ -150,10 +149,10 @@ const createPost = async (req, res, next) => {
 };
 const updatePost = async (req, res, next) => {
 	const postId = req.params.postId;
-	const content = req.body.content;
+	const content = req.body.content || "";
 	const session = await mongoose.startSession();
 	try {
-		if (!content) {
+		if (!content.trim()) {
 			res.status(400).send("No content");
 			return;
 		}
@@ -265,7 +264,7 @@ const getPostParent = async (req, res, next) => {
 };
 const quotePost = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content, poll, "media-description": mediaDescription, location } = req.body;
+	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
@@ -303,7 +302,7 @@ const quotePost = async (req, res, next) => {
 				})
 			};
 			model.mentions = [originalPost.author];
-			if (content?.trim()) {
+			if (content.trim()) {
 				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const quote = await new Post(model).save({ session });
@@ -377,7 +376,7 @@ const unrepeatPost = async (req, res, next) => {
 	}
 };
 const replyToPost = async (req, res, next) => {
-	const { content, poll, "media-description": mediaDescription, location } = req.body;
+	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
@@ -418,7 +417,7 @@ const replyToPost = async (req, res, next) => {
 				})
 			};
 			model.mentions = [originalPost.author];
-			if (content?.trim()) {
+			if (content.trim()) {
 				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const reply = await new Post(model).save({ session });
