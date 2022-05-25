@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const cld = require("cld");
-const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore } = require("../library");
+const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
 const postParentAggregationPipeline = require("../db/pipelines/post-parent");
@@ -36,8 +36,8 @@ const updateLanguages = async (content, post) => {
 const updateMentionsAndHashtags = async (content, post) => {
 	const postMentions = new Set(post.mentions);
 	const postHashtags = new Set(post.hashtags);
-	const contentMentions = content.match(/\B@\w+[^\p{P}]/g);
-	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+[^\p{P}]/gu);
+	const contentMentions = content.match(/\B@\w+/g);
+	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
 	if (contentMentions) {
 		const users = await User.find(
 			{
@@ -146,6 +146,67 @@ const createPost = async (req, res, next) => {
 		res.status(201).json({ post });
 	} catch (err) {
 		next(err);
+	}
+};
+const updatePost = async (req, res, next) => {
+	const postId = req.params.postId;
+	const content = req.body.content;
+	const session = await mongoose.startSession();
+	try {
+		if (!content) {
+			res.status(400).send("No content");
+			return;
+		}
+		const post = await Post.findById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		if (post.author.valueOf() !== req.userInfo.userId) {
+			res.status(403).send("You are not allowed to perform this action");
+			return;
+		}
+		if (post.__v > 0) {
+			res.status(422).send("Post was edited once and cannot be edited again");
+			return;
+		}
+		const { poll, post: quotedPostId } = post.attachments || {};
+		if (poll) {
+			res.status(422).send("Cannot edit a post that includes a poll");
+			return;
+		}
+		if (post.content === content) {
+			res.status(304).send({ post });
+			return;
+		}
+		await session.withTransaction(async () => {
+			const postFilter = { post: postId };
+			const repliedPostId = post.replyTo;
+			const mentions = [];
+			if (repliedPostId) {
+				mentions.push[(await Post.findById(repliedPostId)?.author) || nullId];
+			}
+			if (quotedPostId) {
+				mentions.push[(await Post.findById(quotedPostId)?.author) || nullId];
+			}
+			const model = { content, mentions, score: 0, $inc: { __v: 1 } };
+			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
+			const updated = await Post.findByIdAndUpdate(postId, model, { new: true }).session(session);
+			await Promise.all([
+				Post.updateMany({ "attachments.post": postId }, { "attachments.post": nullId }).session(session),
+				Post.updateMany({ replyTo: postId }, { replyTo: nullId }).session(session),
+				Post.deleteMany({
+					repeatPost: postId
+				}).session(session),
+				Favourite.deleteMany(postFilter).session(session),
+				Bookmark.deleteMany(postFilter).session(session)
+			]);
+			res.status(200).json({ updated });
+		});
+	} catch (err) {
+		next(err);
+	} finally {
+		await session.endSession();
 	}
 };
 const getPost = async (req, res, next) => {
@@ -387,12 +448,12 @@ const castVote = async (req, res, next) => {
 		}
 		const poll = post.attachments?.poll;
 		if (!poll) {
-			res.status(422).send("Post does not contain a poll");
+			res.status(422).send("Post does not include a poll");
 			return;
 		}
 		const isOptionNota = option === "nota";
 		if (!(isOptionNota || poll[option])) {
-			res.status(422).send("Poll does not contain the specified option");
+			res.status(422).send("Poll does not include the specified option");
 			return;
 		}
 		if (post.author.valueOf() === userId) {
@@ -450,6 +511,7 @@ const deletePost = async (req, res, next) => {
 
 module.exports = {
 	createPost,
+	updatePost,
 	getPost,
 	getPostReplies,
 	getPostParent,
