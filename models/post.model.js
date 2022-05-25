@@ -13,6 +13,7 @@ const postSchema = new Schema(
 	{
 		content: {
 			type: String,
+			trim: true,
 			validate: {
 				validator: value => value.match(contentLengthRegExp).length <= maxContentLength,
 				message: "Content length exceeds the maximum allowed limit"
@@ -30,11 +31,12 @@ const postSchema = new Schema(
 		replyTo: { type: ObjectId, ref: "Post", index: true },
 		attachments: new Schema({
 			poll: new Schema({
-				first: { type: String, required: true, validate: validatePollOption },
-				second: { type: String, required: true, validate: validatePollOption },
-				third: { type: String, validate: validatePollOption },
+				first: { type: String, trim: true, required: true, validate: validatePollOption },
+				second: { type: String, trim: true, required: true, validate: validatePollOption },
+				third: { type: String, trim: true, validate: validatePollOption },
 				fourth: {
 					type: String,
+					trim: true,
 					validate: [
 						{
 							validator: function () {
@@ -79,6 +81,7 @@ const postSchema = new Schema(
 				previewSrc: { type: mongoose.SchemaTypes.Url },
 				description: {
 					type: String,
+					trim: true,
 					index: {
 						text: true,
 						default_language: "none",
