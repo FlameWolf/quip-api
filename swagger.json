@@ -406,6 +406,25 @@
 				}
 			}
 		},
+		"/posts/update/{postId}": {
+			"post": {
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"required": true,
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/posts/{postId}/replies": {
 			"get": {
 				"parameters": [
