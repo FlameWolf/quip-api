@@ -33,7 +33,7 @@ const nearbyPostsAggregationPipeline = (coordinates, maxDistance = 5000, userId 
 					type: "Point",
 					coordinates
 				},
-				maxDistance,
+				maxDistance: parseInt(maxDistance),
 				distanceField: "distance"
 			}
 		},
