@@ -1031,6 +1031,35 @@
 					}
 				]
 			}
+		},
+		"/search/users": {
+			"get": {
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "match",
+						"in": "query",
+						"type": "string",
+						"enum": ["exact", "contains", "startsWith", "endsWith"]
+					},
+					{
+						"name": "date-order",
+						"in": "query",
+						"type": "string",
+						"enum": ["desc", "asc"]
+					},
+					{
+						"name": "lastUserId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
 		}
 	}
 }
