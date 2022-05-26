@@ -4,6 +4,7 @@ const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { noReplyEmail, passwordRegExp, rounds, emailTemplates } = require("../library");
+const userAggregationPipeline = require("../db/pipelines/user");
 const userPostsAggregationPipeline = require("../db/pipelines/user-posts");
 const topmostAggregationPipeline = require("../db/pipelines/topmost");
 const favouritesAggregationPipeline = require("../db/pipelines/favourites");
@@ -40,7 +41,6 @@ const RefreshToken = require("../models/refresh-token.model");
 const PasswordReset = require("../models/password-reset.model");
 const Settings = require("../models/settings.model");
 
-const findActiveUserById = async userId => await User.findOne({ _id: userId, deactivated: false, deleted: false });
 const findActiveUserByHandle = async handle => await User.findOne({ handle, deactivated: false, deleted: false });
 const findUserById = async userId => await User.findOne({ _id: userId, deleted: false });
 const findUserByHandle = async handle => await User.findOne({ handle, deleted: false });
@@ -61,56 +61,22 @@ const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await M
 const findMutedWordsByUserId = async (userId, lastMuteId = undefined) => await MutedWord.aggregate(mutedWordsAggregationPipeline(userId, lastMuteId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
-	const selfId = req.userInfo?.userId;
 	try {
-		const user = await findActiveUserByHandle(handle);
+		const user = (
+			await User.aggregate([
+				{
+					$match: {
+						handle,
+						deactivated: false,
+						deleted: false
+					}
+				},
+				...userAggregationPipeline(req.userInfo?.userId)
+			])
+		).shift();
 		if (!user) {
 			res.status(404).send("User not found");
 			return;
-		}
-		if (selfId) {
-			const targetId = user._id.valueOf();
-			if (targetId !== selfId) {
-				[
-					user.blockedMe,
-					user.blockedByMe,
-					user.followedMe,
-					user.followedByMe,
-					user.requestedToFollowMe,
-					user.requestedToFollowByMe,
-					user.mutedByMe
-				] = await Promise.all
-				([
-					Block.countDocuments({
-						user: selfId,
-						blockedBy: targetId
-					}),
-					Block.findOne({
-						user: targetId,
-						blockedBy: selfId
-					}),
-					Follow.countDocuments({
-						user: selfId,
-						followedBy: targetId
-					}),
-					Follow.findOne({
-						user: targetId,
-						followedBy: selfId
-					}),
-					FollowRequest.findOne({
-						user: selfId,
-						requestedBy: targetId
-					}),
-					FollowRequest.findOne({
-						user: targetId,
-						requestedBy: selfId
-					}),
-					MutedUser.findOne({
-						user: targetId,
-						mutedBy: selfId
-					})
-				]);
-			}
 		}
 		res.status(200).json({ user });
 	} catch (err) {
@@ -514,7 +480,6 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-	findActiveUserById,
 	findActiveUserByHandle,
 	findUserById,
 	findUserByHandle,
