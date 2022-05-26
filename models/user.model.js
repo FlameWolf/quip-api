@@ -43,7 +43,8 @@ const userSchema = new mongoose.Schema(
 						$ne: null
 					}
 				}
-			}
+			},
+			select: false
 		},
 		pinnedPost: { type: ObjectId, ref: "Post" },
 		protected: { type: Boolean, default: false },
