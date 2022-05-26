@@ -32,9 +32,6 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 				from: "posts",
 				localField: "_id",
 				foreignField: "author",
-				let: {
-					userId: "$_id"
-				},
 				pipeline: [
 					{
 						$match: Object.keys(matchConditions).length ? matchConditions : { $expr: true }

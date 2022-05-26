@@ -14,9 +14,6 @@ const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 			from: "favourites",
 			localField: "_id",
 			foreignField: "favouritedBy",
-			let: {
-				userId: "$_id"
-			},
 			pipeline: [
 				{
 					$sort: {
