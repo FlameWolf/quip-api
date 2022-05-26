@@ -2,6 +2,7 @@
 
 const mongoose = require("mongoose");
 const { favouriteScore } = require("../library");
+const postsController = require("./posts.controller");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
 
@@ -10,16 +11,18 @@ const addFavourite = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		if (!(await Post.countDocuments({ _id: postId }))) {
+		const post = await postsController.findPostById(postId);
+		if (!post) {
 			res.status(404).send("Post not found");
 			return;
 		}
 		await session.withTransaction(async () => {
+			const originalPostId = post._id;
 			const favourited = await new Favourite({
-				post: postId,
+				post: originalPostId,
 				favouritedBy: userId
 			}).save({ session });
-			await Post.findByIdAndUpdate(postId, {
+			await Post.findByIdAndUpdate(originalPostId, {
 				$inc: {
 					score: favouriteScore
 				}
