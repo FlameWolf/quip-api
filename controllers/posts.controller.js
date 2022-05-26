@@ -14,6 +14,11 @@ const Favourite = require("../models/favourite.model");
 const Bookmark = require("../models/bookmark.model");
 const MutedPost = require("../models/muted.post.model");
 
+const findPostById = async postId => {
+	const post = await Post.findById(postId);
+	const repeatPost = post?.repeatPost;
+	return repeatPost ? findPostById(repeatPost) : post;
+};
 const validateContent = (content, attachment = {}) => {
 	if (!content.trim()) {
 		const { poll, mediaFile, post } = attachment;
@@ -63,9 +68,17 @@ const deletePostWithCascade = async post => {
 	await session.withTransaction(async () => {
 		const postId = post._id;
 		const postFilter = { post: postId };
+		const repeatedPostId = post.repeatPost;
 		const repliedToPostId = post.replyTo;
 		const attachments = post.attachments;
 		await Post.deleteOne(post).session(session);
+		if (repeatedPostId) {
+			await Post.findByIdAndUpdate(repeatedPostId, {
+				$inc: {
+					score: -repeatScore
+				}
+			}).session(session);
+		}
 		if (repliedToPostId) {
 			await Post.findByIdAndUpdate(repliedToPostId, {
 				$inc: {
@@ -156,7 +169,7 @@ const updatePost = async (req, res, next) => {
 			res.status(400).send("No content");
 			return;
 		}
-		const post = await Post.findById(postId);
+		const post = await findPostById(postId);
 		if (!post) {
 			res.status(404).send("Post not found");
 			return;
@@ -179,7 +192,8 @@ const updatePost = async (req, res, next) => {
 			return;
 		}
 		await session.withTransaction(async () => {
-			const postFilter = { post: postId };
+			const originalPostId = post._id;
+			const postFilter = { post: originalPostId };
 			const repliedPostId = post.replyTo;
 			const mentions = [];
 			if (repliedPostId) {
@@ -190,12 +204,12 @@ const updatePost = async (req, res, next) => {
 			}
 			const model = { content, mentions, score: 0, $inc: { __v: 1 } };
 			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
-			const updated = await Post.findByIdAndUpdate(postId, model, { new: true }).session(session);
+			const updated = await Post.findByIdAndUpdate(originalPostId, model, { new: true }).session(session);
 			await Promise.all([
-				Post.updateMany({ "attachments.post": postId }, { "attachments.post": nullId }).session(session),
-				Post.updateMany({ replyTo: postId }, { replyTo: nullId }).session(session),
+				Post.updateMany({ "attachments.post": originalPostId }, { "attachments.post": nullId }).session(session),
+				Post.updateMany({ replyTo: originalPostId }, { replyTo: nullId }).session(session),
 				Post.deleteMany({
-					repeatPost: postId
+					repeatPost: originalPostId
 				}).session(session),
 				Favourite.deleteMany(postFilter).session(session),
 				Bookmark.deleteMany(postFilter).session(session)
@@ -211,7 +225,8 @@ const updatePost = async (req, res, next) => {
 const getPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
-		if (!(await Post.countDocuments({ _id: postId }))) {
+		const originalPost = await findPostById(postId);
+		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
@@ -219,7 +234,7 @@ const getPost = async (req, res, next) => {
 			await Post.aggregate([
 				{
 					$match: {
-						_id: ObjectId(postId)
+						_id: ObjectId(originalPost._id)
 					}
 				},
 				...postAggregationPipeline(req.userInfo?.userId)
@@ -234,11 +249,12 @@ const getPostReplies = async (req, res, next) => {
 	const postId = req.params.postId;
 	const lastReplyId = req.query.lastReplyId;
 	try {
-		if (!(await Post.countDocuments({ _id: postId }))) {
+		const post = await findPostById(postId);
+		if (!post) {
 			res.status(404).send("Post not found");
 			return;
 		}
-		const replies = await Post.aggregate(postRepliesAggregationPipeline(postId, req.userInfo?.userId, lastReplyId));
+		const replies = await Post.aggregate(postRepliesAggregationPipeline(post._id, req.userInfo?.userId, lastReplyId));
 		res.status(200).json({ replies });
 	} catch (err) {
 		next(err);
@@ -247,7 +263,7 @@ const getPostReplies = async (req, res, next) => {
 const getPostParent = async (req, res, next) => {
 	const postId = req.params.postId;
 	try {
-		const post = await Post.findById(postId);
+		const post = await findPostById(postId);
 		if (!post) {
 			res.status(404).send("Post not found");
 			return;
@@ -256,7 +272,7 @@ const getPostParent = async (req, res, next) => {
 			res.status(422).send("Post is not a reply");
 			return;
 		}
-		const parent = (await Post.aggregate(postParentAggregationPipeline(postId, req.userInfo?.userId))).shift();
+		const parent = (await Post.aggregate(postParentAggregationPipeline(post._id, req.userInfo?.userId))).shift();
 		res.status(200).json({ parent });
 	} catch (err) {
 		next(err);
@@ -275,12 +291,13 @@ const quotePost = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		const originalPost = await Post.findById(postId);
+		const originalPost = await findPostById(postId);
 		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
 		await session.withTransaction(async () => {
+			const originalPostId = originalPost._id;
 			const model = {
 				content,
 				author: userId,
@@ -295,7 +312,7 @@ const quotePost = async (req, res, next) => {
 							description: mediaDescription
 						}
 					}),
-					post: postId
+					post: originalPostId
 				},
 				...(location && {
 					location: JSON.parse(location)
@@ -306,7 +323,7 @@ const quotePost = async (req, res, next) => {
 				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const quote = await new Post(model).save({ session });
-			await Post.findByIdAndUpdate(postId, {
+			await Post.findByIdAndUpdate(originalPostId, {
 				$inc: {
 					score: quoteScore
 				}
@@ -322,21 +339,23 @@ const quotePost = async (req, res, next) => {
 const repeatPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
-	const payload = {
-		author: userId,
-		repeatPost: postId
-	};
 	const session = await mongoose.startSession();
 	try {
-		if (!(await Post.countDocuments({ _id: postId }))) {
+		const originalPost = await findPostById(postId);
+		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
+		const originalPostId = originalPost._id;
+		const payload = {
+			author: userId,
+			repeatPost: originalPostId
+		};
 		await session.withTransaction(async () => {
 			const result = await Post.deleteOne(payload).session(session);
 			const repeated = await new Post(payload).save({ session });
 			if (result.deletedCount === 0) {
-				await Post.findByIdAndUpdate(postId, {
+				await Post.findByIdAndUpdate(originalPostId, {
 					$inc: {
 						score: repeatScore
 					}
@@ -388,16 +407,17 @@ const replyToPost = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		const originalPost = await Post.findById(postId);
+		const originalPost = await findPostById(postId);
 		if (!originalPost) {
 			res.status(404).send("Post not found");
 			return;
 		}
 		await session.withTransaction(async () => {
+			const originalPostId = originalPost._id;
 			const model = {
 				content,
 				author: userId,
-				replyTo: postId,
+				replyTo: originalPostId,
 				...((poll || media) && {
 					attachments: {
 						...(poll && {
@@ -421,7 +441,7 @@ const replyToPost = async (req, res, next) => {
 				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
 			}
 			const reply = await new Post(model).save({ session });
-			await Post.findOneAndUpdate(postId, {
+			await Post.findOneAndUpdate(originalPostId, {
 				$inc: {
 					score: replyScore
 				}
@@ -440,7 +460,7 @@ const castVote = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
-		const post = await Post.findById(postId);
+		const post = await findPostById(postId);
 		if (!post) {
 			res.status(404).send("Post not found");
 			return;
@@ -471,11 +491,10 @@ const castVote = async (req, res, next) => {
 				user: userId,
 				option
 			}).save({ session });
-			poll.votes[option] += 1;
-			await post.save({ session });
 			if (!isOptionNota) {
-				await Post.findByIdAndUpdate(postId, {
+				await Post.findByIdAndUpdate(post._id, {
 					$inc: {
+						[`poll.votes.${option}`]: 1,
 						score: voteScore
 					}
 				}).session(session);
@@ -509,6 +528,7 @@ const deletePost = async (req, res, next) => {
 };
 
 module.exports = {
+	findPostById,
 	createPost,
 	updatePost,
 	getPost,
