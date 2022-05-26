@@ -403,7 +403,7 @@ const changePassword = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const { oldPassword, newPassword } = req.body;
 	try {
-		const user = await User.findById(userId).select("+password");
+		const user = await User.findById(userId).select("+password +email");
 		const email = user.email;
 		const authStatus = await bcrypt.compare(oldPassword, user.password);
 		if (!authStatus) {
@@ -429,15 +429,7 @@ const deactivateUser = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	try {
 		await session.withTransaction(async () => {
-			const deactivated = await User.findByIdAndUpdate(
-				userId,
-				{
-					deactivated: true
-				},
-				{
-					new: true
-				}
-			).session(session);
+			const deactivated = await User.findByIdAndUpdate(userId, { deactivated: true }, { new: true }).select("+email").session(session);
 			const email = deactivated.email;
 			await RefreshToken.deleteMany({ user: userId }).session(session);
 			res.status(200).json({ deactivated });
@@ -454,7 +446,15 @@ const deactivateUser = async (req, res, next) => {
 const activateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
-		const activated = await User.findByIdAndUpdate(userId, { deactivated: false }, { new: true });
+		const activated = await User.findByIdAndUpdate(
+			userId,
+			{
+				deactivated: false
+			},
+			{
+				new: true
+			}
+		).select("+email");
 		const email = activated.email;
 		res.status(200).json({ activated });
 		if (email) {
@@ -472,7 +472,7 @@ const deleteUser = async (req, res, next) => {
 			const userFilter = { user: userId };
 			const ownerFilter = { owner: userId };
 			const mutedByFilter = { mutedBy: userId };
-			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).session(session);
+			const deleted = await User.findByIdAndUpdate(userId, { deleted: true }, { new: true }).select("+email").session(session);
 			const email = deleted.email;
 			await Promise.all([
 				Favourite.deleteMany({ favouritedBy: userId }).session(session),
