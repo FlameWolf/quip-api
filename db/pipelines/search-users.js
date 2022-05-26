@@ -1,26 +1,24 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+const userAggregationPipeline = require("./user");
 
-const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOrder = "desc", lastUserId = undefined) => {
-	let matchExpr;
-	const sortConditions = {};
-	const pageConditions = {};
+const getMatchExpression = (match, searchText) => {
 	switch (match) {
-		case "exact":
-			matchExpr = searchText;
-			break;
-		case "endsWith":
-			matchExpr = new RegExp(`${searchText}$`);
-			break;
 		case "contains":
-			matchExpr = new RegExp(`${searchText}`);
-			break;
+			return new RegExp(`${searchText}`, "i");
+		case "exact":
+			return new RegExp(`^${searchText}$`, "i");
+		case "endsWith":
+			return new RegExp(`${searchText}$`, "i");
 		case "startsWith":
 		default:
-			matchExpr = new RegExp(`^${searchText}`);
-			break;
+			return new RegExp(`^${searchText}`, "i");
 	}
+};
+const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOrder = "desc", selfId = undefined, lastUserId = undefined) => {
+	const sortConditions = {};
+	const pageConditions = {};
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
 	Object.assign(sortConditions, {
 		createdAt: dateSort
@@ -35,15 +33,8 @@ const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOr
 	return [
 		{
 			$match: {
-				handle: matchExpr,
+				handle: getMatchExpression(match, searchText),
 				deleted: false
-			}
-		},
-		{
-			$project: {
-				handle: 1,
-				deactivated: 1,
-				createdAt: 1
 			}
 		},
 		{
@@ -54,7 +45,8 @@ const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOr
 		},
 		{
 			$limit: 20
-		}
+		},
+		...userAggregationPipeline(selfId)
 	];
 };
 
