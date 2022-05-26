@@ -73,7 +73,7 @@ const signIn = async (req, res, next) => {
 		next(err);
 	}
 };
-const refreshToken = async (req, res, next) => {
+const refreshAuthToken = async (req, res, next) => {
 	const { refreshToken } = req.body;
 	const { "x-slug": handle, "x-uid": userId } = req.headers;
 	if (!refreshToken) {
@@ -88,7 +88,7 @@ const refreshToken = async (req, res, next) => {
 			return;
 		}
 		if (!(await RefreshToken.countDocuments(filter))) {
-			res.status(401).send("Refresh token expired");
+			res.status(401).send("Refresh token revoked or expired");
 			return;
 		}
 		await RefreshToken.findOneAndUpdate(filter, { lastUsed: new Date() });
@@ -97,8 +97,27 @@ const refreshToken = async (req, res, next) => {
 		next(err);
 	}
 };
+const revokeRefreshToken = async (req, res, next) => {
+	const refreshToken = req.params.token;
+	if (!refreshToken) {
+		res.status(400).send("Refresh token not found");
+		return;
+	}
+	try {
+		await RefreshToken.findOneAndDelete({ token: refreshToken });
+		res.sendStatus(200);
+	} catch (err) {
+		next(err);
+	}
+};
 const signOut = async (req, res, next) => {
 	res.sendStatus(200);
 };
 
-module.exports = { signUp, signIn, refreshToken, signOut };
+module.exports = {
+	signUp,
+	signIn,
+	refreshAuthToken,
+	revokeRefreshToken,
+	signOut
+};
