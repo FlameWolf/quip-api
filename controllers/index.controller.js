@@ -100,7 +100,7 @@ const verifyEmail = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
 	const { handle, email } = req.body;
 	try {
-		const user = await User.findOne({ handle, deleted: false });
+		const user = await User.findOne({ handle, deleted: false }).select("+email");
 		if (!user) {
 			res.status(400).send("User not found");
 			return;
@@ -135,7 +135,7 @@ const resetPassword = async (req, res, next) => {
 		}
 		await session.withTransaction(async () => {
 			const passwordHash = await bcrypt.hash(password, rounds);
-			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).session(session);
+			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).select("+email").session(session);
 			await PasswordReset.deleteOne(passwordReset).session(session);
 			res.sendStatus(200);
 			emailController.sendEmail(noReplyEmail, user.email, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
