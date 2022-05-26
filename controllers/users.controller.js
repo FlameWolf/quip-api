@@ -21,6 +21,7 @@ const mutedUsersAggregationPipeline = require("../db/pipelines/muted-users");
 const mutedPostsAggregationPipeline = require("../db/pipelines/muted-posts");
 const mutedWordsAggregationPipeline = require("../db/pipelines/muted-words");
 const emailController = require("./email.controller");
+const postsController = require("./posts.controller");
 const User = require("../models/user.model");
 const Post = require("../models/post.model");
 const Favourite = require("../models/favourite.model");
@@ -354,7 +355,7 @@ const pinPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const post = await Post.findById(postId);
+		const post = await postsController.findPostById(postId);
 		if (!post) {
 			res.status(404).send("Post not found");
 			return;
@@ -363,7 +364,7 @@ const pinPost = async (req, res, next) => {
 			res.status(403).send("User can pin only their own post");
 			return;
 		}
-		const pinned = await User.findByIdAndUpdate(userId, { pinnedPost: postId }, { new: true });
+		const pinned = await User.findByIdAndUpdate(userId, { pinnedPost: post._id }, { new: true });
 		res.status(200).json({ pinned });
 	} catch (err) {
 		next(err);
