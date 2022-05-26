@@ -2,11 +2,12 @@
 
 const searchPostsAggregationPipeline = require("../db/pipelines/search-posts");
 const nearbyPostsAggregationPipeline = require("../db/pipelines/nearby-posts");
+const searchUsersAggregationPipeline = require("../db/pipelines/search-users");
 const Post = require("../models/post.model");
+const User = require("../models/user.model");
 
 const searchPosts = async (req, res, next) => {
 	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "sort-by": sortBy, "date-order": dateOrder, lastScore, lastPostId } = req.query;
-	const userId = req.userInfo?.userId;
 	if (!searchText) {
 		res.status(400).send("Search text missing");
 		return;
@@ -15,7 +16,7 @@ const searchPosts = async (req, res, next) => {
 		const posts = await Post.aggregate(
 			searchPostsAggregationPipeline(
 				searchText,
-				userId,
+				req.userInfo?.userId,
 				{
 					from,
 					since,
@@ -36,13 +37,29 @@ const searchPosts = async (req, res, next) => {
 };
 const nearbyPosts = async (req, res, next) => {
 	const { long: longitude, lat: latitude, "max-dist": maxDistance, lastDistance, lastPostId } = req.query;
-	const userId = req.userInfo?.userId;
 	try {
-		const posts = await Post.aggregate(nearbyPostsAggregationPipeline([longitude, latitude], maxDistance, userId, lastDistance, lastPostId));
+		const posts = await Post.aggregate(nearbyPostsAggregationPipeline([longitude, latitude], maxDistance, req.userInfo?.userId, lastDistance, lastPostId));
 		res.status(200).json({ posts });
 	} catch (err) {
 		next(err);
 	}
 };
+const searchUsers = async (req, res, next) => {
+	const { q: searchText, match, "date-order": dateOrder, lastUserId } = req.query;
+	if (!searchText) {
+		res.status(400).send("Search text missing");
+		return;
+	}
+	try {
+		const users = await User.aggregate(searchUsersAggregationPipeline(searchText, match, dateOrder, req.userInfo?.userId, lastUserId));
+		res.status(200).json({ users });
+	} catch (err) {
+		next(err);
+	}
+};
 
-module.exports = { searchPosts, nearbyPosts };
+module.exports = {
+	searchPosts,
+	nearbyPosts,
+	searchUsers
+};
