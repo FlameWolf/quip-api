@@ -1,6 +1,7 @@
 "use strict";
 
 const usersController = require("./users.controller");
+const postsController = require("./posts.controller");
 const MutedUser = require("../models/muted.user.model");
 const MutedPost = require("../models/muted.post.model");
 const MutedWord = require("../models/muted.word.model");
@@ -49,7 +50,12 @@ const mutePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		const muted = await new MutedPost({ post: postId, mutedBy: userId }).save();
+		const post = await postsController.findPostById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		const muted = await new MutedPost({ post: post._id, mutedBy: userId }).save();
 		res.status(200).json({ muted });
 	} catch (err) {
 		next(err);
