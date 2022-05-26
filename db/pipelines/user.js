@@ -3,12 +3,23 @@
 const { ObjectId } = require("bson");
 
 const userAggregationPipeline = (selfId = undefined) => {
-	const emailProject = {};
 	const lookupStages = [];
 	if (selfId) {
 		const selfObjectId = ObjectId(selfId);
-		Object.assign(emailProject, { $cond: [{ $eq: ["$_id", selfObjectId] }, "$email", "$$REMOVE"] });
 		lookupStages.push(
+			{
+				$addFields: {
+					self: {
+						$cond: [
+							{
+								$eq: ["$_id", selfObjectId]
+							},
+							true,
+							"$$REMOVE"
+						]
+					}
+				}
+			},
 			{
 				$lookup: {
 					from: "blocks",
@@ -27,9 +38,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$blockedByMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					blockedByMe: {
+						$cond: [
+							{
+								$eq: ["$blockedByMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -50,9 +76,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$blockedMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					blockedMe: {
+						$cond: [
+							{
+								$eq: ["$blockedMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -73,9 +114,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$requestedToFollowByMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					requestedToFollowByMe: {
+						$cond: [
+							{
+								$eq: ["$requestedToFollowByMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -96,9 +152,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$requestedToFollowMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					requestedToFollowMe: {
+						$cond: [
+							{
+								$eq: ["$requestedToFollowMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -119,9 +190,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$followedByMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					followedByMe: {
+						$cond: [
+							{
+								$eq: ["$followedByMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -142,9 +228,24 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$followedMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					followedMe: {
+						$cond: [
+							{
+								$eq: ["$followedMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			},
 			{
@@ -165,20 +266,32 @@ const userAggregationPipeline = (selfId = undefined) => {
 				}
 			},
 			{
-				$unwind: {
-					path: "$mutedByMe",
-					preserveNullAndEmptyArrays: true
+				$addFields: {
+					mutedByMe: {
+						$cond: [
+							{
+								$eq: ["$mutedByMe", []]
+							},
+							{
+								$cond: [
+									{
+										$eq: ["$self", true]
+									},
+									"$$REMOVE",
+									false
+								]
+							},
+							true
+						]
+					}
 				}
 			}
 		);
-	} else {
-		Object.assign(emailProject, { $expr: "$$REMOVE" });
 	}
 	return [
 		{
 			$project: {
 				handle: 1,
-				email: emailProject,
 				pinnedPost: 1,
 				protected: 1,
 				deactivated: 1
