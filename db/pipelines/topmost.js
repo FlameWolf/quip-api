@@ -7,50 +7,42 @@ const postAggregationPipeline = require("./post");
 const topmostAggregationPipeline = (userId = undefined, period = "", lastScore = undefined, lastPostId = undefined) => {
 	const matchConditions = {};
 	const pageConditions = {};
-	const maxDate = new Date();
-	switch (period.toLowerCase()) {
-		case "year":
-			maxDate.setFullYear(maxDate.getFullYear() - 1);
-			break;
-		case "month":
-			maxDate.setMonth(maxDate.getMonth() - 1);
-			break;
-		case "week":
-			maxDate.setDate(maxDate.getDate() - 7);
-			break;
-		case "day":
-		default:
-			maxDate.setDate(maxDate.getDate() - 1);
-			break;
-	}
 	if (period !== "all") {
-		Object.assign(matchConditions, {
-			createdAt: {
-				$gte: maxDate
-			}
-		});
+		const maxDate = new Date();
+		switch (period.toLowerCase()) {
+			case "year":
+				maxDate.setFullYear(maxDate.getFullYear() - 1);
+				break;
+			case "month":
+				maxDate.setMonth(maxDate.getMonth() - 1);
+				break;
+			case "week":
+				maxDate.setDate(maxDate.getDate() - 7);
+				break;
+			case "day":
+			default:
+				maxDate.setDate(maxDate.getDate() - 1);
+				break;
+		}
+		matchConditions.createdAt.$gte = maxDate;
 	}
 	if (lastScore && lastPostId) {
 		const parsedLastScore = parseInt(lastScore);
-		Object.assign(pageConditions, {
-			$expr: {
-				$or: [
+		pageConditions.$expr.$or = [
+			{
+				$and: [
 					{
-						$and: [
-							{
-								$eq: ["$score", parsedLastScore]
-							},
-							{
-								$lt: ["$_id", ObjectId(lastPostId)]
-							}
-						]
+						$eq: ["$score", parsedLastScore]
 					},
 					{
-						$lt: ["$score", parsedLastScore]
+						$lt: ["$_id", ObjectId(lastPostId)]
 					}
 				]
+			},
+			{
+				$lt: ["$score", parsedLastScore]
 			}
-		});
+		];
 	}
 	return [
 		{

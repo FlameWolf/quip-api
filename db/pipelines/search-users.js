@@ -20,15 +20,9 @@ const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOr
 	const sortConditions = {};
 	const pageConditions = {};
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
-	Object.assign(sortConditions, {
-		createdAt: dateSort
-	});
+	sortConditions.createdAt = dateSort;
 	if (lastUserId) {
-		Object.assign(pageConditions, {
-			_id: {
-				[idCompare]: ObjectId(lastUserId)
-			}
-		});
+		pageConditions._id[idCompare] = ObjectId(lastUserId);
 	}
 	return [
 		{

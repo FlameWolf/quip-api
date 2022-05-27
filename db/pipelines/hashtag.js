@@ -3,32 +3,26 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date", lastScore = undefined, lastPostId = undefined) => {
-	const sortByDate = sortBy !== "popular";
-	const sortConditions = {};
-	const pageConditions = {};
-	if (sortByDate) {
-		Object.assign(sortConditions, {
-			createdAt: -1,
-			score: -1
-		});
-	} else {
-		Object.assign(sortConditions, {
-			score: -1,
-			createdAt: -1
-		});
-	}
+const getSortConditions = sortByDate =>
+	sortByDate ? {
+		createdAt: -1,
+		score: -1
+	} : {
+		score: -1,
+		createdAt: -1
+	};
+const getPageConditions = (lastPostId, lastScore) => {
 	if (lastPostId) {
 		const lastPostObjectId = ObjectId(lastPostId);
 		if (sortByDate) {
-			Object.assign(pageConditions, {
+			return {
 				lastPostId: {
 					$lt: lastPostObjectId
 				}
-			});
+			};
 		} else if (lastScore) {
 			const parsedLastScore = parseInt(lastScore);
-			Object.assign(pageConditions, {
+			return {
 				$expr: {
 					$or: [
 						{
@@ -46,26 +40,26 @@ const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date"
 						}
 					]
 				}
-			});
+			};
 		}
 	}
-	return [
-		{
-			$match: {
-				hashtags: hashtag
-			}
-		},
-		{
-			$sort: sortConditions
-		},
-		{
-			$match: pageConditions
-		},
-		{
-			$limit: 20
-		},
-		...postAggregationPipeline(userId)
-	];
 };
+const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date", lastScore = undefined, lastPostId = undefined) => [
+	{
+		$match: {
+			hashtags: hashtag
+		}
+	},
+	{
+		$sort: getSortConditions(sortBy !== "popular")
+	},
+	{
+		$match: getPageConditions(lastPostId, lastScore)
+	},
+	{
+		$limit: 20
+	},
+	...postAggregationPipeline(userId)
+];
 
 module.exports = hashtagAggregationPipeline;

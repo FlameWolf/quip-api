@@ -27,7 +27,7 @@ const authSuccess = async (handle, userId, includeRefreshToken = true) => {
 	};
 	if (includeRefreshToken) {
 		const refreshToken = generateRefreshToken(handle, userId);
-		Object.assign(payload, { refreshToken });
+		payload.refreshToken = refreshToken;
 		await new RefreshToken({
 			user: userId,
 			token: refreshToken

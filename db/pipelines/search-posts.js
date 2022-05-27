@@ -3,6 +3,73 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
+const getMatchConditions = searchOptions => {
+	const matchConditions = {};
+	if (Object.keys(searchOptions).length) {
+		const separator = "|";
+		const atSign = "@";
+		const { from, since, until, hasMedia, notFrom } = searchOptions;
+		if (from) {
+			if (from.indexOf(separator) > -1) {
+				matchConditions.$expr.$in = ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))];
+			} else {
+				matchConditions.$expr.$eq = ["$author.handle", from.replace(atSign, "")];
+			}
+		}
+		if (since) {
+			matchConditions.createdAt.$gte = new Date(since);
+		}
+		if (until) {
+			matchConditions.createdAt.$lte = new Date(until);
+		}
+		if (hasMedia) {
+			matchConditions.$expr.$gt = ["$attachments.mediaFile", null];
+		}
+		if (notFrom) {
+			if (notFrom.indexOf(separator) > -1) {
+				matchConditions.$expr.$not.$in = ["$author.handle", notFrom.split(separator).map(x => x.replace(atSign, ""))];
+			} else {
+				matchConditions.$expr.$not.$eq = ["$author.handle", notFrom.replace(atSign, "")];
+			}
+		}
+	}
+	return matchConditions;
+};
+const getSortConditions = (sortByDate, dateSort) =>
+	sortByDate ? {
+		createdAt: dateSort,
+		score: -1
+	} : {
+		score: -1,
+		createdAt: dateSort
+	};
+const getPageConditions = (sortByDate, idCompare, lastScore, lastPostId) => {
+	const pageConditions = {};
+	if (lastPostId) {
+		const lastPostObjectId = ObjectId(lastPostId);
+		if (sortByDate) {
+			pageConditions._id[idCompare] = lastPostObjectId;
+		} else if (lastScore) {
+			const parsedLastScore = parseFloat(lastScore);
+			pageConditions.$expr.$or = [
+				{
+					$and: [
+						{
+							$eq: ["$score", parsedLastScore]
+						},
+						{
+							[idCompare]: ["$_id", lastPostObjectId]
+						}
+					]
+				},
+				{
+					$lt: ["$score", parsedLastScore]
+				}
+			];
+		}
+	}
+	return pageConditions;
+};
 const searchPostsAggregationPipeline = (
 	searchText,
 	userId = undefined,
@@ -18,121 +85,8 @@ const searchPostsAggregationPipeline = (
 	lastScore = undefined,
 	lastPostId = undefined
 ) => {
-	const matchConditions = {};
-	const sortConditions = {};
-	const pageConditions = {};
-	if (Object.keys(searchOptions).length) {
-		const separator = "|";
-		const atSign = "@";
-		const { from, since, until, hasMedia, notFrom } = searchOptions;
-		if (from) {
-			if (from.indexOf(separator) > -1) {
-				Object.assign(matchConditions, {
-					$expr: {
-						$in: ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))]
-					}
-				});
-			} else {
-				Object.assign(matchConditions, {
-					$expr: {
-						$eq: ["$author.handle", from.replace(atSign, "")]
-					}
-				});
-			}
-		}
-		if (since) {
-			const startDate = new Date(since);
-			if (startDate.valueOf()) {
-				Object.assign(matchConditions, {
-					createdAt: {
-						$gte: startDate
-					}
-				});
-			}
-		}
-		if (until) {
-			const endDate = new Date(until);
-			if (endDate.valueOf()) {
-				Object.assign(matchConditions, {
-					createdAt: {
-						$lte: endDate
-					}
-				});
-			}
-		}
-		if (hasMedia) {
-			Object.assign(matchConditions, {
-				$expr: {
-					$gt: ["$attachments.mediaFile", null]
-				}
-			});
-		}
-		if (notFrom) {
-			if (notFrom.indexOf(separator) > -1) {
-				Object.assign(matchConditions, {
-					$expr: {
-						$not: {
-							$in: ["$author.handle", notFrom.split(separator).map(x => x.replace(atSign, ""))]
-						}
-					}
-				});
-			} else {
-				Object.assign(matchConditions, {
-					$expr: {
-						$not: {
-							$eq: ["$author.handle", notFrom.replace(atSign, "")]
-						}
-					}
-				});
-			}
-		}
-	}
+	const sortByDate = sortBy === "date";
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
-	switch (sortBy) {
-		case "date":
-			Object.assign(sortConditions, {
-				createdAt: dateSort,
-				score: -1
-			});
-			if (lastPostId) {
-				Object.assign(pageConditions, {
-					lastPostId: {
-						[idCompare]: ObjectId(lastPostObjectId)
-					}
-				});
-			}
-			break;
-		case "popular":
-		case "match":
-		default:
-			Object.assign(sortConditions, {
-				score: -1,
-				createdAt: dateSort
-			});
-			if (lastScore && lastPostId) {
-				const parsedLastScore = parseFloat(lastScore);
-				Object.assign(pageConditions, {
-					$expr: {
-						$or: [
-							{
-								$and: [
-									{
-										$eq: ["$score", parsedLastScore]
-									},
-									{
-										[idCompare]: ["$_id", ObjectId(lastPostObjectId)]
-									}
-								]
-							},
-							{
-								$lt: ["$score", parsedLastScore]
-							}
-						]
-					}
-				});
-			}
-			break;
-	}
 	return [
 		{
 			$match: {
@@ -141,6 +95,9 @@ const searchPostsAggregationPipeline = (
 					$language: "none"
 				}
 			}
+		},
+		{
+			$match: getMatchConditions(searchOptions)
 		},
 		...(sortBy !== "popular" ?
 		[
@@ -153,10 +110,10 @@ const searchPostsAggregationPipeline = (
 			}
 		] : []),
 		{
-			$sort: sortConditions
+			$sort: getSortConditions(sortByDate, dateSort)
 		},
 		{
-			$match: Object.assign(matchConditions, pageConditions)
+			$match: getPageConditions(sortByDate, idCompare, lastScore, lastPostId)
 		},
 		{
 			$limit: 20
