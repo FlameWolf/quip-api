@@ -79,17 +79,7 @@ const postSchema = new Schema(
 				},
 				src: { type: mongoose.SchemaTypes.Url, required: true },
 				previewSrc: { type: mongoose.SchemaTypes.Url },
-				description: {
-					type: String,
-					trim: true,
-					index: {
-						text: true,
-						default_language: "none",
-						collation: {
-							locale: "simple"
-						}
-					}
-				}
+				description: { type: String, trim: true }
 			}),
 			post: { type: ObjectId, ref: "Post", index: true }
 		}),
