@@ -789,6 +789,21 @@
 				]
 			}
 		},
+		"/users/block/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"type": "string"
+					},
+					{
+						"name": "reason",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/users/{handle}/posts": {
 			"get": {
 				"parameters": [
