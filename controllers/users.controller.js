@@ -52,7 +52,7 @@ const findFollowingByUserId = async (userId, lastFollowId = undefined) => await 
 const findFollowersByUserId = async (userId, lastFollowId = undefined) => await Follow.aggregate(followersAggregationPipeline(userId, lastFollowId));
 const findFollowRequestsSentByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsSentAggregationPipeline(userId, lastFollowRequestId));
 const findFollowRequestsReceivedByUserId = async (userId, lastFollowRequestId = undefined) => await Follow.aggregate(followRequestsReceivedAggregationPipeline(userId, lastFollowRequestId));
-const findMentionsByUserId = async (userId, lastMentionId = undefined) => await Post.aggregate(mentionsAggregationPipeline(userId, lastMentionId));
+const findMentionsByUserId = async (userId, selfId = undefined, lastMentionId = undefined) => await Post.aggregate(mentionsAggregationPipeline(userId, selfId, lastMentionId));
 const findListsByUserId = async (userId, memberId = undefined, lastListId = undefined) => await List.aggregate(listsAggregationPipeline(userId, memberId, lastListId));
 const findMembersByListId = async (listId, lastMemberId = undefined) => await ListMember.aggregate(listMembersAggregationPipeline(listId, lastMemberId));
 const findBlocksByUserId = async (userId, lastBlockId = undefined) => await Block.aggregate(blocksAggregationPipeline(userId, lastBlockId));
@@ -240,7 +240,7 @@ const getUserMentions = async (req, res, next) => {
 			res.status(404).send("User not found");
 			return;
 		}
-		const mentions = await findMentionsByUserId(user._id, lastMentionId);
+		const mentions = await findMentionsByUserId(user._id, req.userInfo?.userId, lastMentionId);
 		res.status(200).json({ mentions });
 	} catch (err) {
 		next(err);
