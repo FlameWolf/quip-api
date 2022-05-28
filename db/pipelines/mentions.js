@@ -2,9 +2,8 @@
 
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
-const filtersAggregationPipeline = require("./filters");
 
-const mentionsAggregationPipeline = (userId, lastPostId = undefined) => [
+const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = undefined) => [
 	{
 		$match: {
 			mentions: ObjectId(userId)
@@ -15,7 +14,56 @@ const mentionsAggregationPipeline = (userId, lastPostId = undefined) => [
 			createdAt: -1
 		}
 	},
-	...filtersAggregationPipeline(userId),
+	...(selfId ?
+	[
+		{
+			$lookup: {
+				from: "blocks",
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ["$blockedBy", ObjectId(selfId)]
+							}
+						}
+					},
+					{
+						$group: {
+							_id: undefined,
+							result: {
+								$addToSet: "$user"
+							}
+						}
+					}
+				],
+				as: "blockedUsers"
+			}
+		},
+		{
+			$addFields: {
+				blockedUsers: {
+					$ifNull: [
+						{
+							$arrayElemAt: ["$blockedUsers.result", 0]
+						},
+						[]
+					]
+				}
+			}
+		}
+	] : []),
+	{
+		$match: {
+			$expr: {
+				$not: {
+					$in: ["$author", "$blockedUsers"]
+				}
+			}
+		}
+	},
+	{
+		$unset: "blockedUsers"
+	},
 	{
 		$match: lastPostId
 			? {
