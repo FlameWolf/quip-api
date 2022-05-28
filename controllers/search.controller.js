@@ -16,7 +16,6 @@ const searchPosts = async (req, res, next) => {
 		const posts = await Post.aggregate(
 			searchPostsAggregationPipeline(
 				searchText,
-				req.userInfo?.userId,
 				{
 					from,
 					since,
@@ -26,6 +25,7 @@ const searchPosts = async (req, res, next) => {
 				},
 				sortBy,
 				dateOrder,
+				req.userInfo?.userId,
 				lastScore,
 				lastPostId
 			)

@@ -72,7 +72,6 @@ const getPageConditions = (sortByDate, idCompare, lastScore, lastPostId) => {
 };
 const searchPostsAggregationPipeline = (
 	searchText,
-	userId = undefined,
 	searchOptions = {
 		from: undefined,
 		since: undefined,
@@ -82,6 +81,7 @@ const searchPostsAggregationPipeline = (
 	},
 	sortBy = "match",
 	dateOrder = "desc",
+	userId = undefined,
 	lastScore = undefined,
 	lastPostId = undefined
 ) => {
