@@ -55,6 +55,9 @@ const userAggregationPipeline = (selfId = undefined) => {
 							},
 							true
 						]
+					},
+					blockedReason: {
+						$arrayElemAt: ["$blockedByMe.reason", 0]
 					}
 				}
 			},
