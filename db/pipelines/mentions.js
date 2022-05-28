@@ -15,7 +15,7 @@ const mentionsAggregationPipeline = (userId, lastPostId = undefined) => [
 			createdAt: -1
 		}
 	},
-	filtersAggregationPipeline(userId),
+	...filtersAggregationPipeline(userId),
 	{
 		$match: lastPostId
 			? {
