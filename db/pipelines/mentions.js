@@ -50,20 +50,20 @@ const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = un
 					]
 				}
 			}
-		}
-	] : []),
-	{
-		$match: {
-			$expr: {
-				$not: {
-					$in: ["$author", "$blockedUsers"]
+		},
+		{
+			$match: {
+				$expr: {
+					$not: {
+						$in: ["$author", "$blockedUsers"]
+					}
 				}
 			}
+		},
+		{
+			$unset: "blockedUsers"
 		}
-	},
-	{
-		$unset: "blockedUsers"
-	},
+	] : []),
 	{
 		$match: lastPostId
 			? {
@@ -78,7 +78,7 @@ const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = un
 	{
 		$limit: 20
 	},
-	postAggregationPipeline(userId)
+	...postAggregationPipeline(userId)
 ];
 
 module.exports = mentionsAggregationPipeline;
