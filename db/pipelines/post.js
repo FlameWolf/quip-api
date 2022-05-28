@@ -50,7 +50,7 @@ const postAggregationPipeline = (userId = undefined) => {
 				attachments: {
 					$cond: [
 						{
-							$gt: ["$attachments", null]
+							$ne: ["$attachments", {}]
 						},
 						{
 							$mergeObjects: [
