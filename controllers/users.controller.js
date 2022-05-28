@@ -312,6 +312,9 @@ const getMutedWords = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
+		for (mute of mutedWords) {
+			mute.word = mute.word.replace(/\\(.)/g, "$1");
+		}
 		res.status(200).json({ mutedWords });
 	} catch (err) {
 		next(err);
