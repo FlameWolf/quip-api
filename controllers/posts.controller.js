@@ -31,12 +31,40 @@ const validateContent = (content, attachment = {}) => {
 		throw new Error("Content too long");
 	}
 };
-const updateLanguages = async (content, post) => {
-	try {
-		post.languages = (await cld.detect(content)).languages.map(x => x.code);
-	} catch {
-		post.languages = ["xx"];
+const detectLanguages = async value => {
+	if (value.trim()) {
+		return (await cld.detect(value)).languages.map(language => language.code);
 	}
+	return [];
+};
+const updateLanguages = async (content, post) => {
+	const languages = new Set();
+	const promises = [detectLanguages(content)];
+	const attachments = post.attachments;
+	if (attachments) {
+		const { poll, mediaFile, post: quotedPostId } = attachments;
+		if (poll) {
+			const { first, second, third, fourth } = poll;
+			promises.push(first && detectLanguages(first), second && detectLanguages(second), third && detectLanguages(third), fourth && detectLanguages(fourth));
+		}
+		if (mediaFile) {
+			const { description: mediaDescription } = mediaFile;
+			promises.push(mediaDescription && detectLanguages(mediaDescription));
+		}
+		if (quotedPostId) {
+			promises.push(Post.findById(quotedPostId).then(quotedPost => quotedPost.languages));
+		}
+	}
+	try {
+		for (const language of (await Promise.all(promises)).flat()) {
+			if (language) {
+				languages.add(language);
+			}
+		}
+	} catch {
+		languages.add("xx");
+	}
+	post.languages = [...languages];
 };
 const updateMentionsAndHashtags = async (content, post) => {
 	const postMentions = new Set(post.mentions);
