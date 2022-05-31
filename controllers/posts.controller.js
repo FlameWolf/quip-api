@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cld = require("cld");
 const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
+const postQuotesAggregationPipeline = require("../db/pipelines/post-quotes");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
 const postParentAggregationPipeline = require("../db/pipelines/post-parent");
 const Post = require("../models/post.model");
@@ -241,6 +242,21 @@ const getPost = async (req, res, next) => {
 			])
 		).shift();
 		res.status(200).json({ post });
+	} catch (err) {
+		next(err);
+	}
+};
+const getPostQuotes = async (req, res, next) => {
+	const postId = req.params.postId;
+	const lastQuoteId = req.query.lastQuoteId;
+	try {
+		const post = await findPostById(postId);
+		if (!post) {
+			res.status(404).send("Post not found");
+			return;
+		}
+		const quotes = await Post.aggregate(postQuotesAggregationPipeline(post._id, req.userInfo?.userId, lastQuoteId));
+		res.status(200).json({ quotes });
 	} catch (err) {
 		next(err);
 	}
@@ -532,6 +548,7 @@ module.exports = {
 	createPost,
 	updatePost,
 	getPost,
+	getPostQuotes,
 	getPostReplies,
 	getPostParent,
 	quotePost,
