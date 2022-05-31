@@ -951,7 +951,6 @@
 					{
 						"name": "q",
 						"in": "query",
-						"required": true,
 						"type": "string"
 					},
 					{
@@ -990,6 +989,22 @@
 						"in": "query",
 						"type": "string",
 						"enum": ["desc", "asc"]
+					},
+					{
+						"name": "langs",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "langs-match",
+						"in": "query",
+						"type": "string",
+						"enum": ["any", "all"]
+					},
+					{
+						"name": "media-desc",
+						"in": "query",
+						"type": "string"
 					},
 					{
 						"name": "lastScore",
