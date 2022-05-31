@@ -3,37 +3,68 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const getMatchConditions = searchOptions => {
-	const matchConditions = {};
-	if (Object.keys(searchOptions).length) {
-		const separator = "|";
-		const atSign = "@";
-		const { from, since, until, hasMedia, notFrom } = searchOptions;
-		if (from) {
-			if (from.indexOf(separator) > -1) {
-				matchConditions.$expr.$in = ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))];
-			} else {
-				matchConditions.$expr.$eq = ["$author.handle", from.replace(atSign, "")];
-			}
-		}
-		if (since) {
-			matchConditions.createdAt.$gte = new Date(since);
-		}
-		if (until) {
-			matchConditions.createdAt.$lte = new Date(until);
-		}
-		if (hasMedia) {
-			matchConditions.$expr.$gt = ["$attachments.mediaFile", null];
-		}
-		if (notFrom) {
-			if (notFrom.indexOf(separator) > -1) {
-				matchConditions.$expr.$not.$in = ["$author.handle", notFrom.split(separator).map(x => x.replace(atSign, ""))];
-			} else {
-				matchConditions.$expr.$not.$eq = ["$author.handle", notFrom.replace(atSign, "")];
-			}
+const getMatchConditions = (searchText, searchOptions) => {
+	const separator = "|";
+	const atSign = "@";
+	const matchConditions = { $expr: {} };
+	if (searchText) {
+		matchConditions.$text = { $search: searchText, $language: "none" };
+	}
+	const { from, since, until, hasMedia, notFrom, languages, includeLanguages, mediaDescription } = searchOptions;
+	if (from) {
+		if (from.indexOf(separator) > -1) {
+			matchConditions.$expr.$in = ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))];
+		} else {
+			matchConditions.$expr.$eq = ["$author.handle", from.replace(atSign, "")];
 		}
 	}
+	if (since) {
+		matchConditions.createdAt = { $gte: new Date(since) };
+	}
+	if (until) {
+		matchConditions.createdAt = { $lte: new Date(until) };
+	}
+	if (hasMedia) {
+		matchConditions.$expr.$gt = ["$attachments.mediaFile", null];
+	}
+	if (notFrom) {
+		if (notFrom.indexOf(separator) > -1) {
+			matchConditions.$expr.$not = { $in: ["$author.handle", notFrom.split(separator).map(x => x.replace(atSign, ""))] };
+		} else {
+			matchConditions.$expr.$not = { $eq: ["$author.handle", notFrom.replace(atSign, "")] };
+		}
+	}
+	if (languages) {
+		if (languages.indexOf(separator) > -1) {
+			const languageArray = languages.split(separator);
+			matchConditions.languages = { $exists: true };
+			matchConditions.$expr.$setIsSubset = includeLanguages === "all" ? [languageArray, "$languages"] : ["$languages", languageArray];
+		} else {
+			matchConditions.languages = languages;
+		}
+	}
+	if (mediaDescription) {
+		matchConditions.attachments = {
+			mediaFile: {
+				description: new RegExp(mediaDescription.replace(/\s+/g, ".*?\\s+.*?"), "i")
+			}
+		};
+	}
 	return matchConditions;
+};
+const addScoreField = (searchText, sortBy) => {
+	if (searchText && sortBy !== "popular") {
+		return [
+			{
+				$addFields: {
+					score: {
+						$meta: "textScore"
+					}
+				}
+			}
+		];
+	}
+	return [];
 };
 const getSortConditions = (sortByDate, dateSort) =>
 	sortByDate ? {
@@ -77,7 +108,10 @@ const searchPostsAggregationPipeline = (
 		since: undefined,
 		until: undefined,
 		hasMedia: undefined,
-		notFrom: undefined
+		notFrom: undefined,
+		languages: undefined,
+		includeLanguages: undefined,
+		mediaDescription: undefined
 	},
 	sortBy = "match",
 	dateOrder = "desc",
@@ -89,26 +123,9 @@ const searchPostsAggregationPipeline = (
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
 	return [
 		{
-			$match: {
-				$text: {
-					$search: searchText,
-					$language: "none"
-				}
-			}
+			$match: getMatchConditions(searchText, searchOptions)
 		},
-		{
-			$match: getMatchConditions(searchOptions)
-		},
-		...(sortBy !== "popular" ?
-		[
-			{
-				$addFields: {
-					score: {
-						$meta: "textScore"
-					}
-				}
-			}
-		] : []),
+		...addScoreField(searchText, sortBy),
 		{
 			$sort: getSortConditions(sortByDate, dateSort)
 		},
