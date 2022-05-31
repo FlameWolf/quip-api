@@ -63,17 +63,17 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 						}
 					}
 				],
-				as: "following"
+				as: "members"
 			}
 		},
 		{
 			$lookup: {
 				from: "posts",
 				let: {
-					following: {
+					members: {
 						$ifNull: [
 							{
-								$arrayElemAt: ["$following.result", 0]
+								$arrayElemAt: ["$members.result", 0]
 							},
 							[]
 						]
@@ -83,7 +83,7 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 					{
 						$match: {
 							$expr: {
-								$in: ["$author", "$$following"]
+								$in: ["$author", "$$members"]
 							}
 						}
 					},
