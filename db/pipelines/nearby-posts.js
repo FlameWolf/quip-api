@@ -7,21 +7,23 @@ const getPageConditions = (lastDistance, lastPostId) => {
 	const pageConditions = {};
 	if (lastDistance && lastPostId) {
 		const parsedLastDistance = parseFloat(lastDistance);
-		pageConditions.$expr.$or = [
-			{
-				$and: [
-					{
-						$eq: ["$distance", parsedLastDistance]
-					},
-					{
-						$lt: ["$_id", ObjectId(lastPostId)]
-					}
-				]
-			},
-			{
-				$gt: ["$distance", parsedLastDistance]
-			}
-		];
+		pageConditions.$expr = {
+			$or: [
+				{
+					$and: [
+						{
+							$eq: ["$distance", parsedLastDistance]
+						},
+						{
+							$lt: ["$_id", ObjectId(lastPostId)]
+						}
+					]
+				},
+				{
+					$gt: ["$distance", parsedLastDistance]
+				}
+			]
+		};
 	}
 	return pageConditions;
 };

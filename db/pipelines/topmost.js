@@ -24,25 +24,27 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 				maxDate.setDate(maxDate.getDate() - 1);
 				break;
 		}
-		matchConditions.createdAt.$gte = maxDate;
+		matchConditions.createdAt = { $gte: maxDate };
 	}
 	if (lastScore && lastPostId) {
 		const parsedLastScore = parseInt(lastScore);
-		pageConditions.$expr.$or = [
-			{
-				$and: [
-					{
-						$eq: ["$score", parsedLastScore]
-					},
-					{
-						$lt: ["$_id", ObjectId(lastPostId)]
-					}
-				]
-			},
-			{
-				$lt: ["$score", parsedLastScore]
-			}
-		];
+		pageConditions.$expr = {
+			$or: [
+				{
+					$and: [
+						{
+							$eq: ["$score", parsedLastScore]
+						},
+						{
+							$lt: ["$_id", ObjectId(lastPostId)]
+						}
+					]
+				},
+				{
+					$lt: ["$score", parsedLastScore]
+				}
+			]
+		};
 	}
 	return [
 		{

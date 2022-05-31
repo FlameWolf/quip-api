@@ -22,7 +22,7 @@ const searchUsersAggregationPipeline = (searchText, match = "startsWith", dateOr
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
 	sortConditions.createdAt = dateSort;
 	if (lastUserId) {
-		pageConditions._id[idCompare] = ObjectId(lastUserId);
+		pageConditions._id = { [idCompare]: ObjectId(lastUserId) };
 	}
 	return [
 		{
