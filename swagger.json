@@ -425,6 +425,20 @@
 				}
 			}
 		},
+		"/posts/{postId}/quotes": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"type": "string"
+					},
+					{
+						"name": "lastQuoteId",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/posts/{postId}/replies": {
 			"get": {
 				"parameters": [
