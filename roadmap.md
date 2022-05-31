@@ -1,4 +1,6 @@
 To add:
 
-- Mentioned user search
-- Media search
+-	Find all quotes of a post
+-	Search filters:
+	Replies: Exclude/Only
+	Quotes: Exclude/Only
