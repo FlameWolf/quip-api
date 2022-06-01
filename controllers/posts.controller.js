@@ -205,7 +205,7 @@ const updatePost = async (req, res, next) => {
 			res.status(422).send("Post was edited once and cannot be edited again");
 			return;
 		}
-		const { poll, post: quotedPostId } = post.attachments || {};
+		const { poll, mediaFile, post: quotedPostId } = post.attachments || {};
 		if (poll) {
 			res.status(422).send("Cannot edit a post that includes a poll");
 			return;
@@ -225,7 +225,17 @@ const updatePost = async (req, res, next) => {
 			if (quotedPostId) {
 				mentions.push[(await Post.findById(quotedPostId)?.author) || nullId];
 			}
-			const model = { content, mentions, score: 0, $inc: { __v: 1 } };
+			const model = {
+				content,
+				...(mediaFile && {
+					attachments: {
+						mediaFile: { description: mediaFile.description }
+					}
+				}),
+				mentions,
+				score: 0,
+				$inc: { __v: 1 }
+			};
 			await Promise.all([updateLanguages(model), updateMentionsAndHashtags(content, model)]);
 			const updated = await Post.findByIdAndUpdate(originalPostId, model, { new: true }).session(session);
 			await Promise.all([
