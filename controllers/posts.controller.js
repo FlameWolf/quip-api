@@ -33,36 +33,32 @@ const validateContent = (content, attachment = {}) => {
 };
 const detectLanguages = async value => {
 	if (value.trim()) {
-		return (await cld.detect(value)).languages.map(language => language.code);
+		try {
+			return (await cld.detect(value)).languages.map(language => language.code);
+		} catch {
+			return ["xx"];
+		}
 	}
 	return [];
 };
-const updateLanguages = async (content, post) => {
-	const languages = new Set();
-	const promises = [detectLanguages(content)];
-	const attachments = post.attachments;
+const updateLanguages = async post => {
+	const languages = new Set(post.languages);
+	const promises = [];
+	const { content, attachments } = post;
+	promises.push(content && detectLanguages(content));
 	if (attachments) {
-		const { poll, mediaFile, post: quotedPostId } = attachments;
+		const { poll, mediaFile } = attachments;
 		if (poll) {
 			const { first, second, third, fourth } = poll;
 			promises.push(first && detectLanguages(first), second && detectLanguages(second), third && detectLanguages(third), fourth && detectLanguages(fourth));
 		}
 		if (mediaFile) {
-			const { description: mediaDescription } = mediaFile;
+			const mediaDescription = mediaFile.description;
 			promises.push(mediaDescription && detectLanguages(mediaDescription));
 		}
-		if (quotedPostId) {
-			promises.push(Post.findById(quotedPostId).then(quotedPost => quotedPost.languages));
-		}
 	}
-	try {
-		for (const language of (await Promise.all(promises)).flat()) {
-			if (language) {
-				languages.add(language);
-			}
-		}
-	} catch {
-		languages.add("xx");
+	for (const language of (await Promise.all(promises)).flat()) {
+		languages.add(language);
 	}
 	post.languages = [...languages];
 };
@@ -180,9 +176,7 @@ const createPost = async (req, res, next) => {
 				location: JSON.parse(location)
 			})
 		};
-		if (content.trim()) {
-			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
-		}
+		await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
 		const post = await new Post(model).save();
 		res.status(201).json({ post });
 	} catch (err) {
@@ -232,7 +226,7 @@ const updatePost = async (req, res, next) => {
 				mentions.push[(await Post.findById(quotedPostId)?.author) || nullId];
 			}
 			const model = { content, mentions, score: 0, $inc: { __v: 1 } };
-			await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
+			await Promise.all([updateLanguages(model), updateMentionsAndHashtags(content, model)]);
 			const updated = await Post.findByIdAndUpdate(originalPostId, model, { new: true }).session(session);
 			await Promise.all([
 				Post.updateMany({ "attachments.post": originalPostId }, { "attachments.post": nullId }).session(session),
@@ -358,14 +352,13 @@ const quotePost = async (req, res, next) => {
 					}),
 					post: originalPostId
 				},
+				languages: originalPost.languages,
 				...(location && {
 					location: JSON.parse(location)
-				})
+				}),
+				mentions: [originalPost.author]
 			};
-			model.mentions = [originalPost.author];
-			if (content.trim()) {
-				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
-			}
+			await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
 			const quote = await new Post(model).save({ session });
 			await Post.findByIdAndUpdate(originalPostId, {
 				$inc: {
@@ -478,14 +471,12 @@ const replyToPost = async (req, res, next) => {
 				}),
 				...(location && {
 					location: JSON.parse(location)
-				})
+				}),
+				mentions: [originalPost.author]
 			};
-			model.mentions = [originalPost.author];
-			if (content.trim()) {
-				await Promise.all([updateLanguages(content, model), updateMentionsAndHashtags(content, model)]);
-			}
+			await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
 			const reply = await new Post(model).save({ session });
-			await Post.findOneAndUpdate(originalPostId, {
+			await Post.findByIdAndUpdate(originalPostId, {
 				$inc: {
 					score: replyScore
 				}
