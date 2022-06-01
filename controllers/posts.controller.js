@@ -237,6 +237,7 @@ const updatePost = async (req, res, next) => {
 				$inc: { __v: 1 }
 			};
 			await Promise.all([updateLanguages(model), updateMentionsAndHashtags(content, model)]);
+			delete model.attachments;
 			const updated = await Post.findByIdAndUpdate(originalPostId, model, { new: true }).session(session);
 			await Promise.all([
 				Post.updateMany({ "attachments.post": originalPostId }, { "attachments.post": nullId }).session(session),
