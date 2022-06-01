@@ -10,7 +10,7 @@ const getMatchConditions = (searchText, searchOptions) => {
 	if (searchText) {
 		matchConditions.$text = { $search: searchText, $language: "none" };
 	}
-	const { from, since, until, hasMedia, notFrom, languages, includeLanguages, mediaDescription } = searchOptions;
+	const { from, since, until, hasMedia, notFrom, replies, languages, includeLanguages, mediaDescription } = searchOptions;
 	if (from) {
 		if (from.indexOf(separator) > -1) {
 			matchConditions.$expr.$in = ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))];
@@ -33,6 +33,16 @@ const getMatchConditions = (searchText, searchOptions) => {
 		} else {
 			matchConditions.$expr.$not = { $eq: ["$author.handle", notFrom.replace(atSign, "")] };
 		}
+	}
+	switch (replies) {
+		case "exclude":
+			matchConditions.replyTo = { $exists: false };
+			break;
+		case "only":
+			matchConditions.replyTo = { $exists: true };
+			break;
+		default:
+			break;
 	}
 	if (languages) {
 		if (languages.indexOf(separator) > -1) {
@@ -101,24 +111,7 @@ const getPageConditions = (sortByDate, idCompare, lastScore, lastPostId) => {
 	}
 	return pageConditions;
 };
-const searchPostsAggregationPipeline = (
-	searchText,
-	searchOptions = {
-		from: undefined,
-		since: undefined,
-		until: undefined,
-		hasMedia: undefined,
-		notFrom: undefined,
-		languages: undefined,
-		includeLanguages: undefined,
-		mediaDescription: undefined
-	},
-	sortBy = "match",
-	dateOrder = "desc",
-	userId = undefined,
-	lastScore = undefined,
-	lastPostId = undefined
-) => {
+const searchPostsAggregationPipeline = (searchText = "", searchOptions = {}, sortBy = "match", dateOrder = "desc", userId = undefined, lastScore = undefined, lastPostId = undefined) => {
 	const sortByDate = sortBy === "date";
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
 	return [

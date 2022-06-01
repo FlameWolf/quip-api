@@ -7,7 +7,7 @@ const Post = require("../models/post.model");
 const User = require("../models/user.model");
 
 const searchPosts = async (req, res, next) => {
-	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "sort-by": sortBy, "date-order": dateOrder, langs: languages, "langs-match": includeLanguages, "media-desc": mediaDescription, lastScore, lastPostId } = req.query;
+	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "sort-by": sortBy, "date-order": dateOrder, replies, langs: languages, "langs-match": includeLanguages, "media-desc": mediaDescription, lastScore, lastPostId } = req.query;
 	try {
 		const posts = await Post.aggregate(
 			searchPostsAggregationPipeline(
@@ -18,6 +18,7 @@ const searchPosts = async (req, res, next) => {
 					until,
 					hasMedia,
 					notFrom,
+					replies,
 					languages,
 					includeLanguages,
 					mediaDescription

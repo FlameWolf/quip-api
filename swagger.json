@@ -1005,6 +1005,12 @@
 						"enum": ["desc", "asc"]
 					},
 					{
+						"name": "replies",
+						"in": "query",
+						"type": "string",
+						"enum": ["exclude", "only"]
+					},
+					{
 						"name": "langs",
 						"in": "query",
 						"type": "string"
