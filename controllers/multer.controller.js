@@ -2,9 +2,9 @@
 
 const multer = require("multer");
 const path = require("path");
-const validMimeTypes = ["image", "video"];
 const { megaByte } = require("../library");
 
+const validMimeTypes = ["image", "video"];
 const sanitise = (value, maxLength = undefined) => value.trim().substring(0, maxLength).replace(/\W/g, "_");
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
