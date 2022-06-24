@@ -3,14 +3,13 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const getMatchConditions = (searchText, searchOptions) => {
+const getMatchConditions = (searchText, { from = undefined, since = undefined, until = undefined, hasMedia = undefined, notFrom = undefined, replies = undefined, languages = undefined, includeLanguages = undefined, mediaDescription = undefined }) => {
 	const separator = "|";
 	const atSign = "@";
 	const matchConditions = { $expr: {} };
 	if (searchText) {
 		matchConditions.$text = { $search: searchText, $language: "none" };
 	}
-	const { from, since, until, hasMedia, notFrom, replies, languages, includeLanguages, mediaDescription } = searchOptions;
 	if (from) {
 		if (from.indexOf(separator) > -1) {
 			matchConditions.$expr.$in = ["$author.handle", from.split(separator).map(x => x.replace(atSign, ""))];
