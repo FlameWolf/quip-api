@@ -1,6 +1,7 @@
 "use strict";
 
 const { ObjectId } = require("bson");
+
 const followersAggregationPipeline = (userId, lastFollowId = undefined) => [
 	{
 		$match: {
