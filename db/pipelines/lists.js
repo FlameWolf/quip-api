@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const listsAggregationPipeline = (userId, memberId = undefined, lastListId = undefined) => [
 	{
 		$match: {
-			owner: ObjectId(userId)
+			owner: new ObjectId(userId)
 		}
 	},
 	...(memberId ?
@@ -18,7 +18,7 @@ const listsAggregationPipeline = (userId, memberId = undefined, lastListId = und
 				pipeline: [
 					{
 						$match: {
-							user: ObjectId(memberId)
+							user: new ObjectId(memberId)
 						}
 					},
 					{
@@ -47,7 +47,7 @@ const listsAggregationPipeline = (userId, memberId = undefined, lastListId = und
 		$match: lastListId
 			? {
 				_id: {
-					$lt: ObjectId(lastListId)
+					$lt: new ObjectId(lastListId)
 				}
 			}
 			: {

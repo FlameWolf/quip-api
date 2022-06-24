@@ -268,7 +268,7 @@ const getPost = async (req, res, next) => {
 			await Post.aggregate([
 				{
 					$match: {
-						_id: ObjectId(originalPost._id)
+						_id: new ObjectId(originalPost._id)
 					}
 				},
 				...postAggregationPipeline(req.userInfo?.userId)

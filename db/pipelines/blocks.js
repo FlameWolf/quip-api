@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const blocksAggregationPipeline = (userId, lastBlockId = undefined) => [
 	{
 		$match: {
-			blockedBy: ObjectId(userId)
+			blockedBy: new ObjectId(userId)
 		}
 	},
 	{
@@ -17,7 +17,7 @@ const blocksAggregationPipeline = (userId, lastBlockId = undefined) => [
 		$match: lastBlockId
 			? {
 				_id: {
-					$lt: ObjectId(lastBlockId)
+					$lt: new ObjectId(lastBlockId)
 				}
 			}
 			: {

@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = undefined) => [
 	{
 		$match: {
-			mentions: ObjectId(userId)
+			mentions: new ObjectId(userId)
 		}
 	},
 	{
@@ -23,7 +23,7 @@ const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = un
 					{
 						$match: {
 							$expr: {
-								$eq: ["$blockedBy", ObjectId(selfId)]
+								$eq: ["$blockedBy", new ObjectId(selfId)]
 							}
 						}
 					},
@@ -68,7 +68,7 @@ const mentionsAggregationPipeline = (userId, selfId = undefined, lastPostId = un
 		$match: lastPostId
 			? {
 				_id: {
-					$lt: ObjectId(lastPostId)
+					$lt: new ObjectId(lastPostId)
 				}
 			}
 			: {

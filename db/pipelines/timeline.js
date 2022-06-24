@@ -18,14 +18,14 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 		}),
 		...(lastPostId && {
 			_id: {
-				$lt: ObjectId(lastPostId)
+				$lt: new ObjectId(lastPostId)
 			}
 		})
 	};
 	return [
 		{
 			$match: {
-				_id: ObjectId(userId)
+				_id: new ObjectId(userId)
 			}
 		},
 		{
@@ -142,7 +142,7 @@ const timelineAggregationPipeline = (userId, includeRepeats = true, includeRepli
 						$match: lastPostId
 							? {
 								_id: {
-									$lt: ObjectId(lastPostId)
+									$lt: new ObjectId(lastPostId)
 								}
 							}
 							: {

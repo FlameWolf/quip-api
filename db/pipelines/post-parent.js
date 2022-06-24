@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const postParentAggregationPipeline = (postId, userId = undefined) => [
 	{
 		$match: {
-			_id: ObjectId(postId)
+			_id: new ObjectId(postId)
 		}
 	},
 	{

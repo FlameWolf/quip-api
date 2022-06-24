@@ -7,7 +7,7 @@ const postAggregationPipeline = require("./post");
 const postRepliesAggregationPipeline = (postId, userId = undefined, lastReplyId = undefined) => [
 	{
 		$match: {
-			replyTo: ObjectId(postId)
+			replyTo: new ObjectId(postId)
 		}
 	},
 	{
@@ -20,7 +20,7 @@ const postRepliesAggregationPipeline = (postId, userId = undefined, lastReplyId 
 		$match: lastReplyId
 			? {
 				_id: {
-					$lt: ObjectId(lastReplyId)
+					$lt: new ObjectId(lastReplyId)
 				}
 			}
 			: {

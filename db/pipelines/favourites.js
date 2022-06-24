@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 	{
 		$match: {
-			_id: ObjectId(userId)
+			_id: new ObjectId(userId)
 		}
 	},
 	{
@@ -24,7 +24,7 @@ const favouritesAggregationPipeline = (userId, lastFavouriteId = undefined) => [
 					$match: lastFavouriteId
 						? {
 							_id: {
-								$lt: ObjectId(lastFavouriteId)
+								$lt: new ObjectId(lastFavouriteId)
 							}
 						}
 						: {

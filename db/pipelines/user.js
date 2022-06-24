@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const userAggregationPipeline = (selfId = undefined) => {
 	const lookupStages = [];
 	if (selfId) {
-		const selfObjectId = ObjectId(selfId);
+		const selfObjectId = new ObjectId(selfId);
 		lookupStages.push(
 			{
 				$addFields: {

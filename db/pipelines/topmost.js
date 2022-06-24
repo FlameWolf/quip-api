@@ -36,7 +36,7 @@ const topmostAggregationPipeline = (userId = undefined, period = "", lastScore =
 							$eq: ["$score", parsedLastScore]
 						},
 						{
-							$lt: ["$_id", ObjectId(lastPostId)]
+							$lt: ["$_id", new ObjectId(lastPostId)]
 						}
 					]
 				},

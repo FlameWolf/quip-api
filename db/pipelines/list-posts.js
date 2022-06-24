@@ -18,7 +18,7 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 		}),
 		...(lastPostId && {
 			_id: {
-				$lt: ObjectId(lastPostId)
+				$lt: new ObjectId(lastPostId)
 			}
 		})
 	};
@@ -26,7 +26,7 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 		{
 			$match: {
 				name: listName,
-				owner: ObjectId(ownerId)
+				owner: new ObjectId(ownerId)
 			}
 		},
 		{
@@ -135,7 +135,7 @@ const listPostsAggregationPipeline = (listName, ownerId, includeRepeats = true, 
 						$match: lastPostId
 							? {
 								_id: {
-									$lt: ObjectId(lastPostId)
+									$lt: new ObjectId(lastPostId)
 								}
 							}
 							: {

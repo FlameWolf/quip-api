@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const bookmarksAggregationPipeline = (userId, lastBookmarkId = undefined) => [
 	{
 		$match: {
-			_id: ObjectId(userId)
+			_id: new ObjectId(userId)
 		}
 	},
 	{
@@ -27,7 +27,7 @@ const bookmarksAggregationPipeline = (userId, lastBookmarkId = undefined) => [
 					$match: lastBookmarkId
 						? {
 							_id: {
-								$lt: ObjectId(lastBookmarkId)
+								$lt: new ObjectId(lastBookmarkId)
 							}
 						}
 						: {

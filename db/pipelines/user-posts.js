@@ -17,14 +17,14 @@ const userPostsAggregationPipeline = (userId, includeRepeats = false, includeRep
 		}),
 		...(lastPostId && {
 			_id: {
-				$lt: ObjectId(lastPostId)
+				$lt: new ObjectId(lastPostId)
 			}
 		})
 	};
 	return [
 		{
 			$match: {
-				_id: ObjectId(userId)
+				_id: new ObjectId(userId)
 			}
 		},
 		{

@@ -87,7 +87,7 @@ const getSortConditions = (sortByDate, dateSort) =>
 const getPageConditions = (sortByDate, idCompare, lastScore, lastPostId) => {
 	const pageConditions = {};
 	if (lastPostId) {
-		const lastPostObjectId = ObjectId(lastPostId);
+		const lastPostObjectId = new ObjectId(lastPostId);
 		if (sortByDate) {
 			pageConditions._id[idCompare] = lastPostObjectId;
 		} else if (lastScore) {

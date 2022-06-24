@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const postQuotesAggregationPipeline = (postId, userId, lastQuoteId) => [
 	{
 		$match: {
-			"attachments.post": ObjectId(postId)
+			"attachments.post": new ObjectId(postId)
 		}
 	},
 	{
@@ -18,7 +18,7 @@ const postQuotesAggregationPipeline = (postId, userId, lastQuoteId) => [
 		$match: lastQuoteId
 			? {
 				_id: {
-					$lt: ObjectId(lastQuoteId)
+					$lt: new ObjectId(lastQuoteId)
 				}
 			}
 			: {

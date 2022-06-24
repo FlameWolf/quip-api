@@ -15,7 +15,7 @@ const getPageConditions = (lastDistance, lastPostId) => {
 							$eq: ["$distance", parsedLastDistance]
 						},
 						{
-							$lt: ["$_id", ObjectId(lastPostId)]
+							$lt: ["$_id", new ObjectId(lastPostId)]
 						}
 					]
 				},

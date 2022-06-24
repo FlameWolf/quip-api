@@ -21,7 +21,7 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 	return [
 		{
 			$match: {
-				_id: ObjectId(userId)
+				_id: new ObjectId(userId)
 			}
 		},
 		{
@@ -344,7 +344,7 @@ const activityAggregationPipeline = (userId, period = "", lastEntryId = undefine
 			$match: lastEntryId
 				? {
 						"entry._id": {
-							$lt: ObjectId(lastEntryId)
+							$lt: new ObjectId(lastEntryId)
 						}
 				  }
 				: {

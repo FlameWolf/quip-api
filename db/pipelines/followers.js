@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const followersAggregationPipeline = (userId, lastFollowId = undefined) => [
 	{
 		$match: {
-			user: ObjectId(userId)
+			user: new ObjectId(userId)
 		}
 	},
 	{
@@ -17,7 +17,7 @@ const followersAggregationPipeline = (userId, lastFollowId = undefined) => [
 		$match: lastFollowId
 			? {
 				_id: {
-					$lt: ObjectId(lastFollowId)
+					$lt: new ObjectId(lastFollowId)
 				}
 			}
 			: {

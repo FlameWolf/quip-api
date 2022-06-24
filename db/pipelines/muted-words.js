@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const mutedWordsAggregationPipeline = (userId, lastMuteId = undefined) => [
 	{
 		$match: {
-			mutedBy: ObjectId(userId)
+			mutedBy: new ObjectId(userId)
 		}
 	},
 	{
@@ -23,7 +23,7 @@ const mutedWordsAggregationPipeline = (userId, lastMuteId = undefined) => [
 		$match: lastMuteId
 			? {
 				_id: {
-					$lt: ObjectId(lastMuteId)
+					$lt: new ObjectId(lastMuteId)
 				}
 			}
 			: {

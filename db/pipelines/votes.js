@@ -6,7 +6,7 @@ const postAggregationPipeline = require("./post");
 const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 	{
 		$match: {
-			_id: ObjectId(userId)
+			_id: new ObjectId(userId)
 		}
 	},
 	{
@@ -24,7 +24,7 @@ const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 					$match: lastVoteId
 						? {
 							_id: {
-								$lt: ObjectId(lastVoteId)
+								$lt: new ObjectId(lastVoteId)
 							}
 						}
 						: {

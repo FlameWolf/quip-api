@@ -6,7 +6,7 @@ const interactionsAggregationPipeline = (userId = undefined) => {
 	if (!userId) {
 		return [];
 	}
-	const userObjectId = ObjectId(userId);
+	const userObjectId = new ObjectId(userId);
 	return [
 		{
 			$lookup: {
