@@ -55,7 +55,7 @@ const votesAggregationPipeline = (userId, lastVoteId = undefined) => [
 	{
 		$replaceWith: "$votes.post"
 	},
-	postAggregationPipeline(userId)
+	...postAggregationPipeline(userId)
 ];
 
 module.exports = votesAggregationPipeline;
