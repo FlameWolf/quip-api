@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const postQuotesAggregationPipeline = (postId, userId, lastQuoteId) => [
+const postQuotesAggregationPipeline = (postId, userId = undefined, lastQuoteId = undefined) => [
 	{
 		$match: {
 			"attachments.post": new ObjectId(postId)
