@@ -7,8 +7,7 @@ const Follow = require("../models/follow.model");
 
 const followUser = async (req, res, next) => {
 	const followeeHandle = req.params.handle;
-	const followerHandle = req.userInfo.handle;
-	const followerUserId = req.userInfo.userId;
+	const { handle: followerHandle, userId: followerUserId } = req.userInfo;
 	if (followeeHandle === followerHandle) {
 		res.status(422).send("User cannot follow themselves");
 		return;
@@ -29,12 +28,10 @@ const followUser = async (req, res, next) => {
 			return;
 		}
 		const isFolloweeProtected = followee.protected;
-		const model = isFolloweeProtected
-			? new FollowRequest({
+		const model = isFolloweeProtected ? new FollowRequest({
 				user: followeeUserId,
 				requestedBy: followerUserId
-			})
-			: new Follow({
+			}) : new Follow({
 				user: followeeUserId,
 				followedBy: followerUserId
 			});
@@ -48,8 +45,7 @@ const followUser = async (req, res, next) => {
 };
 const unfollowUser = async (req, res, next) => {
 	const unfolloweeHandle = req.params.handle;
-	const unfollowerHandle = req.userInfo.handle;
-	const unfollowerUserId = req.userInfo.userId;
+	const { handle: unfollowerHandle, userId: unfollowerUserId } = req.userInfo;
 	if (unfolloweeHandle === unfollowerHandle) {
 		res.status(422).send("User cannot unfollow themselves");
 		return;
