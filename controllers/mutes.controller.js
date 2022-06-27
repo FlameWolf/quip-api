@@ -8,8 +8,7 @@ const MutedWord = require("../models/muted.word.model");
 
 const muteUser = async (req, res, next) => {
 	const muteeHandle = req.params.handle;
-	const muterHandle = req.userInfo.handle;
-	const muterUserId = req.userInfo.userId;
+	const { handle: muterHandle, userId: muterUserId } = req.userInfo;
 	if (muteeHandle === muterHandle) {
 		res.status(422).send("User cannot mute themselves");
 		return;
@@ -28,8 +27,7 @@ const muteUser = async (req, res, next) => {
 };
 const unmuteUser = async (req, res, next) => {
 	const unmuteeHandle = req.params.handle;
-	const unmuterHandle = req.userInfo.handle;
-	const unmuterUserId = req.userInfo.userId;
+	const { handle: unmuterHandle, userId: unmuterUserId } = req.userInfo;
 	if (unmuteeHandle === unmuterHandle) {
 		res.status(422).send("User cannot unmute themselves");
 		return;
