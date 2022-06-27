@@ -18,7 +18,7 @@ const MutedPost = require("../models/muted.post.model");
 const findPostById = async postId => {
 	const post = await Post.findById(postId);
 	const repeatPost = post?.repeatPost;
-	return repeatPost ? findPostById(repeatPost) : post;
+	return repeatPost ? await findPostById(repeatPost) : post;
 };
 const validateContent = (content, attachment = {}) => {
 	if (!content.trim()) {
