@@ -220,10 +220,10 @@ const updatePost = async (req, res, next) => {
 			const repliedPostId = post.replyTo;
 			const mentions = [];
 			if (repliedPostId) {
-				mentions.push[(await Post.findById(repliedPostId)?.author) || nullId];
+				mentions.push((await Post.findById(repliedPostId))?.author || nullId);
 			}
 			if (quotedPostId) {
-				mentions.push[(await Post.findById(quotedPostId)?.author) || nullId];
+				mentions.push((await Post.findById(quotedPostId))?.author || nullId);
 			}
 			const model = {
 				content,
