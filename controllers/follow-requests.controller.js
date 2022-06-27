@@ -51,11 +51,13 @@ const acceptSelectedFollowRequests = async (req, res, next) => {
 			};
 			await FollowRequest.deleteMany(filter).session(session);
 			const result = await Follow.bulkSave(
-				await FollowRequest.find(filter, {
-					_id: 0,
-					user: acceptorUserId,
-					followedBy: "$requestedBy"
-				}).map(followRequest => new Follow(followRequest)),
+				(
+					await FollowRequest.find(filter, {
+						_id: 0,
+						user: acceptorUserId,
+						followedBy: "$requestedBy"
+					})
+				).map(followRequest => new Follow(followRequest)),
 				{ session }
 			);
 			res.status(200).json({ acceptedRequestsCount: result.insertedCount });
