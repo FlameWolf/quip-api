@@ -13,7 +13,7 @@ const blockSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 			validate: {
-				validator: value => value.match(contentLengthRegExp).length <= maxContentLength,
+				validator: value => value.match(contentLengthRegExp)?.length <= maxContentLength,
 				message: "Reason length exceeds the maximum allowed limit"
 			}
 		}

@@ -27,7 +27,7 @@ const validateContent = (content, attachment = {}) => {
 			throw new Error("No content");
 		}
 	}
-	if (content?.match(contentLengthRegExp) > maxContentLength) {
+	if (content.match(contentLengthRegExp)?.length > maxContentLength) {
 		throw new Error("Content too long");
 	}
 };

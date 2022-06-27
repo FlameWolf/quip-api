@@ -13,7 +13,7 @@ const mutedWordSchema = new mongoose.Schema(
 			required: true,
 			set: value => escapeRegExp(value),
 			validate: {
-				validator: value => value.match(contentLengthRegExp).length <= maxMutedWordLength,
+				validator: value => value.match(contentLengthRegExp)?.length <= maxMutedWordLength,
 				message: "Word length exceeds the maximum allowed limit"
 			},
 			index: true
