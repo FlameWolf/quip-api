@@ -312,7 +312,7 @@ const getMutedWords = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	try {
 		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
-		for (mute of mutedWords) {
+		for (const mute of mutedWords) {
 			mute.word = mute.word.replace(/\\(.)/g, "$1");
 		}
 		res.status(200).json({ mutedWords });
@@ -472,7 +472,7 @@ const deleteUser = async (req, res, next) => {
 			]);
 			res.status(200).json({ deleted });
 			if (email) {
-				emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(deleted.handle));
+				emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.activated(deleted.handle));
 			}
 		});
 	} catch (err) {
