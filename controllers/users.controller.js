@@ -61,77 +61,65 @@ const findMutedPostsByUserId = async (userId, lastMuteId = undefined) => await M
 const findMutedWordsByUserId = async (userId, lastMuteId = undefined) => await MutedWord.aggregate(mutedWordsAggregationPipeline(userId, lastMuteId));
 const getUser = async (req, res, next) => {
 	const handle = req.params.handle;
-	try {
-		const user = (
-			await User.aggregate([
-				{
-					$match: {
-						handle,
-						deactivated: false,
-						deleted: false
-					}
-				},
-				...userAggregationPipeline(req.userInfo?.userId)
-			])
-		).shift();
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		res.status(200).json({ user });
-	} catch (err) {
-		next(err);
+	const user = (
+		await User.aggregate([
+			{
+				$match: {
+					handle,
+					deactivated: false,
+					deleted: false
+				}
+			},
+			...userAggregationPipeline(req.userInfo?.userId)
+		])
+	).shift();
+	if (!user) {
+		res.status(404).send("User not found");
+		return;
 	}
+	res.status(200).json({ user });
 };
 const getUserPosts = async (req, res, next) => {
 	const handle = req.params.handle;
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
-	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const posts = await findPostsByUserId(user._id, includeRepeats === "true", includeReplies === "true", lastPostId);
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
+	const user = await findActiveUserByHandle(handle);
+	if (!user) {
+		res.status(404).send("User not found");
+		return;
 	}
+	const posts = await findPostsByUserId(user._id, includeRepeats === "true", includeReplies === "true", lastPostId);
+	res.status(200).json({ posts });
 };
 const getUserTopmost = async (req, res, next) => {
 	const { handle, period } = req.params;
 	const { lastScore, lastPostId } = req.query;
 	const selfId = req.userInfo?.userId;
-	try {
-		const filter = { handle };
-		if (!(await User.countDocuments(filter))) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const posts = await User.aggregate([
-			{
-				$match: filter
-			},
-			{
-				$lookup: {
-					from: "posts",
-					localField: "_id",
-					foreignField: "author",
-					pipeline: topmostAggregationPipeline(selfId, period, lastScore, lastPostId),
-					as: "posts"
-				}
-			},
-			{
-				$unwind: "$posts"
-			},
-			{
-				$replaceWith: "$posts"
-			}
-		]);
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
+	const filter = { handle };
+	if (!(await User.countDocuments(filter))) {
+		res.status(404).send("User not found");
+		return;
 	}
+	const posts = await User.aggregate([
+		{
+			$match: filter
+		},
+		{
+			$lookup: {
+				from: "posts",
+				localField: "_id",
+				foreignField: "author",
+				pipeline: topmostAggregationPipeline(selfId, period, lastScore, lastPostId),
+				as: "posts"
+			}
+		},
+		{
+			$unwind: "$posts"
+		},
+		{
+			$replaceWith: "$posts"
+		}
+	]);
+	res.status(200).json({ posts });
 };
 const getUserFavourites = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -140,12 +128,8 @@ const getUserFavourites = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
-		res.status(200).json({ favourites });
-	} catch (err) {
-		next(err);
-	}
+	const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
+	res.status(200).json({ favourites });
 };
 const getUserVotes = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -154,12 +138,8 @@ const getUserVotes = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const votes = await findVotesByUserId(userInfo.userId, req.query.lastVoteId);
-		res.status(200).json({ votes });
-	} catch (err) {
-		next(err);
-	}
+	const votes = await findVotesByUserId(userInfo.userId, req.query.lastVoteId);
+	res.status(200).json({ votes });
 };
 const getUserBookmarks = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -168,12 +148,8 @@ const getUserBookmarks = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const bookmarks = await findBookmarksByUserId(userInfo.userId, req.query.lastBookmarkId);
-		res.status(200).json({ bookmarks });
-	} catch (err) {
-		next(err);
-	}
+	const bookmarks = await findBookmarksByUserId(userInfo.userId, req.query.lastBookmarkId);
+	res.status(200).json({ bookmarks });
 };
 const getUserFollowing = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -182,12 +158,8 @@ const getUserFollowing = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const following = await findFollowingByUserId(userInfo.userId, req.query.lastFollowId);
-		res.status(200).json({ following });
-	} catch (err) {
-		next(err);
-	}
+	const following = await findFollowingByUserId(userInfo.userId, req.query.lastFollowId);
+	res.status(200).json({ following });
 };
 const getUserFollowers = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -196,12 +168,8 @@ const getUserFollowers = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const followers = await findFollowersByUserId(userInfo.userId, req.query.lastFollowId);
-		res.status(200).json({ followers });
-	} catch (err) {
-		next(err);
-	}
+	const followers = await findFollowersByUserId(userInfo.userId, req.query.lastFollowId);
+	res.status(200).json({ followers });
 };
 const getUserFollowRequestsSent = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -210,12 +178,8 @@ const getUserFollowRequestsSent = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, req.query.lastFollowRequestId);
-		res.status(200).json({ followRequests });
-	} catch (err) {
-		next(err);
-	}
+	const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, req.query.lastFollowRequestId);
+	res.status(200).json({ followRequests });
 };
 const getUserFollowRequestsReceived = async (req, res, next) => {
 	const handle = req.params.handle;
@@ -224,173 +188,125 @@ const getUserFollowRequestsReceived = async (req, res, next) => {
 		res.sendStatus(401);
 		return;
 	}
-	try {
-		const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, req.query.lastFollowRequestId);
-		res.status(200).json({ followRequests });
-	} catch (err) {
-		next(err);
-	}
+	const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, req.query.lastFollowRequestId);
+	res.status(200).json({ followRequests });
 };
 const getUserMentions = async (req, res, next) => {
 	const handle = req.params.handle;
 	const lastMentionId = req.query.lastMentionId;
-	try {
-		const user = await findActiveUserByHandle(handle);
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const mentions = await findMentionsByUserId(user._id, req.userInfo?.userId, lastMentionId);
-		res.status(200).json({ mentions });
-	} catch (err) {
-		next(err);
+	const user = await findActiveUserByHandle(handle);
+	if (!user) {
+		res.status(404).send("User not found");
+		return;
 	}
+	const mentions = await findMentionsByUserId(user._id, req.userInfo?.userId, lastMentionId);
+	res.status(200).json({ mentions });
 };
 const getLists = async (req, res, next) => {
 	const { memberHandle, lastListId } = req.query;
 	const userId = req.userInfo.userId;
-	try {
-		const member = await findUserByHandle(memberHandle);
-		if (memberHandle && !member) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const lists = await findListsByUserId(userId, member?._id, lastListId);
-		res.status(200).json({ lists });
-	} catch (err) {
-		next(err);
+	const member = await findUserByHandle(memberHandle);
+	if (memberHandle && !member) {
+		res.status(404).send("User not found");
+		return;
 	}
+	const lists = await findListsByUserId(userId, member?._id, lastListId);
+	res.status(200).json({ lists });
 };
 const getListMembers = async (req, res, next) => {
 	const name = req.params.name;
 	const lastMemberId = req.query.lastMemberId;
 	const userId = req.userInfo.userId;
-	try {
-		const list = await List.findOne({ name, owner: userId });
-		if (!list) {
-			res.status(404).send("List not found");
-			return;
-		}
-		const members = await findMembersByListId(list._id, lastMemberId);
-		res.status(200).json({ members });
-	} catch (err) {
-		next(err);
+	const list = await List.findOne({ name, owner: userId });
+	if (!list) {
+		res.status(404).send("List not found");
+		return;
 	}
+	const members = await findMembersByListId(list._id, lastMemberId);
+	res.status(200).json({ members });
 };
 const getBlocks = async (req, res, next) => {
 	const lastBlockId = req.query.lastBlockId;
 	const userId = req.userInfo.userId;
-	try {
-		const blockedUsers = await findBlocksByUserId(userId, lastBlockId);
-		res.status(200).json({ blockedUsers });
-	} catch (err) {
-		next(err);
-	}
+	const blockedUsers = await findBlocksByUserId(userId, lastBlockId);
+	res.status(200).json({ blockedUsers });
 };
 const getMutedUsers = async (req, res, next) => {
 	const lastMuteId = req.query.lastMuteId;
 	const userId = req.userInfo.userId;
-	try {
-		const mutedUsers = await findMutedUsersByUserId(userId, lastMuteId);
-		res.status(200).json({ mutedUsers });
-	} catch (err) {
-		next(err);
-	}
+	const mutedUsers = await findMutedUsersByUserId(userId, lastMuteId);
+	res.status(200).json({ mutedUsers });
 };
 const getMutedPosts = async (req, res, next) => {
 	const lastMuteId = req.query.lastMuteId;
 	const userId = req.userInfo.userId;
-	try {
-		const mutedPosts = await findMutedPostsByUserId(userId, lastMuteId);
-		res.status(200).json({ mutedPosts });
-	} catch (err) {
-		next(err);
-	}
+	const mutedPosts = await findMutedPostsByUserId(userId, lastMuteId);
+	res.status(200).json({ mutedPosts });
 };
 const getMutedWords = async (req, res, next) => {
 	const lastMuteId = req.query.lastMuteId;
 	const userId = req.userInfo.userId;
-	try {
-		const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
-		for (const mute of mutedWords) {
-			mute.word = mute.word.replace(/\\(.)/g, "$1");
-		}
-		res.status(200).json({ mutedWords });
-	} catch (err) {
-		next(err);
+	const mutedWords = await findMutedWordsByUserId(userId, lastMuteId);
+	for (const mute of mutedWords) {
+		mute.word = mute.word.replace(/\\(.)/g, "$1");
 	}
+	res.status(200).json({ mutedWords });
 };
 const pinPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
-	try {
-		const post = await postsController.findPostById(postId);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		if (post.author.valueOf() !== userId) {
-			res.status(403).send("User can pin only their own post");
-			return;
-		}
-		const pinned = await User.findByIdAndUpdate(userId, { pinnedPost: post._id }, { new: true });
-		res.status(200).json({ pinned });
-	} catch (err) {
-		next(err);
+	const post = await postsController.findPostById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	if (post.author.valueOf() !== userId) {
+		res.status(403).send("User can pin only their own post");
+		return;
+	}
+	const pinned = await User.findByIdAndUpdate(userId, { pinnedPost: post._id }, { new: true });
+	res.status(200).json({ pinned });
 };
 const unpinPost = async (req, res, next) => {
 	const userId = req.userInfo.userId;
-	try {
-		const unpinned = await User.findByIdAndUpdate(userId, { pinnedPost: undefined }, { new: true });
-		res.status(200).json({ unpinned });
-	} catch (err) {
-		next(err);
-	}
+	const unpinned = await User.findByIdAndUpdate(userId, { pinnedPost: undefined }, { new: true });
+	res.status(200).json({ unpinned });
 };
 const updateEmail = async (req, res, next) => {
 	const newEmail = req.body.email;
 	const { handle, userId } = req.userInfo;
-	try {
-		const { email: currentEmail } = await User.findById(userId, { email: 1 });
-		const emailVerification = await new EmailVerification({
-			user: userId,
-			email: newEmail,
-			previousEmail: currentEmail,
-			token: new ObjectId()
-		}).save();
-		res.status(200).json({ emailVerification });
-		if (currentEmail) {
-			emailController.sendEmail(noReplyEmail, currentEmail, "Email address changed", emailTemplates.actions.rejectEmail(handle, currentEmail, `${process.env.ALLOW_ORIGIN}/reject-email/${emailVerification.token}`));
-		}
-		emailController.sendEmail(noReplyEmail, newEmail, "Verify email address", emailTemplates.actions.verifyEmail(handle, newEmail, `${process.env.ALLOW_ORIGIN}/verify-email/${emailVerification.token}`));
-	} catch (err) {
-		next(err);
+	const { email: currentEmail } = await User.findById(userId, { email: 1 });
+	const emailVerification = await new EmailVerification({
+		user: userId,
+		email: newEmail,
+		previousEmail: currentEmail,
+		token: new ObjectId()
+	}).save();
+	res.status(200).json({ emailVerification });
+	if (currentEmail) {
+		emailController.sendEmail(noReplyEmail, currentEmail, "Email address changed", emailTemplates.actions.rejectEmail(handle, currentEmail, `${process.env.ALLOW_ORIGIN}/reject-email/${emailVerification.token}`));
 	}
+	emailController.sendEmail(noReplyEmail, newEmail, "Verify email address", emailTemplates.actions.verifyEmail(handle, newEmail, `${process.env.ALLOW_ORIGIN}/verify-email/${emailVerification.token}`));
 };
 const changePassword = async (req, res, next) => {
 	const userId = req.userInfo.userId;
 	const { oldPassword, newPassword } = req.body;
-	try {
-		const user = await User.findById(userId).select("+password +email");
-		const email = user.email;
-		const authStatus = await bcrypt.compare(oldPassword, user.password);
-		if (!authStatus) {
-			res.status(403).send("Current password is incorrect");
-			return;
-		}
-		if (!(newPassword && passwordRegExp.test(newPassword))) {
-			res.status(400).send("New password is invalid");
-			return;
-		}
-		const passwordHash = await bcrypt.hash(newPassword, rounds);
-		await User.updateOne(user, { password: passwordHash });
-		res.sendStatus(200);
-		if (email) {
-			emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
-		}
-	} catch (err) {
-		next(err);
+	const user = await User.findById(userId).select("+password +email");
+	const email = user.email;
+	const authStatus = await bcrypt.compare(oldPassword, user.password);
+	if (!authStatus) {
+		res.status(403).send("Current password is incorrect");
+		return;
+	}
+	if (!(newPassword && passwordRegExp.test(newPassword))) {
+		res.status(400).send("New password is invalid");
+		return;
+	}
+	const passwordHash = await bcrypt.hash(newPassword, rounds);
+	await User.updateOne(user, { password: passwordHash });
+	res.sendStatus(200);
+	if (email) {
+		emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
 	}
 };
 const deactivateUser = async (req, res, next) => {
@@ -406,31 +322,25 @@ const deactivateUser = async (req, res, next) => {
 				emailController.sendEmail(noReplyEmail, email, "Account deactivated", emailTemplates.notifications.deactivated(deactivated.handle));
 			}
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
 };
 const activateUser = async (req, res, next) => {
 	const userId = req.userInfo.userId;
-	try {
-		const activated = await User.findByIdAndUpdate(
-			userId,
-			{
-				deactivated: false
-			},
-			{
-				new: true
-			}
-		).select("+email");
-		const email = activated.email;
-		res.status(200).json({ activated });
-		if (email) {
-			emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(activated.handle));
+	const activated = await User.findByIdAndUpdate(
+		userId,
+		{
+			deactivated: false
+		},
+		{
+			new: true
 		}
-	} catch (err) {
-		next(err);
+	).select("+email");
+	const email = activated.email;
+	res.status(200).json({ activated });
+	if (email) {
+		emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(activated.handle));
 	}
 };
 const deleteUser = async (req, res, next) => {
@@ -475,8 +385,6 @@ const deleteUser = async (req, res, next) => {
 				emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.activated(deleted.handle));
 			}
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}

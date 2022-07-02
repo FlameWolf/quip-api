@@ -8,41 +8,33 @@ const User = require("../models/user.model");
 
 const searchPosts = async (req, res, next) => {
 	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "sort-by": sortBy, "date-order": dateOrder, replies, langs: languages, "langs-match": includeLanguages, "media-desc": mediaDescription, lastScore, lastPostId } = req.query;
-	try {
-		const posts = await Post.aggregate(
-			searchPostsAggregationPipeline(
-				searchText?.trim(),
-				{
-					from,
-					since,
-					until,
-					hasMedia,
-					notFrom,
-					replies,
-					languages,
-					includeLanguages,
-					mediaDescription
-				},
-				sortBy,
-				dateOrder,
-				req.userInfo?.userId,
-				lastScore,
-				lastPostId
-			)
-		);
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
-	}
+	const posts = await Post.aggregate(
+		searchPostsAggregationPipeline(
+			searchText?.trim(),
+			{
+				from,
+				since,
+				until,
+				hasMedia,
+				notFrom,
+				replies,
+				languages,
+				includeLanguages,
+				mediaDescription
+			},
+			sortBy,
+			dateOrder,
+			req.userInfo?.userId,
+			lastScore,
+			lastPostId
+		)
+	);
+	res.status(200).json({ posts });
 };
 const nearbyPosts = async (req, res, next) => {
 	const { long: longitude, lat: latitude, "max-dist": maxDistance, lastDistance, lastPostId } = req.query;
-	try {
-		const posts = await Post.aggregate(nearbyPostsAggregationPipeline([longitude, latitude], maxDistance, req.userInfo?.userId, lastDistance, lastPostId));
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
-	}
+	const posts = await Post.aggregate(nearbyPostsAggregationPipeline([longitude, latitude], maxDistance, req.userInfo?.userId, lastDistance, lastPostId));
+	res.status(200).json({ posts });
 };
 const searchUsers = async (req, res, next) => {
 	const { q: searchText, match, "date-order": dateOrder, lastUserId } = req.query;
@@ -50,12 +42,8 @@ const searchUsers = async (req, res, next) => {
 		res.status(400).send("Search text missing");
 		return;
 	}
-	try {
-		const users = await User.aggregate(searchUsersAggregationPipeline(searchText, match, dateOrder, req.userInfo?.userId, lastUserId));
-		res.status(200).json({ users });
-	} catch (err) {
-		next(err);
-	}
+	const users = await User.aggregate(searchUsersAggregationPipeline(searchText, match, dateOrder, req.userInfo?.userId, lastUserId));
+	res.status(200).json({ users });
 };
 
 module.exports = {

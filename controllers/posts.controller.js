@@ -154,34 +154,30 @@ const createPost = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	try {
-		const model = {
-			content,
-			author: userId,
-			...((poll || media) && {
-				attachments: {
-					...(poll && {
-						poll: JSON.parse(poll)
-					}),
-					...(media && {
-						mediaFile: {
-							fileType: req.fileType,
-							src: media.linkUrl,
-							description: mediaDescription
-						}
-					})
-				}
-			}),
-			...(location && {
-				location: JSON.parse(location)
-			})
-		};
-		await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
-		const post = await new Post(model).save();
-		res.status(201).json({ post });
-	} catch (err) {
-		next(err);
-	}
+	const model = {
+		content,
+		author: userId,
+		...((poll || media) && {
+			attachments: {
+				...(poll && {
+					poll: JSON.parse(poll)
+				}),
+				...(media && {
+					mediaFile: {
+						fileType: req.fileType,
+						src: media.linkUrl,
+						description: mediaDescription
+					}
+				})
+			}
+		}),
+		...(location && {
+			location: JSON.parse(location)
+		})
+	};
+	await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
+	const post = await new Post(model).save();
+	res.status(201).json({ post });
 };
 const updatePost = async (req, res, next) => {
 	const postId = req.params.postId;
@@ -250,82 +246,64 @@ const updatePost = async (req, res, next) => {
 			]);
 			res.status(200).json({ updated });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
 };
 const getPost = async (req, res, next) => {
 	const postId = req.params.postId;
-	try {
-		const originalPost = await findPostById(postId);
-		if (!originalPost) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		const post = (
-			await Post.aggregate([
-				{
-					$match: {
-						_id: new ObjectId(originalPost._id)
-					}
-				},
-				...postAggregationPipeline(req.userInfo?.userId)
-			])
-		).shift();
-		res.status(200).json({ post });
-	} catch (err) {
-		next(err);
+	const originalPost = await findPostById(postId);
+	if (!originalPost) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	const post = (
+		await Post.aggregate([
+			{
+				$match: {
+					_id: new ObjectId(originalPost._id)
+				}
+			},
+			...postAggregationPipeline(req.userInfo?.userId)
+		])
+	).shift();
+	res.status(200).json({ post });
 };
 const getPostQuotes = async (req, res, next) => {
 	const postId = req.params.postId;
 	const lastQuoteId = req.query.lastQuoteId;
-	try {
-		const post = await findPostById(postId);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		const quotes = await Post.aggregate(postQuotesAggregationPipeline(post._id, req.userInfo?.userId, lastQuoteId));
-		res.status(200).json({ quotes });
-	} catch (err) {
-		next(err);
+	const post = await findPostById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	const quotes = await Post.aggregate(postQuotesAggregationPipeline(post._id, req.userInfo?.userId, lastQuoteId));
+	res.status(200).json({ quotes });
 };
 const getPostReplies = async (req, res, next) => {
 	const postId = req.params.postId;
 	const lastReplyId = req.query.lastReplyId;
-	try {
-		const post = await findPostById(postId);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		const replies = await Post.aggregate(postRepliesAggregationPipeline(post._id, req.userInfo?.userId, lastReplyId));
-		res.status(200).json({ replies });
-	} catch (err) {
-		next(err);
+	const post = await findPostById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	const replies = await Post.aggregate(postRepliesAggregationPipeline(post._id, req.userInfo?.userId, lastReplyId));
+	res.status(200).json({ replies });
 };
 const getPostParent = async (req, res, next) => {
 	const postId = req.params.postId;
-	try {
-		const post = await findPostById(postId);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		if (!post.replyTo) {
-			res.status(422).send("Post is not a reply");
-			return;
-		}
-		const parent = (await Post.aggregate(postParentAggregationPipeline(post._id, req.userInfo?.userId))).shift();
-		res.status(200).json({ parent });
-	} catch (err) {
-		next(err);
+	const post = await findPostById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	if (!post.replyTo) {
+		res.status(422).send("Post is not a reply");
+		return;
+	}
+	const parent = (await Post.aggregate(postParentAggregationPipeline(post._id, req.userInfo?.userId))).shift();
+	res.status(200).json({ parent });
 };
 const quotePost = async (req, res, next) => {
 	const postId = req.params.postId;
@@ -378,8 +356,6 @@ const quotePost = async (req, res, next) => {
 			}).session(session);
 			res.status(201).json({ quote });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -411,8 +387,6 @@ const repeatPost = async (req, res, next) => {
 			}
 			res.status(201).json({ repeated });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -436,8 +410,6 @@ const unrepeatPost = async (req, res, next) => {
 			}
 			res.status(200).json({ unrepeated });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -494,8 +466,6 @@ const replyToPost = async (req, res, next) => {
 			}).session(session);
 			res.status(201).json({ reply });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -547,8 +517,6 @@ const castVote = async (req, res, next) => {
 			}
 			res.status(201).json({ vote });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -556,21 +524,17 @@ const castVote = async (req, res, next) => {
 const deletePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
-	try {
-		const post = await Post.findById(postId);
-		if (!post) {
-			res.status(404).send("Post not found");
-			return;
-		}
-		if (post.author !== userId) {
-			res.status(403).send("You are not allowed to perform this action");
-			return;
-		}
-		await deletePostWithCascade(post);
-		res.status(200).json({ deleted: post });
-	} catch (err) {
-		next(err);
+	const post = await Post.findById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
 	}
+	if (post.author !== userId) {
+		res.status(403).send("You are not allowed to perform this action");
+		return;
+	}
+	await deletePostWithCascade(post);
+	res.status(200).json({ deleted: post });
 };
 
 module.exports = {

@@ -17,45 +17,29 @@ const PasswordReset = require("../models/password-reset.model");
 const timeline = async (req, res, next) => {
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
 	const userId = req.userInfo.userId;
-	try {
-		const posts = await User.aggregate(timelineAggregationPipeline(userId, includeRepeats !== "false", includeReplies !== "false", lastPostId));
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
-	}
+	const posts = await User.aggregate(timelineAggregationPipeline(userId, includeRepeats !== "false", includeReplies !== "false", lastPostId));
+	res.status(200).json({ posts });
 };
 const activity = async (req, res, next) => {
 	const period = req.params.period;
 	const lastPostId = req.query.lastPostId;
 	const userId = req.userInfo?.userId;
-	try {
-		const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
-		res.status(200).json({ entries });
-	} catch (err) {
-		next(err);
-	}
+	const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
+	res.status(200).json({ entries });
 };
 const topmost = async (req, res, next) => {
 	const period = req.params.period;
 	const { lastScore, lastPostId } = req.query;
 	const userId = req.userInfo?.userId;
-	try {
-		const posts = await Post.aggregate(topmostAggregationPipeline(userId, period, lastScore, lastPostId));
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
-	}
+	const posts = await Post.aggregate(topmostAggregationPipeline(userId, period, lastScore, lastPostId));
+	res.status(200).json({ posts });
 };
 const hashtag = async (req, res, next) => {
 	const tagName = req.params.name;
 	const { sortBy, lastScore, lastPostId } = req.query;
 	const userId = req.userInfo?.userId;
-	try {
-		const posts = await Post.aggregate(hashtagAggregationPipeline(tagName, userId, sortBy, lastScore, lastPostId));
-		res.status(200).json({ posts });
-	} catch (err) {
-		next(err);
-	}
+	const posts = await Post.aggregate(hashtagAggregationPipeline(tagName, userId, sortBy, lastScore, lastPostId));
+	res.status(200).json({ posts });
 };
 const rejectEmail = async (req, res, next) => {
 	const token = req.params.token;
@@ -75,49 +59,39 @@ const rejectEmail = async (req, res, next) => {
 				emailController.sendEmail(noReplyEmail, previousEmail, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email));
 			}
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
 };
 const verifyEmail = async (req, res, next) => {
 	const token = req.params.token;
-	try {
-		const emailVerification = await EmailVerification.findOne({ token });
-		if (!emailVerification) {
-			res.status(404).send("Verification token not found or expired");
-			return;
-		}
-		const email = emailVerification.email;
-		const user = await User.findByIdAndUpdate(emailVerification.user, { email });
-		res.sendStatus(200);
-		emailController.sendEmail(noReplyEmail, email, "Email address change verified", emailTemplates.notifications.emailVerified(user.handle, email));
-	} catch (err) {
-		next(err);
+	const emailVerification = await EmailVerification.findOne({ token });
+	if (!emailVerification) {
+		res.status(404).send("Verification token not found or expired");
+		return;
 	}
+	const email = emailVerification.email;
+	const user = await User.findByIdAndUpdate(emailVerification.user, { email });
+	res.sendStatus(200);
+	emailController.sendEmail(noReplyEmail, email, "Email address change verified", emailTemplates.notifications.emailVerified(user.handle, email));
 };
 const forgotPassword = async (req, res, next) => {
 	const { handle, email } = req.body;
-	try {
-		const user = await User.findOne({ handle, deleted: false }).select("+email");
-		if (!user) {
-			res.status(400).send("User not found");
-			return;
-		}
-		if (user.email !== email) {
-			res.status(403).send("Email address is incorrect or unverified");
-			return;
-		}
-		const passwordReset = await new PasswordReset({
-			user: user._id,
-			token: new ObjectId()
-		}).save();
-		res.status(200).json({ passwordReset });
-		emailController.sendEmail(noReplyEmail, email, "Reset password", emailTemplates.actions.resetPassword(handle, `${process.env.ALLOW_ORIGIN}/reset-password/${passwordReset.token}`));
-	} catch (err) {
-		next(err);
+	const user = await User.findOne({ handle, deleted: false }).select("+email");
+	if (!user) {
+		res.status(400).send("User not found");
+		return;
 	}
+	if (user.email !== email) {
+		res.status(403).send("Email address is incorrect or unverified");
+		return;
+	}
+	const passwordReset = await new PasswordReset({
+		user: user._id,
+		token: new ObjectId()
+	}).save();
+	res.status(200).json({ passwordReset });
+	emailController.sendEmail(noReplyEmail, email, "Reset password", emailTemplates.actions.resetPassword(handle, `${process.env.ALLOW_ORIGIN}/reset-password/${passwordReset.token}`));
 };
 const resetPassword = async (req, res, next) => {
 	const token = req.params.token;
@@ -140,8 +114,6 @@ const resetPassword = async (req, res, next) => {
 			res.sendStatus(200);
 			emailController.sendEmail(noReplyEmail, user.email, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}

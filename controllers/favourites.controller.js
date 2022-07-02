@@ -29,8 +29,6 @@ const addFavourite = async (req, res, next) => {
 			}).session(session);
 			res.status(200).json({ favourited });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -54,8 +52,6 @@ const removeFavourite = async (req, res, next) => {
 			}
 			res.status(200).json({ unfavourited });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}

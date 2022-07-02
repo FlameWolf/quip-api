@@ -58,8 +58,6 @@ const blockUser = async (req, res, next) => {
 			]);
 			res.status(200).json({ blocked });
 		});
-	} catch (err) {
-		next(err);
 	} finally {
 		await session.endSession();
 	}
@@ -71,17 +69,13 @@ const unblockUser = async (req, res, next) => {
 		res.status(422).send("User cannot unblock themselves");
 		return;
 	}
-	try {
-		const unblockee = await usersController.findUserByHandle(unblockeeHandle);
-		if (!unblockee) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
-		res.status(200).json({ unblocked });
-	} catch (err) {
-		next(err);
+	const unblockee = await usersController.findUserByHandle(unblockeeHandle);
+	if (!unblockee) {
+		res.status(404).send("User not found");
+		return;
 	}
+	const unblocked = await Block.findOneAndDelete({ user: unblockee._id, blockedBy: unblockerUserId });
+	res.status(200).json({ unblocked });
 };
 
 module.exports = { blockUser, unblockUser };

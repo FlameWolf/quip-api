@@ -45,14 +45,10 @@ const signUp = async (req, res, next) => {
 		res.status(409).send("Username unavailable");
 		return;
 	}
-	try {
-		const passwordHash = await bcrypt.hash(password, rounds);
-		const user = await new User({ handle, password: passwordHash }).save();
-		const userId = user._id;
-		res.status(201).json(await authSuccess(handle, userId));
-	} catch (err) {
-		next(err);
-	}
+	const passwordHash = await bcrypt.hash(password, rounds);
+	const user = await new User({ handle, password: passwordHash }).save();
+	const userId = user._id;
+	res.status(201).json(await authSuccess(handle, userId));
 };
 const signIn = async (req, res, next) => {
 	const { handle, password } = req.body;
@@ -61,17 +57,13 @@ const signIn = async (req, res, next) => {
 		res.status(404).send("User not found");
 		return;
 	}
-	try {
-		const authStatus = await bcrypt.compare(password, user.password);
-		if (!authStatus) {
-			res.status(403).send("Invalid credentials");
-			return;
-		}
-		const userId = user._id;
-		res.status(200).json(await authSuccess(handle, userId));
-	} catch (err) {
-		next(err);
+	const authStatus = await bcrypt.compare(password, user.password);
+	if (!authStatus) {
+		res.status(403).send("Invalid credentials");
+		return;
 	}
+	const userId = user._id;
+	res.status(200).json(await authSuccess(handle, userId));
 };
 const refreshAuthToken = async (req, res, next) => {
 	const { refreshToken } = req.body;
@@ -80,22 +72,18 @@ const refreshAuthToken = async (req, res, next) => {
 		res.status(400).send("Refresh token not found");
 		return;
 	}
-	try {
-		const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-		const filter = { user: userId, token: refreshToken };
-		if (userInfo.handle !== handle || userInfo.userId !== userId) {
-			res.status(401).send("Refresh token invalid");
-			return;
-		}
-		if (!(await RefreshToken.countDocuments(filter))) {
-			res.status(401).send("Refresh token revoked or expired");
-			return;
-		}
-		await RefreshToken.findOneAndUpdate(filter, { lastUsed: new Date() });
-		res.status(200).json(await authSuccess(handle, userId, false));
-	} catch (err) {
-		next(err);
+	const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+	const filter = { user: userId, token: refreshToken };
+	if (userInfo.handle !== handle || userInfo.userId !== userId) {
+		res.status(401).send("Refresh token invalid");
+		return;
 	}
+	if (!(await RefreshToken.countDocuments(filter))) {
+		res.status(401).send("Refresh token revoked or expired");
+		return;
+	}
+	await RefreshToken.findOneAndUpdate(filter, { lastUsed: new Date() });
+	res.status(200).json(await authSuccess(handle, userId, false));
 };
 const revokeRefreshToken = async (req, res, next) => {
 	const refreshToken = req.params.token;
@@ -103,12 +91,8 @@ const revokeRefreshToken = async (req, res, next) => {
 		res.status(400).send("Refresh token not found");
 		return;
 	}
-	try {
-		await RefreshToken.findOneAndDelete({ token: refreshToken });
-		res.sendStatus(200);
-	} catch (err) {
-		next(err);
-	}
+	await RefreshToken.findOneAndDelete({ token: refreshToken });
+	res.sendStatus(200);
 };
 const signOut = async (req, res, next) => {
 	res.sendStatus(200);
