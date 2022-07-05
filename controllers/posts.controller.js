@@ -165,7 +165,7 @@ const createPost = async (req, res, next) => {
 				...(media && {
 					mediaFile: {
 						fileType: req.fileType,
-						src: media.linkUrl,
+						src: media.path,
 						description: mediaDescription
 					}
 				})
@@ -335,7 +335,7 @@ const quotePost = async (req, res, next) => {
 					...(media && {
 						mediaFile: {
 							fileType: req.fileType,
-							src: media.linkUrl,
+							src: media.path,
 							description: mediaDescription
 						}
 					}),
@@ -446,7 +446,7 @@ const replyToPost = async (req, res, next) => {
 						...(media && {
 							mediaFile: {
 								fileType: req.fileType,
-								src: media.linkUrl,
+								src: media.path,
 								description: mediaDescription
 							}
 						})
