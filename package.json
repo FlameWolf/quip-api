@@ -2,7 +2,7 @@
 	"name": "quip-api",
 	"version": "1.0.0",
 	"private": true,
-	"main": "app.js",
+	"main": "./bin/www",
 	"scripts": {
 		"start": "node --use-strict ./bin/www"
 	},
