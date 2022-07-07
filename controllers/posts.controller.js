@@ -34,7 +34,15 @@ const validateContent = (content, attachment = {}) => {
 const detectLanguages = async value => {
 	if (value.trim()) {
 		try {
-			return (await cld.detect(value)).languages.map(language => language.code);
+			return (
+				await cld.detect(value, {
+					isHTML: false,
+					languageHint: "",
+					encodingHint: "",
+					tldHint: "",
+					httpHint: ""
+				})
+			).languages.map(language => language.code);
 		} catch {
 			return ["xx"];
 		}
@@ -58,7 +66,9 @@ const updateLanguages = async post => {
 		}
 	}
 	for (const language of (await Promise.all(promises)).flat()) {
-		languages.add(language);
+		if (language) {
+			languages.add(language);
+		}
 	}
 	post.languages = [...languages];
 };
