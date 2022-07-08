@@ -8,6 +8,7 @@ if (isNotProdEnv) {
 const mongoose = require("mongoose");
 require("./schemaTypes/point");
 require("./schemaTypes/url");
+const { v2: cloudinary } = require("cloudinary");
 const express = require("express");
 const helmet = require("helmet");
 const compression = require("compression");
@@ -41,6 +42,11 @@ mongoose
 	.catch(() => {
 		console.log("Unable to connect to the database");
 	});
+cloudinary.config({
+	cloud_name: process.env.CLOUD_BUCKET,
+	api_key: process.env.CLOUD_API_KEY,
+	api_secret: process.env.CLOUD_API_SECRET
+});
 
 app.use(helmet());
 app.use(express.json());
