@@ -26,7 +26,7 @@ const validateContent = (content, poll = undefined, media = undefined, postId = 
 			throw new Error("No content");
 		}
 	}
-	if (content.match(contentLengthRegExp)?.length > maxContentLength) {
+	if ((content.match(contentLengthRegExp)?.length || 0) > maxContentLength) {
 		throw new Error("Content too long");
 	}
 };
