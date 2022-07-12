@@ -6,7 +6,7 @@ const { contentLengthRegExp, maxContentLength, maxPollOptionLength, minPollDurat
 
 const Schema = mongoose.Schema;
 const validatePollOption = {
-	validator: value => value.match(contentLengthRegExp)?.length <= maxPollOptionLength,
+	validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxPollOptionLength,
 	message: "Poll option length exceeds the maximum allowed limit"
 };
 const postSchema = new Schema(
@@ -15,7 +15,7 @@ const postSchema = new Schema(
 			type: String,
 			trim: true,
 			validate: {
-				validator: value => value.match(contentLengthRegExp)?.length <= maxContentLength,
+				validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxContentLength,
 				message: "Content length exceeds the maximum allowed limit"
 			},
 			index: {
