@@ -20,9 +20,8 @@ const findPostById = async postId => {
 	const repeatPost = post?.repeatPost;
 	return repeatPost ? await findPostById(repeatPost) : post;
 };
-const validateContent = (content, attachments) => {
+const validateContent = (content, poll = undefined, media = undefined, postId = undefined) => {
 	if (!content.trim()) {
-		const { poll, media, postId } = attachments;
 		if (poll || !(media || postId)) {
 			throw new Error("No content");
 		}
@@ -159,7 +158,7 @@ const createPost = async (req, res, next) => {
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content, { poll, media });
+		validateContent(content, poll, media);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
@@ -321,7 +320,7 @@ const quotePost = async (req, res, next) => {
 	const media = req.file;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content, { poll, media, postId });
+		validateContent(content, poll, media, postId);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
@@ -430,7 +429,7 @@ const replyToPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
-		validateContent(content, { poll, media });
+		validateContent(content, poll, media);
 	} catch (err) {
 		res.status(400).send(err);
 		return;
