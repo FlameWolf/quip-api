@@ -4,17 +4,16 @@ const isNotProdEnv = process.env.NODE_ENV !== "production";
 if (isNotProdEnv) {
 	require("dotenv").config();
 }
-
-const mongoose = require("mongoose");
 require("./schemaTypes/point");
 require("./schemaTypes/url");
+
+const mongoose = require("mongoose");
 const { v2: cloudinary } = require("cloudinary");
 const express = require("express");
 const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-require("./polyfills");
 
 const authenticateRequest = require("./middleware/authenticate-request");
 const requireAuthentication = require("./middleware/require-authentication");
