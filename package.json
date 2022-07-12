@@ -19,7 +19,7 @@
 		"image-thumbnail": "^1.0.15",
 		"jsonwebtoken": "^8.5.1",
 		"mongodb": "^4.7.0",
-		"mongoose": "^6.4.3",
+		"mongoose": "^6.4.4",
 		"mongoose-to-swagger": "^1.4.0",
 		"mongoose-unique-validator": "^3.1.0",
 		"multer": "^1.4.4",
