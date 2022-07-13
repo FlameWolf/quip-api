@@ -2,6 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const { Url, Point } = mongoose.SchemaTypes;
 const { contentLengthRegExp, maxContentLength, maxPollOptionLength, minPollDuration, maxPollDuration } = require("../library");
 
 const Schema = mongoose.Schema;
@@ -77,8 +78,8 @@ const postSchema = new Schema(
 					enum: ["image", "video"],
 					required: true
 				},
-				src: { type: mongoose.SchemaTypes.Url, required: true },
-				previewSrc: { type: mongoose.SchemaTypes.Url },
+				src: { type: Url, required: true },
+				previewSrc: { type: Url },
 				description: { type: String, trim: true }
 			}),
 			post: { type: ObjectId, ref: "Post", index: true }
@@ -96,7 +97,7 @@ const postSchema = new Schema(
 			],
 			index: true
 		},
-		location: { type: mongoose.SchemaTypes.Point, index: "2dsphere" },
+		location: { type: Point, index: "2dsphere" },
 		mentions: {
 			type: [{ type: ObjectId, ref: "User" }],
 			default: undefined,

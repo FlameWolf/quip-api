@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const CastError = mongoose.Error.CastError;
 const NativeError = mongoose.NativeError;
 
-class Point extends mongoose.SchemaType {
+mongoose.SchemaTypes.Point = class Point extends mongoose.SchemaType {
 	constructor(key, options) {
 		super(key, options, "Point");
 	}
@@ -38,6 +38,4 @@ class Point extends mongoose.SchemaType {
 		}
 		return { type, coordinates };
 	}
-}
-
-mongoose.SchemaTypes.Point = Point;
+};

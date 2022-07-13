@@ -4,8 +4,8 @@ const isNotProdEnv = process.env.NODE_ENV !== "production";
 if (isNotProdEnv) {
 	require("dotenv").config();
 }
-require("./schemaTypes/point");
 require("./schemaTypes/url");
+require("./schemaTypes/point");
 
 const mongoose = require("mongoose");
 const { v2: cloudinary } = require("cloudinary");
