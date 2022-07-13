@@ -490,7 +490,8 @@
 						"name": "option",
 						"in": "query",
 						"required": true,
-						"type": "string"
+						"type": "string",
+						"enum": ["first", "second", "third", "fourth", "nota"]
 					}
 				]
 			}
