@@ -565,7 +565,7 @@
 						"enum": ["?", "day", "week", "month"]
 					},
 					{
-						"name": "lastPostId",
+						"name": "lastEntryId",
 						"in": "query",
 						"type": "string"
 					}

@@ -22,9 +22,9 @@ const timeline = async (req, res, next) => {
 };
 const activity = async (req, res, next) => {
 	const period = req.params.period;
-	const lastPostId = req.query.lastPostId;
+	const lastEntryId = req.query.lastEntryId;
 	const userId = req.userInfo?.userId;
-	const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastPostId));
+	const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastEntryId));
 	res.status(200).json({ entries });
 };
 const topmost = async (req, res, next) => {
