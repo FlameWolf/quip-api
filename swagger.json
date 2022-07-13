@@ -544,11 +544,22 @@
 				]
 			}
 		},
+		"/activity/{period?}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "description",
+						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
+					}
+				]
+			}
+		},
 		"/activity/{period}": {
 			"get": {
 				"parameters": [
 					{
 						"name": "period",
+						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month"]
@@ -557,16 +568,6 @@
 						"name": "lastPostId",
 						"in": "query",
 						"type": "string"
-					}
-				]
-			}
-		},
-		"/activity/{period?}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "description",
-						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
 					}
 				]
 			}
@@ -745,11 +746,22 @@
 				]
 			}
 		},
+		"/topmost/{period?}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "description",
+						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
+					}
+				]
+			}
+		},
 		"/topmost/{period}": {
 			"get": {
 				"parameters": [
 					{
 						"name": "period",
+						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
@@ -763,16 +775,6 @@
 						"name": "lastPostId",
 						"in": "query",
 						"type": "string"
-					}
-				]
-			}
-		},
-		"/topmost/{period?}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "description",
-						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
 					}
 				]
 			}
@@ -862,6 +864,7 @@
 					},
 					{
 						"name": "period",
+						"in": "path",
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
