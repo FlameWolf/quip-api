@@ -424,9 +424,9 @@ const unrepeatPost = async (req, res, next) => {
 	}
 };
 const replyToPost = async (req, res, next) => {
+	const postId = req.params.postId;
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
-	const postId = req.params.postId;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content, poll, media);
