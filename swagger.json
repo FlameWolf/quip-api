@@ -870,6 +870,20 @@
 						"required": false,
 						"type": "string",
 						"enum": ["?", "day", "week", "month", "year", "all"]
+					},
+					{
+						"name": "lastScore",
+						"in": "query",
+						"schema": {
+							"type": "integer"
+						}
+					},
+					{
+						"name": "lastPostId",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
 					}
 				]
 			}
