@@ -51,8 +51,7 @@
 						"type": "object",
 						"properties": {
 							"content": {
-								"type": "string",
-								"format": "textarea"
+								"type": "string"
 							},
 							"poll": {
 								"type": "object",
@@ -152,7 +151,9 @@
 					"schema": {
 						"type": "object",
 						"properties": {
-							"user": "string",
+							"user": {
+								"type": "string"
+							},
 							"timeline": {
 								"type": "object",
 								"properties": {
