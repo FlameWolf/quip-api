@@ -80,8 +80,8 @@ const removeMember = async (req, res, next) => {
 };
 const getPosts = async (req, res, next) => {
 	const name = req.params.name;
-	const userId = req.userInfo.userId;
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
+	const userId = req.userInfo.userId;
 	const posts = await findListPostsByNameAndOwnerId(name, userId, includeRepeats, includeReplies, lastPostId);
 	res.status(200).json({ posts });
 };
