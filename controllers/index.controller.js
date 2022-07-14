@@ -23,22 +23,20 @@ const timeline = async (req, res, next) => {
 const activity = async (req, res, next) => {
 	const period = req.params.period;
 	const lastEntryId = req.query.lastEntryId;
-	const userId = req.userInfo?.userId;
+	const userId = req.userInfo.userId;
 	const entries = await User.aggregate(activityAggregationPipeline(userId, period, lastEntryId));
 	res.status(200).json({ entries });
 };
 const topmost = async (req, res, next) => {
 	const period = req.params.period;
 	const { lastScore, lastPostId } = req.query;
-	const userId = req.userInfo?.userId;
-	const posts = await Post.aggregate(topmostAggregationPipeline(userId, period, lastScore, lastPostId));
+	const posts = await Post.aggregate(topmostAggregationPipeline(req.userInfo?.userId, period, lastScore, lastPostId));
 	res.status(200).json({ posts });
 };
 const hashtag = async (req, res, next) => {
 	const tagName = req.params.name;
 	const { sortBy, lastScore, lastPostId } = req.query;
-	const userId = req.userInfo?.userId;
-	const posts = await Post.aggregate(hashtagAggregationPipeline(tagName, userId, sortBy, lastScore, lastPostId));
+	const posts = await Post.aggregate(hashtagAggregationPipeline(tagName, req.userInfo?.userId, sortBy, lastScore, lastPostId));
 	res.status(200).json({ posts });
 };
 const rejectEmail = async (req, res, next) => {

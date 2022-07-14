@@ -93,7 +93,6 @@ const getUserPosts = async (req, res, next) => {
 const getUserTopmost = async (req, res, next) => {
 	const { handle, period } = req.params;
 	const { lastScore, lastPostId } = req.query;
-	const selfId = req.userInfo?.userId;
 	const filter = { handle };
 	if (!(await User.countDocuments(filter))) {
 		res.status(404).send("User not found");
@@ -108,7 +107,7 @@ const getUserTopmost = async (req, res, next) => {
 				from: "posts",
 				localField: "_id",
 				foreignField: "author",
-				pipeline: topmostAggregationPipeline(selfId, period, lastScore, lastPostId),
+				pipeline: topmostAggregationPipeline(req.userInfo?.userId, period, lastScore, lastPostId),
 				as: "posts"
 			}
 		},
@@ -123,72 +122,79 @@ const getUserTopmost = async (req, res, next) => {
 };
 const getUserFavourites = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastFavouriteId = req.query.lastFavouriteId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const favourites = await findFavouritesByUserId(userInfo.userId, req.query.lastFavouriteId);
+	const favourites = await findFavouritesByUserId(userInfo.userId, lastFavouriteId);
 	res.status(200).json({ favourites });
 };
 const getUserVotes = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastVoteId = req.query.lastVoteId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const votes = await findVotesByUserId(userInfo.userId, req.query.lastVoteId);
+	const votes = await findVotesByUserId(userInfo.userId, lastVoteId);
 	res.status(200).json({ votes });
 };
 const getUserBookmarks = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastBookmarkId = req.query.lastBookmarkId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const bookmarks = await findBookmarksByUserId(userInfo.userId, req.query.lastBookmarkId);
+	const bookmarks = await findBookmarksByUserId(userInfo.userId, lastBookmarkId);
 	res.status(200).json({ bookmarks });
 };
 const getUserFollowing = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastFollowId = req.query.lastFollowId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const following = await findFollowingByUserId(userInfo.userId, req.query.lastFollowId);
+	const following = await findFollowingByUserId(userInfo.userId, lastFollowId);
 	res.status(200).json({ following });
 };
 const getUserFollowers = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastFollowId = req.query.lastFollowId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const followers = await findFollowersByUserId(userInfo.userId, req.query.lastFollowId);
+	const followers = await findFollowersByUserId(userInfo.userId, lastFollowId);
 	res.status(200).json({ followers });
 };
 const getUserFollowRequestsSent = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastFollowRequestId = req.query.lastFollowRequestId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, req.query.lastFollowRequestId);
+	const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, lastFollowRequestId);
 	res.status(200).json({ followRequests });
 };
 const getUserFollowRequestsReceived = async (req, res, next) => {
 	const handle = req.params.handle;
+	const lastFollowRequestId = req.query.lastFollowRequestId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
 		res.sendStatus(401);
 		return;
 	}
-	const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, req.query.lastFollowRequestId);
+	const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, lastFollowRequestId);
 	res.status(200).json({ followRequests });
 };
 const getUserMentions = async (req, res, next) => {
