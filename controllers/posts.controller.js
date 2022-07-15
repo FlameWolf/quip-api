@@ -3,11 +3,14 @@
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const cld = require("cld");
+const dataUriParser = require("datauri/parser");
+const { v2: cloudinary } = require("cloudinary");
 const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const postQuotesAggregationPipeline = require("../db/pipelines/post-quotes");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
 const postParentAggregationPipeline = require("../db/pipelines/post-parent");
+const multerController = require("../controllers/multer.controller");
 const Post = require("../models/post.model");
 const Vote = require("../models/vote.model");
 const User = require("../models/user.model");
@@ -97,6 +100,15 @@ const updateMentionsAndHashtags = async (content, post) => {
 	post.mentions = postMentions.size > 0 ? [...postMentions] : undefined;
 	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
 };
+const uploadFile = async (file, fileType) => {
+	const parser = new dataUriParser();
+	const data = parser.format("", file.buffer);
+	const response = await cloudinary.uploader.upload(data.content, {
+		folder: `${fileType}s/`,
+		public_id: `${multerController.sanitiseFileName(file.originalname.replace(/\.\w+$/, ""), 16)}_${Date.now().valueOf()}`
+	});
+	return response;
+};
 const deletePostWithCascade = async post => {
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
@@ -155,7 +167,7 @@ const deletePostWithCascade = async post => {
 };
 const createPost = async (req, res, next) => {
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const media = req.file;
+	const { file: media, fileType } = req;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content, poll, media);
@@ -173,8 +185,8 @@ const createPost = async (req, res, next) => {
 				}),
 				...(media && {
 					mediaFile: {
-						fileType: req.fileType,
-						src: media.path,
+						fileType,
+						src: (await uploadFile(media, fileType)).secure_url,
 						description: mediaDescription
 					}
 				})
@@ -317,7 +329,7 @@ const getPostParent = async (req, res, next) => {
 const quotePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const media = req.file;
+	const { file: media, fileType } = req;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content, poll, media, postId);
@@ -343,8 +355,8 @@ const quotePost = async (req, res, next) => {
 					}),
 					...(media && {
 						mediaFile: {
-							fileType: req.fileType,
-							src: media.path,
+							fileType,
+							src: (await uploadFile(media, fileType)).secure_url,
 							description: mediaDescription
 						}
 					}),
@@ -426,7 +438,7 @@ const unrepeatPost = async (req, res, next) => {
 const replyToPost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const media = req.file;
+	const { file: media, fileType } = req;
 	const userId = req.userInfo.userId;
 	try {
 		validateContent(content, poll, media);
@@ -454,8 +466,8 @@ const replyToPost = async (req, res, next) => {
 						}),
 						...(media && {
 							mediaFile: {
-								fileType: req.fileType,
-								src: media.path,
+								fileType,
+								src: (await uploadFile(media, fileType)).secure_url,
 								description: mediaDescription
 							}
 						})
