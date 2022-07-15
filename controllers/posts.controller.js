@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const cld = require("cld");
 const dataUriParser = require("datauri/parser");
 const { v2: cloudinary } = require("cloudinary");
-const { contentLengthRegExp, maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId } = require("../library");
+const { maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId, getUnicodeClusterCount } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const postQuotesAggregationPipeline = require("../db/pipelines/post-quotes");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
@@ -29,7 +29,7 @@ const validateContent = (content, poll = undefined, media = undefined, postId = 
 			throw new Error("No content");
 		}
 	}
-	if ((content.match(contentLengthRegExp)?.length || 0) > maxContentLength) {
+	if (getUnicodeClusterCount(content) > maxContentLength) {
 		throw new Error("Content too long");
 	}
 };

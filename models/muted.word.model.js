@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const { contentLengthRegExp, maxMutedWordLength, escapeRegExp } = require("../library");
+const { maxMutedWordLength, escapeRegExp, getUnicodeClusterCount } = require("../library");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const mutedWordSchema = new mongoose.Schema(
@@ -13,7 +13,7 @@ const mutedWordSchema = new mongoose.Schema(
 			required: true,
 			set: value => escapeRegExp(value),
 			validate: {
-				validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxMutedWordLength,
+				validator: value => getUnicodeClusterCount(value) <= maxMutedWordLength,
 				message: "Word length exceeds the maximum allowed limit"
 			},
 			index: true

@@ -3,11 +3,11 @@
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
 const { Url, Point } = mongoose.SchemaTypes;
-const { contentLengthRegExp, maxContentLength, maxPollOptionLength, minPollDuration, maxPollDuration } = require("../library");
+const { maxContentLength, maxPollOptionLength, minPollDuration, maxPollDuration, getUnicodeClusterCount } = require("../library");
 
 const Schema = mongoose.Schema;
 const validatePollOption = {
-	validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxPollOptionLength,
+	validator: value => getUnicodeClusterCount(value) <= maxPollOptionLength,
 	message: "Poll option length exceeds the maximum allowed limit"
 };
 const postSchema = new Schema(
@@ -16,7 +16,7 @@ const postSchema = new Schema(
 			type: String,
 			trim: true,
 			validate: {
-				validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxContentLength,
+				validator: value => getUnicodeClusterCount(value) <= maxContentLength,
 				message: "Content length exceeds the maximum allowed limit"
 			},
 			index: {

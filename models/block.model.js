@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
-const { contentLengthRegExp, maxContentLength } = require("../library");
+const { maxContentLength, getUnicodeClusterCount } = require("../library");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const blockSchema = new mongoose.Schema(
@@ -13,7 +13,7 @@ const blockSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 			validate: {
-				validator: value => (value.match(contentLengthRegExp)?.length || 0) <= maxContentLength,
+				validator: value => getUnicodeClusterCount(value) <= maxContentLength,
 				message: "Reason length exceeds the maximum allowed limit"
 			}
 		}

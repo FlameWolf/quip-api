@@ -7,7 +7,6 @@ const urlRegExp = /^(\w+[~@#$\-_+]?\w+:\/\/)((\w)+[\-\._~:\/\?#\[\]@!$&'\(\)\*+,
 const emailRegExp = /^[\w\.-]+@[\w\.-]+\.\w+$/;
 const rounds = 10;
 const authTokenLife = 1000 * 60 * 5;
-const contentLengthRegExp = /\p{L}\p{M}?|\S|\s/gu;
 const maxContentLength = 256;
 const maxPollOptionLength = 32;
 const maxMutedWordLength = 256;
@@ -56,6 +55,7 @@ const getProperty = (operand, path) => {
 	}
 	return operand;
 };
+const getUnicodeClusterCount = value => Array.from(new Intl.Segmenter().segment(value)).length;
 const escapeRegExp = value => value.replace(/[\/.*+?|[()\]{}\$^-]/g, match => `\\${match}`);
 
 module.exports = {
@@ -66,7 +66,6 @@ module.exports = {
 	emailRegExp,
 	rounds,
 	authTokenLife,
-	contentLengthRegExp,
 	maxContentLength,
 	maxPollOptionLength,
 	maxMutedWordLength,
@@ -83,5 +82,6 @@ module.exports = {
 	emailTemplates,
 	setProperty,
 	getProperty,
+	getUnicodeClusterCount,
 	escapeRegExp
 };
