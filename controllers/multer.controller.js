@@ -7,8 +7,8 @@ const validMimeTypes = ["image", "video"];
 const factory = multer({
 	fileFilter: (req, file, cb) => {
 		const [type, subtype] = file.mimetype.split("/");
-		req.fileType = type;
-		req.fileSubtype = subtype;
+		req.fileType = type.trim();
+		req.fileSubtype = subtype.trim();
 		const isValid = validMimeTypes.some(mimeType => mimeType === type);
 		cb(isValid ? null : new Error("Invalid file type"), isValid);
 	},
