@@ -91,17 +91,13 @@ const revokeRefreshToken = async (req, res, next) => {
 		res.status(400).send("Refresh token not found");
 		return;
 	}
-	await RefreshToken.findOneAndDelete({ token: refreshToken });
-	res.sendStatus(200);
-};
-const signOut = async (req, res, next) => {
-	res.sendStatus(200);
+	const deleted = await RefreshToken.findOneAndDelete({ token: refreshToken });
+	res.sendStatus(deleted ? 200 : 404);
 };
 
 module.exports = {
 	signUp,
 	signIn,
 	refreshAuthToken,
-	revokeRefreshToken,
-	signOut
+	revokeRefreshToken
 };
