@@ -25,7 +25,6 @@ require("cloudinary").v2.config({
 
 const app = express();
 app.use(require("helmet")());
-app.use(require("compression")());
 app.use((req, res, next) => {
 	res.setHeader("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN);
 	res.setHeader("Access-Control-Allow-Credentials", true);
