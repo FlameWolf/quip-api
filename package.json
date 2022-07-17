@@ -9,7 +9,6 @@
 		"bcryptjs": "^2.4.3",
 		"cld": "^2.8.1",
 		"cloudinary": "^1.30.0",
-		"compression": "^1.7.4",
 		"cookie-parser": "~1.4.6",
 		"datauri": "^4.1.0",
 		"debug": "^4.3.4",
