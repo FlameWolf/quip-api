@@ -5,6 +5,7 @@ const router = express.Router();
 const userController = require("../controllers/users.controller");
 const listsController = require("../controllers/lists.controller");
 
+router.use(require("../middleware/require-authentication"));
 router.get("/", userController.getLists);
 router.post("/create", listsController.createList);
 router.post("/update", listsController.updateList);
