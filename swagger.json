@@ -341,6 +341,11 @@
 		}
 	},
 	"paths": {
+		"/": {
+			"get": {
+				"tags": ["X-HIDDEN"]
+			}
+		},
 		"/auth/sign-up": {
 			"post": {
 				"requestBody": {
@@ -548,6 +553,7 @@
 		},
 		"/activity/{period?}": {
 			"get": {
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",
@@ -750,6 +756,7 @@
 		},
 		"/topmost/{period?}": {
 			"get": {
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",
@@ -849,6 +856,7 @@
 		},
 		"/users/{handle}/topmost/{period?}": {
 			"get": {
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",

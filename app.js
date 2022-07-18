@@ -35,7 +35,11 @@ app.use((req, res, next) => {
 app.use(express.json());
 if (isNotProdEnv) {
 	require("express-oas-generator").handleResponses(app, {
-		predefinedSpec: require("./swagger.json")
+		predefinedSpec: require("./swagger.json"),
+		specOutputFileBehavior: "RECREATE",
+		swaggerDocumentOptions: {
+			customCss: ".wrapper > .block > div > span:first-child { display: none; }"
+		}
 	});
 }
 app.use((req, res, next) => {
