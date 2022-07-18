@@ -38,7 +38,7 @@ if (isNotProdEnv) {
 		predefinedSpec: require("./swagger.json"),
 		specOutputFileBehavior: "RECREATE",
 		swaggerDocumentOptions: {
-			customCss: ".wrapper > .block > div > span:first-child { display: none; }"
+			customCss: ".wrapper > .block > div > span:first-child, section.models.is-open { display: none; }"
 		}
 	});
 }
