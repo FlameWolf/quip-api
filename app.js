@@ -25,7 +25,7 @@ require("cloudinary").v2.config({
 
 const app = express();
 app.use(require("helmet")());
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
 	res.setHeader("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN);
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	res.setHeader("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
@@ -42,7 +42,7 @@ if (isNotProdEnv) {
 		}
 	});
 }
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
 	try {
 		const authToken = req.headers.authorization?.replace(/^bearer\s+/i, "");
 		req.userInfo = authToken && jwt.verify(authToken, process.env.JWT_AUTH_SECRET);
@@ -56,7 +56,7 @@ app.use("/lists", require("./routes/lists.router"));
 app.use("/posts", require("./routes/posts.router"));
 app.use("/search", require("./routes/search.router"));
 app.use("/settings", require("./routes/settings.router"));
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
 	res.status(500).send(err);
 });
 

@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
 	if (!req.userInfo) {
 		res.sendStatus(401);
 		return;
