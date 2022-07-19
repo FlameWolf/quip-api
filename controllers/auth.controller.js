@@ -92,7 +92,7 @@ const revokeRefreshToken = async (req, res, next) => {
 		return;
 	}
 	const deleted = await RefreshToken.findOneAndDelete({ token: refreshToken });
-	res.sendStatus(deleted ? 200 : 404);
+	res.status(deleted ? 200 : 404).send();
 };
 
 module.exports = {

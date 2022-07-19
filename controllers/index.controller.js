@@ -52,7 +52,7 @@ const rejectEmail = async (req, res, next) => {
 			const previousEmail = emailVerification.previousEmail;
 			const user = await User.findByIdAndUpdate(emailVerification.user, { email: emailVerification.previousEmail }).session(session);
 			await EmailVerification.deleteOne(emailVerification).session(session);
-			res.sendStatus(200);
+			res.status(200).send();
 			if (previousEmail) {
 				emailController.sendEmail(noReplyEmail, previousEmail, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email));
 			}
@@ -70,7 +70,7 @@ const verifyEmail = async (req, res, next) => {
 	}
 	const email = emailVerification.email;
 	const user = await User.findByIdAndUpdate(emailVerification.user, { email });
-	res.sendStatus(200);
+	res.status(200).send();
 	emailController.sendEmail(noReplyEmail, email, "Email address change verified", emailTemplates.notifications.emailVerified(user.handle, email));
 };
 const forgotPassword = async (req, res, next) => {
@@ -109,7 +109,7 @@ const resetPassword = async (req, res, next) => {
 			const passwordHash = await bcrypt.hash(password, rounds);
 			const user = await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).select("+email").session(session);
 			await PasswordReset.deleteOne(passwordReset).session(session);
-			res.sendStatus(200);
+			res.status(200).send();
 			emailController.sendEmail(noReplyEmail, user.email, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
 		});
 	} finally {

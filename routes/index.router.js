@@ -10,7 +10,7 @@ router.get("/", async (req, res, next) => {
 		res.redirect("/api-docs/v3");
 		return;
 	}
-	res.sendStatus(404);
+	res.status(404).send();
 });
 router.get("/timeline", requireAuthentication, indexController.timeline);
 router.get("/activity/:period?", requireAuthentication, indexController.activity);

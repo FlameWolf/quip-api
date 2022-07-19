@@ -125,7 +125,7 @@ const getUserFavourites = async (req, res, next) => {
 	const lastFavouriteId = req.query.lastFavouriteId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const favourites = await findFavouritesByUserId(userInfo.userId, lastFavouriteId);
@@ -136,7 +136,7 @@ const getUserVotes = async (req, res, next) => {
 	const lastVoteId = req.query.lastVoteId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const votes = await findVotesByUserId(userInfo.userId, lastVoteId);
@@ -147,7 +147,7 @@ const getUserBookmarks = async (req, res, next) => {
 	const lastBookmarkId = req.query.lastBookmarkId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const bookmarks = await findBookmarksByUserId(userInfo.userId, lastBookmarkId);
@@ -158,7 +158,7 @@ const getUserFollowing = async (req, res, next) => {
 	const lastFollowId = req.query.lastFollowId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const following = await findFollowingByUserId(userInfo.userId, lastFollowId);
@@ -169,7 +169,7 @@ const getUserFollowers = async (req, res, next) => {
 	const lastFollowId = req.query.lastFollowId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const followers = await findFollowersByUserId(userInfo.userId, lastFollowId);
@@ -180,7 +180,7 @@ const getUserFollowRequestsSent = async (req, res, next) => {
 	const lastFollowRequestId = req.query.lastFollowRequestId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const followRequests = await findFollowRequestsSentByUserId(userInfo.userId, lastFollowRequestId);
@@ -191,7 +191,7 @@ const getUserFollowRequestsReceived = async (req, res, next) => {
 	const lastFollowRequestId = req.query.lastFollowRequestId;
 	const userInfo = req.userInfo;
 	if (userInfo.handle !== handle) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	const followRequests = await findFollowRequestsReceivedByUserId(userInfo.userId, lastFollowRequestId);
@@ -310,7 +310,7 @@ const changePassword = async (req, res, next) => {
 	}
 	const passwordHash = await bcrypt.hash(newPassword, rounds);
 	await User.updateOne(user, { password: passwordHash });
-	res.sendStatus(200);
+	res.status(200).send();
 	if (email) {
 		emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
 	}

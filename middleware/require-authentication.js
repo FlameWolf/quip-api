@@ -2,7 +2,7 @@
 
 module.exports = async (req, res, next) => {
 	if (!req.userInfo) {
-		res.sendStatus(401);
+		res.status(401).send();
 		return;
 	}
 	next();
