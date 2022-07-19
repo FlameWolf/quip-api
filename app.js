@@ -30,6 +30,10 @@ app.use(async (req, res, next) => {
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	res.setHeader("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
 	res.setHeader("Access-Control-Allow-Methods", "OPTIONS, POST, PUT, PATCH, GET, DELETE");
+	if (req.method === "OPTIONS") {
+		res.status(200).send();
+		return;
+	}
 	next();
 });
 app.use(express.json());
