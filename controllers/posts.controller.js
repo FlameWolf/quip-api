@@ -36,15 +36,7 @@ const validateContent = (content, poll = undefined, media = undefined, postId = 
 const detectLanguages = async value => {
 	if (value.trim()) {
 		try {
-			return (
-				await cld.detect(value, {
-					isHTML: false,
-					languageHint: "",
-					encodingHint: "",
-					tldHint: "",
-					httpHint: ""
-				})
-			).languages.map(language => language.code);
+			return (await cld.detect(value)).languages.map(language => language.code);
 		} catch {
 			return ["xx"];
 		}
@@ -55,16 +47,16 @@ const updateLanguages = async post => {
 	const languages = new Set(post.languages);
 	const promises = [];
 	const { content, attachments } = post;
-	promises.push(content && detectLanguages(content));
+	promises.push(content && (await detectLanguages(content)));
 	if (attachments) {
 		const { poll, mediaFile } = attachments;
 		if (poll) {
 			const { first, second, third, fourth } = poll;
-			promises.push(first && detectLanguages(first), second && detectLanguages(second), third && detectLanguages(third), fourth && detectLanguages(fourth));
+			promises.push(first && (await detectLanguages(first)), second && (await detectLanguages(second)), third && (await detectLanguages(third)), fourth && (await detectLanguages(fourth)));
 		}
 		if (mediaFile) {
 			const mediaDescription = mediaFile.description;
-			promises.push(mediaDescription && detectLanguages(mediaDescription));
+			promises.push(mediaDescription && (await detectLanguages(mediaDescription)));
 		}
 	}
 	for (const language of (await Promise.all(promises)).flat()) {
