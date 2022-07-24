@@ -6,6 +6,7 @@ if (isNotProdEnv) {
 	require("dotenv").config();
 }
 const jwt = require("jsonwebtoken");
+require("./patch-router-param");
 require("./schemaTypes/url");
 require("./schemaTypes/point");
 
