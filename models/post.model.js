@@ -108,7 +108,12 @@ const postSchema = new Schema(
 			default: undefined,
 			index: true
 		},
-		score: { type: Number, default: 0, index: true }
+		score: {
+			type: Number,
+			default: 0,
+			index: true,
+			select: false
+		}
 	},
 	{
 		timestamps: {
