@@ -13,7 +13,6 @@
 		"datauri": "^4.1.0",
 		"debug": "^4.3.4",
 		"express": "^4.18.1",
-		"express-oas-generator": "^1.0.44",
 		"fluent-ffmpeg": "^2.1.2",
 		"helmet": "^5.1.0",
 		"image-thumbnail": "^1.0.15",
@@ -25,6 +24,7 @@
 		"nodemailer": "^6.7.7"
 	},
 	"devDependencies": {
-		"dotenv": "^16.0.1"
+		"dotenv": "^16.0.1",
+		"express-oas-generator": "^1.0.44"
 	}
 }
