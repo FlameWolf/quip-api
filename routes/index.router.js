@@ -7,7 +7,7 @@ const indexController = require("../controllers/index.controller");
 
 router.get("/", async (req, res, next) => {
 	if (process.env.NODE_ENV !== "production") {
-		res.redirect("/api-docs/v3");
+		res.status(302).redirect("/api-docs/v3");
 		return;
 	}
 	res.status(404).send();
