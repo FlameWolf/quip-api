@@ -1,20 +1,21 @@
 "use strict";
 
 const express = require("express");
+const http = require("http");
+const jwt = require("jsonwebtoken");
+require("./patch-router-param");
+require("./schemaTypes/url");
+require("./schemaTypes/point");
+
 const isNotProdEnv = process.env.NODE_ENV !== "production";
 if (isNotProdEnv) {
 	require("dotenv").config();
 }
-const http = require("http");
-const jwt = require("jsonwebtoken");
 const expressOasGenerator = (() => {
 	if (isNotProdEnv) {
 		return require("express-oas-generator");
 	}
 })();
-require("./patch-router-param");
-require("./schemaTypes/url");
-require("./schemaTypes/point");
 
 require("mongoose")
 	.connect(process.env.DB_CONNECTION)
