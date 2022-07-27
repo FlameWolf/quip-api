@@ -2,8 +2,9 @@
 	"name": "quip-api",
 	"version": "1.0.0",
 	"private": true,
+	"main": "index.js",
 	"scripts": {
-		"start": "node --use-strict ./bin/www"
+		"start": "node --use-strict index.js"
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
