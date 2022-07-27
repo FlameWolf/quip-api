@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const requireAuthentication = require("../middleware/require-authentication");
+const requireAuthentication = require("../middleware/requireAuthentication");
 const indexController = require("../controllers/index.controller");
 
 router.get("/", async (req, res, next) => {

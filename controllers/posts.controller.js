@@ -5,12 +5,11 @@ const mongoose = require("mongoose");
 const cld = require("cld");
 const dataUriParser = require("datauri/parser");
 const { v2: cloudinary } = require("cloudinary");
-const { maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId, getUnicodeClusterCount } = require("../library");
+const { maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId, getUnicodeClusterCount, sanitiseFileName } = require("../library");
 const postAggregationPipeline = require("../db/pipelines/post");
 const postQuotesAggregationPipeline = require("../db/pipelines/post-quotes");
 const postRepliesAggregationPipeline = require("../db/pipelines/post-replies");
 const postParentAggregationPipeline = require("../db/pipelines/post-parent");
-const multerController = require("../controllers/multer.controller");
 const Post = require("../models/post.model");
 const Vote = require("../models/vote.model");
 const User = require("../models/user.model");
@@ -84,7 +83,7 @@ const updateMentionsAndHashtags = async (content, post) => {
 				_id: 1
 			}
 		);
-		users.map(user => user._id.valueOf()).forEach(userId => postMentions.add(userId));
+		users.map(user => user._id.toString()).forEach(userId => postMentions.add(userId));
 	}
 	if (contentHashtags) {
 		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => postHashtags.add(hashtag));
@@ -98,7 +97,7 @@ const uploadFile = async (file, fileType) => {
 	const response = await cloudinary.uploader.upload(data.content, {
 		resource_type: fileType,
 		folder: `${fileType}s/`,
-		public_id: `${multerController.sanitiseFileName(file.originalname.replace(/\.\w+$/, ""), 16)}_${Date.now().valueOf()}`
+		public_id: `${sanitiseFileName(file.originalname.replace(/\.\w+$/, ""), 16)}_${Date.now().valueOf()}`
 	});
 	return response;
 };
@@ -196,6 +195,7 @@ const createPost = async (req, res, next) => {
 const updatePost = async (req, res, next) => {
 	const postId = req.params.postId;
 	const content = req.body.content || "";
+	const userId = req.userInfo.userId;
 	const session = await mongoose.startSession();
 	try {
 		if (!content.trim()) {
@@ -207,7 +207,7 @@ const updatePost = async (req, res, next) => {
 			res.status(404).send("Post not found");
 			return;
 		}
-		if (post.author.valueOf() !== req.userInfo.userId) {
+		if (post.author.toString() !== userId) {
 			res.status(403).send("You are not allowed to perform this action");
 			return;
 		}
@@ -505,7 +505,7 @@ const castVote = async (req, res, next) => {
 			res.status(422).send("Poll does not include the specified option");
 			return;
 		}
-		if (post.author.valueOf() === userId) {
+		if (post.author.toString() === userId) {
 			res.status(403).send("User cannot vote on their own poll");
 			return;
 		}

@@ -2,7 +2,7 @@
 
 const { ObjectId } = require("bson");
 
-const filtersAggregationPipeline = userId => {
+const filtersAggregationPipeline = (userId = undefined) => {
 	if (!userId) {
 		return [];
 	}

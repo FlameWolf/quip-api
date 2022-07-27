@@ -266,7 +266,7 @@ const pinPost = async (req, res, next) => {
 		res.status(404).send("Post not found");
 		return;
 	}
-	if (post.author.valueOf() !== userId) {
+	if (post.author.toString() !== userId) {
 		res.status(403).send("User can pin only their own post");
 		return;
 	}

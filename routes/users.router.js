@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const requireAuthentication = require("../middleware/require-authentication");
+const requireAuthentication = require("../middleware/requireAuthentication");
 const usersController = require("../controllers/users.controller");
 const followsController = require("../controllers/follows.controller");
 const followRequestsController = require("../controllers/follow-requests.controller");

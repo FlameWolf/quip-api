@@ -12,6 +12,7 @@ const maxPollOptionLength = 32;
 const maxMutedWordLength = 256;
 const minPollDuration = 1000 * 60 * 30;
 const maxPollDuration = 1000 * 60 * 60 * 24 * 7;
+const validMimeTypes = ["image", "video"];
 const favouriteScore = 1;
 const quoteScore = 2;
 const replyScore = 2;
@@ -57,6 +58,7 @@ const getProperty = (operand, path) => {
 };
 const getUnicodeClusterCount = value => Array.from(new Intl.Segmenter().segment(value)).length;
 const escapeRegExp = value => value.replace(/[\/.*+?|[()\]{}\$^-]/g, match => `\\${match}`);
+const sanitiseFileName = (value, maxLength = undefined) => value.trim().substring(0, maxLength).replace(/\W/g, "_");
 
 module.exports = {
 	invalidHandles,
@@ -71,6 +73,7 @@ module.exports = {
 	maxMutedWordLength,
 	minPollDuration,
 	maxPollDuration,
+	validMimeTypes,
 	favouriteScore,
 	quoteScore,
 	replyScore,
@@ -83,5 +86,6 @@ module.exports = {
 	setProperty,
 	getProperty,
 	getUnicodeClusterCount,
-	escapeRegExp
+	escapeRegExp,
+	sanitiseFileName
 };

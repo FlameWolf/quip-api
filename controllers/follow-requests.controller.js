@@ -1,10 +1,11 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const batchSize = 65536;
 const usersController = require("./users.controller");
 const FollowRequest = require("../models/follow-request.model");
 const Follow = require("../models/follow.model");
+
+const batchSize = 65536;
 
 const acceptFollowRequest = async (req, res, next) => {
 	const followRequestId = req.params.requestId;

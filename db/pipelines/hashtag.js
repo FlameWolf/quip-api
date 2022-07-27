@@ -3,7 +3,7 @@
 const { ObjectId } = require("bson");
 const postAggregationPipeline = require("./post");
 
-const getPageConditions = (lastPostId, sortByDate, lastScore) => {
+const getPageConditions = (sortByDate, lastScore, lastPostId) => {
 	if (lastPostId) {
 		const lastPostObjectId = new ObjectId(lastPostId);
 		if (sortByDate) {
@@ -54,7 +54,7 @@ const hashtagAggregationPipeline = (hashtag, userId = undefined, sortBy = "date"
 			}
 		},
 		{
-			$match: getPageConditions(lastPostId, sortByDate, lastScore)
+			$match: getPageConditions(sortByDate, lastScore, lastPostId)
 		},
 		{
 			$limit: 20

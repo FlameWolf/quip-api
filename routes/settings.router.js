@@ -7,7 +7,7 @@ const mutesController = require("../controllers/mutes.controller");
 const usersController = require("../controllers/users.controller");
 const followRequestsController = require("../controllers/follow-requests.controller");
 
-router.use(require("../middleware/require-authentication"));
+router.use(require("../middleware/requireAuthentication"));
 router.post("/", settingsController.updateSettings);
 router.get("/", settingsController.getSettings);
 router.post("/mute", mutesController.muteWord);
