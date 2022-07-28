@@ -19,7 +19,8 @@ import MutedPost from "../models/muted.post.model";
 import { RequestHandler } from "express";
 
 type PostModel = InferSchemaType<typeof Post.schema>;
-type PollModel = Required<PostModel>["attachments"]["poll"];
+type AttachmentsModel = Required<PostModel>["attachments"];
+type PollModel = AttachmentsModel["poll"];
 type LanguageEntry = InferArrayElementType<PostModel["languages"]>;
 type MentionEntry = InferArrayElementType<PostModel["mentions"]>;
 type HashtagEntry = InferArrayElementType<PostModel["hashtags"]>;
@@ -222,7 +223,7 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 			res.status(422).send("Post was edited once and cannot be edited again");
 			return;
 		}
-		const { poll, mediaFile, post: quotedPostId } = post.attachments || {};
+		const { poll, mediaFile, post: quotedPostId } = post.attachments as AttachmentsModel;
 		if (poll) {
 			res.status(422).send("Cannot edit a post that includes a poll");
 			return;
@@ -247,9 +248,6 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 				...(mediaFile && {
 					attachments: {
 						mediaFile: {
-							fileType: undefined,
-							src: undefined,
-							previewSrc: undefined,
 							description: mediaFile.description
 						}
 					}

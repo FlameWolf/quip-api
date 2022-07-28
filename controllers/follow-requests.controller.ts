@@ -76,7 +76,7 @@ export const acceptAllFollowRequests: RequestHandler = async (req, res, next) =>
 		await session.withTransaction(async () => {
 			const filter = { user: acceptorUserId };
 			do {
-				const followRequests = (await FollowRequest.find(filter, { user: acceptorUserId, followedBy: "$requestedBy" }).limit(batchSize).session(session)) as Array<HydratedDocument<FollowRequestModel>>;
+				const followRequests = await FollowRequest.find(filter, { user: acceptorUserId, followedBy: "$requestedBy" }).limit(batchSize).session(session);
 				await FollowRequest.deleteMany({
 					_id: {
 						$in: followRequests.map(followRequest => followRequest._id)
