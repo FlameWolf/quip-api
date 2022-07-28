@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "NodeNext",
+		"outDir": "./dist",
+		"newLine": "lf",
+		"resolveJsonModule": true,
+		"esModuleInterop": false,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noImplicitThis": false,
+		"skipLibCheck": true,
+		"typeRoots": ["./types", "./node_modules/@types"]
+	},
+	"include": ["**/*", "./swagger.json"],
+	"ts-node": {
+		"transpileOnly": true
+	}
+}
