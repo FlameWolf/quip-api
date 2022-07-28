@@ -80,9 +80,11 @@ const acceptAllFollowRequests = async (req, res, next) => {
 						$in: followRequests.map(followRequest => followRequest._id)
 					}
 				}).session(session);
-				followRequests.forEach(followRequest => delete followRequest._id);
 				const result = await Follow.bulkSave(
-					followRequests.map(followRequest => new Follow(followRequest)),
+					followRequests.map(followRequest => {
+						delete followRequest._id;
+						return new Follow(followRequest);
+					}),
 					{ session }
 				);
 				batchCount = result.insertedCount;

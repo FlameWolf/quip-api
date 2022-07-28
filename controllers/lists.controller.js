@@ -82,7 +82,7 @@ const getPosts = async (req, res, next) => {
 	const name = req.params.name;
 	const { includeRepeats, includeReplies, lastPostId } = req.query;
 	const userId = req.userInfo.userId;
-	const posts = await findListPostsByNameAndOwnerId(name, userId, includeRepeats, includeReplies, lastPostId);
+	const posts = await findListPostsByNameAndOwnerId(name, userId, includeRepeats !== "false", includeReplies !== "false", lastPostId);
 	res.status(200).json({ posts });
 };
 const deleteList = async (req, res, next) => {

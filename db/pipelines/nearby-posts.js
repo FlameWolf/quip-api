@@ -27,7 +27,7 @@ const getPageConditions = (lastDistance, lastPostId) => {
 	}
 	return pageConditions;
 };
-const nearbyPostsAggregationPipeline = ([longitude, latitude], maxDistance = 5000, userId = undefined, lastDistance = undefined, lastPostId = undefined) => [
+const nearbyPostsAggregationPipeline = ([longitude, latitude], maxDistance = "5000", userId = undefined, lastDistance = undefined, lastPostId = undefined) => [
 	{
 		$geoNear: {
 			near: {
