@@ -25,6 +25,7 @@ function patchRouterParam() {
 		return originalParam.call(this, name, fn);
 	};
 }
+
 Object.defineProperty(Layer.prototype, "handle", {
 	enumerable: true,
 	get() {
@@ -35,5 +36,4 @@ Object.defineProperty(Layer.prototype, "handle", {
 		this.__handle = fn;
 	}
 });
-
 patchRouterParam();
