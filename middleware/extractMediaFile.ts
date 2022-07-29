@@ -1,7 +1,8 @@
 "use strict";
 
 import multer = require("multer");
-import { validMimeTypes, megaByte } from "../library";
+import * as path from "path";
+import { validMimeTypes, megaByte, sanitiseFileName } from "../library";
 
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
@@ -14,7 +15,14 @@ const extractMediaFile = multer({
 	limits: {
 		fileSize: megaByte * 5
 	},
-	storage: multer.memoryStorage()
+	storage: multer.diskStorage({
+		destination: (req, file, cb) => {
+			cb(null, path.join("public", `${req.fileType}s`));
+		},
+		filename: (req, file, cb) => {
+			cb(null, `${sanitiseFileName(file.originalname.replace(new RegExp(`\.${req.fileSubtype as string}$`), ""), 16)}_${Date.now().valueOf()}`);
+		}
+	})
 }).single("media");
 
 module.exports = extractMediaFile;

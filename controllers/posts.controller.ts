@@ -3,9 +3,8 @@
 import { ObjectId } from "bson";
 import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
 import cld = require("cld");
-import dataUriParser = require("datauri/parser");
 import { v2 as cloudinary } from "cloudinary";
-import { maxContentLength, quoteScore, replyScore, voteScore, repeatScore, nullId, getUnicodeClusterCount, sanitiseFileName } from "../library";
+import { maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore, getUnicodeClusterCount } from "../library";
 import postAggregationPipeline from "../db/pipelines/post";
 import postQuotesAggregationPipeline from "../db/pipelines/post-quotes";
 import postRepliesAggregationPipeline from "../db/pipelines/post-replies";
@@ -100,12 +99,10 @@ export const updateMentionsAndHashtags = async (content: string, post: Partial<P
 	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
 };
 export const uploadFile = async (file: MulterFile, fileType: string) => {
-	const parser = new dataUriParser();
-	const data = parser.format("", file.buffer);
-	const response = await cloudinary.uploader.upload(data.content as string, {
+	const response = await cloudinary.uploader.upload(file.path, {
 		resource_type: fileType,
 		folder: `${fileType}s/`,
-		public_id: `${sanitiseFileName(file.originalname.replace(/\.\w+$/, ""), 16)}_${Date.now().valueOf()}`
+		public_id: file.filename
 	});
 	return response;
 };
