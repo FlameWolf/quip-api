@@ -2,7 +2,7 @@
 
 import { ObjectId } from "bson";
 import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
-import bcrypt = require("bcrypt");
+import * as bcrypt from "bcrypt";
 import { noReplyEmail, emailTemplates, passwordRegExp, rounds } from "../library";
 import timelineAggregationPipeline from "../db/pipelines/timeline";
 import activityAggregationPipeline from "../db/pipelines/activity";

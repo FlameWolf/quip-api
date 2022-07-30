@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as settingsController from "../controllers/settings.controller";
 import * as mutesController from "../controllers/mutes.controller";
 import * as usersController from "../controllers/users.controller";

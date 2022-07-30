@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as postsController from "../controllers/posts.controller";
 import * as favouritesController from "../controllers/favourites.controller";
 import * as bookmarksController from "../controllers/bookmarks.controller";

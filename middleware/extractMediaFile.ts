@@ -1,6 +1,6 @@
 "use strict";
 
-import multer = require("multer");
+import * as multer from "multer";
 import * as path from "path";
 import { validMimeTypes, megaByte, sanitiseFileName } from "../library";
 

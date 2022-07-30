@@ -1,7 +1,7 @@
 "use strict";
 
-import bcrypt = require("bcrypt");
-import jwt = require("jsonwebtoken");
+import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
 import { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, AuthPayload } from "../library";
 import User from "../models/user.model";
 import RefreshToken from "../models/refresh-token.model";

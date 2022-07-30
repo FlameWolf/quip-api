@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as searchController from "../controllers/search.controller";
 
 const router = express.Router();

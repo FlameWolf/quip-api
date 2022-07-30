@@ -1,6 +1,6 @@
 "use strict";
 
-import nodemailer = require("nodemailer");
+import * as nodemailer from "nodemailer";
 
 export const sendEmail = async (from: string, to: string, subject: string, body: string) => {
 	const transport = nodemailer.createTransport({

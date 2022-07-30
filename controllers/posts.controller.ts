@@ -2,7 +2,7 @@
 
 import { ObjectId } from "bson";
 import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
-import cld = require("cld");
+import * as cld from "cld";
 import { v2 as cloudinary } from "cloudinary";
 import { maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore, getUnicodeClusterCount } from "../library";
 import postAggregationPipeline from "../db/pipelines/post";

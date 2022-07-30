@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as usersController from "../controllers/users.controller";
 import * as followsController from "../controllers/follows.controller";
 import * as followRequestsController from "../controllers/follow-requests.controller";

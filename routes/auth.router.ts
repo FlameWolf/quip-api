@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as authController from "../controllers/auth.controller";
 
 const router = express.Router();

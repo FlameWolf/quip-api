@@ -1,8 +1,8 @@
 "use strict";
 
-import express = require("express");
-import http = require("http");
-import jwt = require("jsonwebtoken");
+import * as express from "express";
+import * as http from "http";
+import * as jwt from "jsonwebtoken";
 import "./patch-router-param";
 import "./schemaTypes/url";
 import "./schemaTypes/point";

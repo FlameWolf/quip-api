@@ -1,6 +1,6 @@
 "use strict";
 
-import express = require("express");
+import * as express from "express";
 import * as indexController from "../controllers/index.controller";
 
 const requireAuthentication = require("../middleware/requireAuthentication");
