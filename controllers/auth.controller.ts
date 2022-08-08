@@ -70,7 +70,7 @@ export const refreshAuthToken: RequestHandler = async (req, res, next) => {
 	const { refreshToken } = req.body;
 	const { "x-slug": handle, "x-uid": userId } = req.headers as Dictionary<string>;
 	if (!refreshToken) {
-		res.status(400).send("Refresh token not found");
+		res.status(400).send("Refresh token not provided");
 		return;
 	}
 	const userInfo = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string) as UserInfo;
@@ -89,7 +89,7 @@ export const refreshAuthToken: RequestHandler = async (req, res, next) => {
 export const revokeRefreshToken: RequestHandler = async (req, res, next) => {
 	const refreshToken = req.params.token;
 	if (!refreshToken) {
-		res.status(400).send("Refresh token not found");
+		res.status(400).send("Refresh token not provided");
 		return;
 	}
 	const deleted = await RefreshToken.findOneAndDelete({ token: refreshToken });
