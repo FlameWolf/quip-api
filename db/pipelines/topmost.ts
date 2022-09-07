@@ -1,10 +1,11 @@
 "use strict";
 
 import { ObjectId } from "bson";
+import { PipelineStage } from "mongoose";
 import filtersAggregationPipeline from "./filters";
 import postAggregationPipeline from "./post";
 
-const topmostAggregationPipeline = (userId?: string | ObjectId, period: string = "", lastScore?: string, lastPostId?: string | ObjectId) => {
+const topmostAggregationPipeline = (userId?: string | ObjectId, period: string = "", lastScore?: string, lastPostId?: string | ObjectId): Array<PipelineStage> => {
 	const matchConditions: Dictionary = {};
 	const pageConditions: Dictionary = {};
 	if (period !== "all") {

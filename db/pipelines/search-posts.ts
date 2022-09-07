@@ -1,9 +1,10 @@
 "use strict";
 
 import { ObjectId } from "bson";
+import { PipelineStage } from "mongoose";
 import postAggregationPipeline from "./post";
 
-const getMatchConditions = (searchText: string, searchOptions: { from?: string; since?: string; until?: string; hasMedia?: boolean; notFrom?: string; replies?: string; languages?: string; includeLanguages?: string; mediaDescription?: string }) => {
+const getMatchConditions = (searchText: string, searchOptions: { from?: string; since?: string; until?: string; hasMedia?: boolean; notFrom?: string; replies?: string; languages?: string; includeLanguages?: string; mediaDescription?: string }): PipelineStage => {
 	const separator = "|";
 	const atSign = "@";
 	const matchConditions: Dictionary = {
@@ -62,9 +63,9 @@ const getMatchConditions = (searchText: string, searchOptions: { from?: string; 
 			}
 		};
 	}
-	return matchConditions;
+	return matchConditions as PipelineStage;
 };
-const addScoreField = (searchText: string, sortBy: string) => {
+const addScoreField = (searchText: string, sortBy: string): Array<PipelineStage> => {
 	if (searchText && sortBy !== "popular") {
 		return [
 			{
@@ -78,7 +79,7 @@ const addScoreField = (searchText: string, sortBy: string) => {
 	}
 	return [];
 };
-const getSortConditions = (sortByDate: boolean, dateSort: number) =>
+const getSortConditions = (sortByDate: boolean, dateSort: number): Dictionary =>
 	sortByDate
 		? {
 				createdAt: dateSort,
@@ -88,7 +89,7 @@ const getSortConditions = (sortByDate: boolean, dateSort: number) =>
 				score: -1,
 				createdAt: dateSort
 		  };
-const getPageConditions = (sortByDate: boolean, idCompare: string, lastScore?: string, lastPostId?: string | ObjectId) => {
+const getPageConditions = (sortByDate: boolean, idCompare: string, lastScore?: string, lastPostId?: string | ObjectId): PipelineStage => {
 	const pageConditions: Dictionary = {};
 	if (lastPostId) {
 		const lastPostObjectId = new ObjectId(lastPostId);
@@ -113,9 +114,9 @@ const getPageConditions = (sortByDate: boolean, idCompare: string, lastScore?: s
 			];
 		}
 	}
-	return pageConditions;
+	return pageConditions as PipelineStage;
 };
-const searchPostsAggregationPipeline = (searchText: string = "", searchOptions: Dictionary = {}, sortBy: string = "match", dateOrder: string = "desc", userId?: string | ObjectId, lastScore?: string, lastPostId?: string | ObjectId) => {
+const searchPostsAggregationPipeline = (searchText: string = "", searchOptions: Dictionary = {}, sortBy: string = "match", dateOrder: string = "desc", userId?: string | ObjectId, lastScore?: string, lastPostId?: string | ObjectId): Array<PipelineStage> => {
 	const sortByDate = sortBy === "date";
 	const [dateSort, idCompare] = dateOrder === "asc" ? [1, "$gt"] : [-1, "$lt"];
 	return [
