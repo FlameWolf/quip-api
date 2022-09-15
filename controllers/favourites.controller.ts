@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { favouriteScore } from "../library";
 import * as postsController from "./posts.controller";
 import Post from "../models/post.model";
+import User from "../models/user.model";
 import Favourite from "../models/favourite.model";
 import { RequestHandler } from "express";
 
@@ -28,6 +29,11 @@ export const addFavourite: RequestHandler = async (req, res, next) => {
 					score: favouriteScore
 				}
 			}).session(session);
+			await User.findByIdAndUpdate(userId, {
+				$addToSet: {
+					favourites: postId
+				}
+			}).session(session);
 			res.status(200).json({ favourited });
 		});
 	} finally {
@@ -48,6 +54,11 @@ export const removeFavourite: RequestHandler = async (req, res, next) => {
 				await Post.findByIdAndUpdate(postId, {
 					$inc: {
 						score: -favouriteScore
+					}
+				}).session(session);
+				await User.findByIdAndUpdate(userId, {
+					$pull: {
+						favourites: postId
 					}
 				}).session(session);
 			}

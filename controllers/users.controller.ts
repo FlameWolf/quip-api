@@ -312,7 +312,7 @@ export const changePassword: RequestHandler = async (req, res, next) => {
 		return;
 	}
 	const passwordHash = bcrypt.hashSync(newPassword, rounds);
-	await User.updateOne(user as UserModel, { password: passwordHash });
+	await User.findByIdAndUpdate(user._id, { password: passwordHash });
 	res.status(200).send();
 	if (email) {
 		emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
