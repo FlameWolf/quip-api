@@ -2,6 +2,7 @@
 
 import { ObjectId } from "bson";
 import { FilterQuery, PipelineStage } from "mongoose";
+import { maxRowsPerFetch } from "../../library";
 import postAggregationPipeline from "./post";
 
 const getPageConditions = (sortByDate: boolean, lastScore?: string, lastPostId?: string | ObjectId): FilterQuery<any> | undefined => {
@@ -60,7 +61,7 @@ const hashtagAggregationPipeline = (hashtag: string, userId?: string | ObjectId,
 			$match: getPageConditions(sortByDate, lastScore, lastPostId) as FilterQuery<any>
 		},
 		{
-			$limit: 20
+			$limit: maxRowsPerFetch
 		},
 		...postAggregationPipeline(userId)
 	];

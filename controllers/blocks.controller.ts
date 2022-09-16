@@ -59,7 +59,7 @@ export const blockUser: RequestHandler = async (req, res, next) => {
 				}).session(session),
 				User.findByIdAndUpdate(blockerUserId, {
 					$addToSet: {
-						blocks: blockeeUserId
+						blockedUsers: blockeeUserId
 					}
 				}).session(session)
 			]);
@@ -89,7 +89,7 @@ export const unblockUser: RequestHandler = async (req, res, next) => {
 			if (unblocked) {
 				await User.findByIdAndUpdate(unblockerUserId, {
 					$pull: {
-						blocks: unblockeeUserId
+						blockedUsers: unblockeeUserId
 					}
 				}).session(session);
 			}

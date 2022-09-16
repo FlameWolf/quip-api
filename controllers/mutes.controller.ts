@@ -9,6 +9,18 @@ import MutedPost from "../models/muted.post.model";
 import MutedWord from "../models/muted.word.model";
 import { RequestHandler } from "express";
 
+const getMutedWordRegExp = (word: string, match: string) => {
+	switch (match) {
+		case "startsWith":
+			return `\\b${word}.*?\\b`;
+		case "endsWith":
+			return `\\b\\w*?${word}\\b`;
+		case "exact":
+			return `\\b${word}\\b`;
+		default:
+			return word;
+	}
+};
 export const muteUser: RequestHandler = async (req, res, next) => {
 	const muteeHandle = req.params.handle;
 	const { handle: muterHandle, userId: muterUserId } = req.userInfo as UserInfo;
@@ -119,7 +131,7 @@ export const muteWord: RequestHandler = async (req, res, next) => {
 			const muted = await new MutedWord({ word, match, mutedBy: userId }).save({ session });
 			await User.findByIdAndUpdate(userId, {
 				$addToSet: {
-					mutedWords: { word, match }
+					mutedWords: getMutedWordRegExp(word, match)
 				}
 			}).session(session);
 			res.status(200).json({ muted });
@@ -138,7 +150,7 @@ export const unmuteWord: RequestHandler = async (req, res, next) => {
 			if (unmuted) {
 				await User.findByIdAndUpdate(userId, {
 					$pull: {
-						mutedWords: { word, match }
+						mutedWords: getMutedWordRegExp(word, match)
 					}
 				}).session(session);
 			}

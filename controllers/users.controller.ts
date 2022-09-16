@@ -110,7 +110,7 @@ export const getUserTopmost: RequestHandler = async (req, res, next) => {
 				from: "posts",
 				localField: "_id",
 				foreignField: "author",
-				pipeline: topmostAggregationPipeline((req.userInfo as UserInfo)?.userId, period, lastScore, lastPostId),
+				pipeline: topmostAggregationPipeline((req.userInfo as UserInfo)?.userId, period, lastScore, lastPostId) as Array<any>,
 				as: "posts"
 			}
 		},
@@ -118,9 +118,11 @@ export const getUserTopmost: RequestHandler = async (req, res, next) => {
 			$unwind: "$posts"
 		},
 		{
-			$replaceWith: "$posts"
+			$replaceRoot: {
+				newRoot: "$posts"
+			}
 		}
-	] as Array<any>);
+	]);
 	res.status(200).json({ posts });
 };
 export const getUserFavourites: RequestHandler = async (req, res, next) => {
