@@ -64,7 +64,23 @@ export const blockUser: RequestHandler = async (req, res, next) => {
 					$addToSet: {
 						blockedUsers: blockeeUserId
 					}
-				}).session(session)
+				}).session(session),
+				List.updateMany(
+					{ owner: blockerUserId },
+					{
+						$pull: {
+							members: blockeeUserId
+						}
+					}
+				).session(session),
+				List.updateMany(
+					{ owner: blockeeUserId },
+					{
+						$pull: {
+							members: blockerUserId
+						}
+					}
+				).session(session)
 			]);
 			res.status(200).json({ blocked });
 		});
