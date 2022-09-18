@@ -58,6 +58,9 @@ export const blockUser: RequestHandler = async (req, res, next) => {
 					user: blockerUserId
 				}).session(session),
 				User.findByIdAndUpdate(blockerUserId, {
+					$pull: {
+						follows: blockeeUserId
+					},
 					$addToSet: {
 						blockedUsers: blockeeUserId
 					}
