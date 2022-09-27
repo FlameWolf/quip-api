@@ -33,11 +33,12 @@ require("cloudinary").v2.config({
 	api_secret: process.env.CLOUD_API_SECRET
 });
 
-const allowedOrigins = (process.env.ALLOW_ORIGINS as string).split(";");
+const allowedOrigins = process.env.ALLOW_ORIGINS || "";
 const app = express();
 app.use(require("helmet")());
 app.use(async (req, res, next) => {
-	res.setHeader("Access-Control-Allow-Origin", allowedOrigins.filter(x => x === req.headers.origin).pop() || "");
+	const origin = req.headers.origin || "";
+	res.setHeader("Access-Control-Allow-Origin", (allowedOrigins.indexOf(`${origin};`) > -1 && origin) || "*");
 	res.setHeader("Access-Control-Allow-Credentials", "true");
 	res.setHeader("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
 	res.setHeader("Access-Control-Allow-Methods", "OPTIONS, POST, PUT, PATCH, GET, DELETE");
