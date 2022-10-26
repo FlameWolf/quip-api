@@ -61,7 +61,7 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 			promises.push(first && (await detectLanguages(first)), second && (await detectLanguages(second)), third && (await detectLanguages(third)), fourth && (await detectLanguages(fourth)));
 		}
 		if (mediaFile) {
-			const mediaDescription = mediaFile.description;
+			const mediaDescription = mediaFile.description as string;
 			promises.push(mediaDescription && (await detectLanguages(mediaDescription)));
 		}
 	}
