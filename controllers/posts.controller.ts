@@ -100,7 +100,7 @@ export const updateMentionsAndHashtags = async (content: string, post: Partial<P
 };
 export const uploadFile = async (file: MulterFile, fileType: string) => {
 	const response = await cloudinary.uploader.upload(file.path, {
-		resource_type: fileType,
+		resource_type: fileType as any,
 		folder: `${fileType}s/`,
 		public_id: file.filename
 	});
