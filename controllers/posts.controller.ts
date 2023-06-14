@@ -73,7 +73,7 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 	post.languages = [...languages];
 };
 export const updateMentionsAndHashtags = async (content: string, post: Partial<PostModel> | DeepPartial<PostModel>) => {
-	const postMentions = new Set(post.mentions);
+	const postMentions = new Set(post.mentions?.map(mention => mention?.toString()));
 	const postHashtags = new Set(post.hashtags);
 	const contentMentions = content.match(/\B@\w+/g);
 	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
@@ -90,12 +90,12 @@ export const updateMentionsAndHashtags = async (content: string, post: Partial<P
 				_id: 1
 			}
 		);
-		users.map(user => user._id).forEach(userId => postMentions.add(userId as MentionEntry));
+		users.map(user => user._id).forEach(userId => postMentions.add(userId.toString()));
 	}
 	if (contentHashtags) {
 		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => postHashtags.add(hashtag as HashtagEntry));
 	}
-	post.mentions = postMentions.size > 0 ? [...postMentions] : undefined;
+	post.mentions = postMentions.size > 0 ? [...postMentions].map(mention => new ObjectId(mention) as MentionEntry) : undefined;
 	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
 };
 export const uploadFile = async (file: MulterFile, fileType: string) => {
