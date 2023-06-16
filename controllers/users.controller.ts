@@ -85,7 +85,7 @@ export const getUser: RequestHandler = async (req, res, next) => {
 export const getUserPosts: RequestHandler = async (req, res, next) => {
 	const handle = req.params.handle;
 	const { includeRepeats, includeReplies, lastPostId } = req.query as Dictionary<string>;
-	const visitorId = (req.userInfo as UserInfo).userId;
+	const visitorId = (req.userInfo as UserInfo)?.userId;
 	const user = await findActiveUserByHandle(handle);
 	if (!user) {
 		res.status(404).send("User not found");
