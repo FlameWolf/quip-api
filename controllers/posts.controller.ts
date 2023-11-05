@@ -19,7 +19,7 @@ import { RequestHandler } from "express";
 
 type PostModel = InferSchemaType<typeof Post.schema>;
 type AttachmentsModel = Required<PostModel>["attachments"];
-type PollModel = AttachmentsModel["poll"];
+type PollModel = (AttachmentsModel & Dictionary)["poll"];
 type LanguageEntry = InferArrayElementType<PostModel["languages"]>;
 type MentionEntry = InferArrayElementType<PostModel["mentions"]>;
 type HashtagEntry = InferArrayElementType<PostModel["hashtags"]>;
@@ -244,7 +244,7 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 			res.status(422).send("Post was edited once and cannot be edited again");
 			return;
 		}
-		const { poll, mediaFile, post: quotedPostId } = post.attachments as AttachmentsModel;
+		const { poll, mediaFile, post: quotedPostId } = post.attachments as AttachmentsModel & Dictionary;
 		if (poll) {
 			res.status(422).send("Cannot edit a post that includes a poll");
 			return;
