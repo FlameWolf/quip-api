@@ -20,6 +20,7 @@ import { RequestHandler } from "express";
 type PostModel = InferSchemaType<typeof Post.schema>;
 type AttachmentsModel = Required<PostModel>["attachments"];
 type PollModel = (AttachmentsModel & Dictionary)["poll"];
+type MediaFileModel = (AttachmentsModel & Dictionary)["mediaFile"];
 type LanguageEntry = InferArrayElementType<PostModel["languages"]>;
 type MentionEntry = InferArrayElementType<PostModel["mentions"]>;
 type HashtagEntry = InferArrayElementType<PostModel["hashtags"]>;
@@ -57,11 +58,11 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 	if (attachments) {
 		const { poll, mediaFile } = attachments;
 		if (poll) {
-			const { first, second, third, fourth } = poll;
+			const { first, second, third, fourth } = poll as PollModel;
 			promises.push(first && (await detectLanguages(first)), second && (await detectLanguages(second)), third && (await detectLanguages(third)), fourth && (await detectLanguages(fourth)));
 		}
 		if (mediaFile) {
-			const mediaDescription = mediaFile.description as string;
+			const mediaDescription = (mediaFile as MediaFileModel).description as string;
 			promises.push(mediaDescription && (await detectLanguages(mediaDescription)));
 		}
 	}
