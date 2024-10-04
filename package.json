@@ -4,6 +4,7 @@
 	"private": true,
 	"main": "index.ts",
 	"scripts": {
+		"postinstall": "patch-package",
 		"dev": "nodemon --exec ts-node index.ts",
 		"build": "tsc",
 		"prettify": "prettier --write .",
@@ -24,7 +25,7 @@
 		"mongoose": "^8.5.3",
 		"mongoose-unique-validator": "^5.0.1",
 		"multer": "^1.4.5-lts.1",
-		"nodemailer": "^6.9.14"
+		"nodemailer": "^6.9.15"
 	},
 	"devDependencies": {
 		"@types/babel__core": "^7.20.5",
@@ -34,7 +35,7 @@
 		"@types/express": "^4.17.21",
 		"@types/fluent-ffmpeg": "^2.1.25",
 		"@types/image-thumbnail": "^1.0.4",
-		"@types/jsonwebtoken": "^9.0.6",
+		"@types/jsonwebtoken": "^9.0.7",
 		"@types/mongoose-unique-validator": "^1.0.9",
 		"@types/multer": "^1.4.11",
 		"@types/node": "^22.4.1",
@@ -42,7 +43,9 @@
 		"@types/nodemon": "^1.19.6",
 		"dotenv": "^16.4.5",
 		"express-oas-generator": "^1.0.46",
-		"nodemon": "^3.1.4",
+		"nodemon": "^3.1.7",
+		"patch-package": "^8.0.0",
+		"postinstall-postinstall": "^2.1.0",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.5.4"
 	}
