@@ -3,7 +3,6 @@
 import * as express from "express";
 import * as http from "http";
 import * as jwt from "jsonwebtoken";
-import "./patch-router-param";
 import "./schemaTypes/url";
 import "./schemaTypes/point";
 import { Request, Response, NextFunction } from "express-serve-static-core";
