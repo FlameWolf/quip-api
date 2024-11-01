@@ -1,0 +1,13 @@
+diff --git a/node_modules/mongoose/types/pipelinestage.d.ts b/node_modules/mongoose/types/pipelinestage.d.ts
+index c709528..27fd265 100644
+--- a/node_modules/mongoose/types/pipelinestage.d.ts
++++ b/node_modules/mongoose/types/pipelinestage.d.ts
+@@ -184,7 +184,7 @@ declare module 'mongoose' {
+ 
+     export interface Match {
+       /** [`$match` reference](https://www.mongodb.com/docs/manual/reference/operator/aggregation/match/) */
+-      $match: FilterQuery<any>;
++      $match: FilterQuery<any> | Record<keyof any, any> | boolean | any;
+     }
+ 
+     export interface Merge {
