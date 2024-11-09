@@ -42,7 +42,7 @@
 		"@types/nodemailer": "^6.4.16",
 		"@types/nodemon": "^1.19.6",
 		"dotenv": "^16.4.5",
-		"express-oas-generator": "^1.0.46",
+		"express-oas-generator-v2": "^1.0.47",
 		"nodemon": "^3.1.7",
 		"patch-package": "^8.0.0",
 		"postinstall-postinstall": "^2.1.0",

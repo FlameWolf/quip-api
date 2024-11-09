@@ -14,7 +14,7 @@ if (isNotProdEnv) {
 }
 const expressOasGenerator = (() => {
 	if (isNotProdEnv) {
-		return require("express-oas-generator");
+		return require("express-oas-generator-v2");
 	}
 })();
 
