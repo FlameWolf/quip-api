@@ -2,7 +2,7 @@
 
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife, AuthPayload } from "../library";
+import { invalidHandles, handleRegExp, passwordRegExp, rounds, authTokenLife } from "../library";
 import User from "../models/user.model";
 import RefreshToken from "../models/refresh-token.model";
 import { RequestHandler } from "express";
@@ -20,7 +20,7 @@ const validatePassword = (password: string) => {
 	return password && passwordRegExp.test(password);
 };
 const authSuccess = async (handle: string, userId: string, includeRefreshToken = true) => {
-	const payload: AuthPayload = {
+	const payload: Dictionary = {
 		userId,
 		authToken: generateAuthToken(handle, userId),
 		createdAt: Date.now(),

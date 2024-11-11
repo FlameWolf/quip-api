@@ -104,7 +104,7 @@ export const uploadFile = async (file: MulterFile) => {
 	const response = await cloudinary.uploader.upload(file.path, {
 		resource_type: fileType as any,
 		folder: `${fileType}s/`,
-		public_id: file.filename
+		use_filename: true
 	});
 	return response;
 };

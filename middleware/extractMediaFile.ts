@@ -2,7 +2,7 @@
 
 import * as multer from "multer";
 import * as path from "path";
-import { validMimeTypes, megaByte, sanitiseFileName } from "../library";
+import { validMimeTypes, megaByte, sanitiseFileName, standardiseFileName } from "../library";
 
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
@@ -20,7 +20,7 @@ const extractMediaFile = multer({
 			cb(null, path.join("public", `${file.type}s`));
 		},
 		filename: (req, file, cb) => {
-			cb(null, `${sanitiseFileName(file.originalname.replace(new RegExp(`\.${file.subType}$`), ""), 16)}_${Date.now().valueOf()}`);
+			cb(null, standardiseFileName(file.originalname, file.subType));
 		}
 	})
 }).single("media");
