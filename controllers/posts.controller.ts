@@ -99,7 +99,8 @@ export const updateMentionsAndHashtags = async (content: string, post: Partial<P
 	post.mentions = postMentions.size > 0 ? [...postMentions].map(mention => new ObjectId(mention) as MentionEntry) : undefined;
 	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
 };
-export const uploadFile = async (file: MulterFile, fileType: string) => {
+export const uploadFile = async (file: MulterFile) => {
+	const fileType = file.type;
 	const response = await cloudinary.uploader.upload(file.path, {
 		resource_type: fileType as any,
 		folder: `${fileType}s/`,
@@ -175,7 +176,7 @@ export const deletePostWithCascade = async (post: HydratedDocument<PostModel>) =
 };
 export const createPost: RequestHandler = async (req, res, next) => {
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const { file: media, fileType } = req;
+	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
 		validateContent(content, poll, media);
@@ -193,8 +194,8 @@ export const createPost: RequestHandler = async (req, res, next) => {
 				}),
 				...(media && {
 					mediaFile: {
-						fileType,
-						src: (await uploadFile(media, fileType as string)).secure_url,
+						fileType: media.type,
+						src: (await uploadFile(media)).secure_url,
 						description: mediaDescription
 					}
 				})
@@ -354,7 +355,7 @@ export const getPostParent: RequestHandler = async (req, res, next) => {
 export const quotePost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const { file: media, fileType } = req;
+	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
 		validateContent(content, poll, media, postId);
@@ -380,8 +381,8 @@ export const quotePost: RequestHandler = async (req, res, next) => {
 					}),
 					...(media && {
 						mediaFile: {
-							fileType,
-							src: (await uploadFile(media, fileType as string)).secure_url,
+							fileType: media.type,
+							src: (await uploadFile(media)).secure_url,
 							description: mediaDescription
 						}
 					}),
@@ -503,7 +504,7 @@ export const unrepeatPost: RequestHandler = async (req, res, next) => {
 export const replyToPost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
-	const { file: media, fileType } = req;
+	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
 		validateContent(content, poll, media);
@@ -531,8 +532,8 @@ export const replyToPost: RequestHandler = async (req, res, next) => {
 						}),
 						...(media && {
 							mediaFile: {
-								fileType,
-								src: (await uploadFile(media, fileType as string)).secure_url,
+								fileType: media.type,
+								src: (await uploadFile(media)).secure_url,
 								description: mediaDescription
 							}
 						})

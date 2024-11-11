@@ -6,9 +6,9 @@ import { validMimeTypes, megaByte, sanitiseFileName } from "../library";
 
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
-		const [type, subtype] = file.mimetype.split("/");
-		req.fileType = type.trim();
-		req.fileSubtype = subtype.trim();
+		const [type, subType] = file.mimetype.split("/");
+		file.type = type;
+		file.subType = subType;
 		const isValid = validMimeTypes.some(mimeType => mimeType === type);
 		isValid ? cb(null, true) : cb(new Error("Invalid file type"));
 	},
@@ -17,10 +17,10 @@ const extractMediaFile = multer({
 	},
 	storage: multer.diskStorage({
 		destination: (req, file, cb) => {
-			cb(null, path.join("public", `${req.fileType}s`));
+			cb(null, path.join("public", `${file.type}s`));
 		},
 		filename: (req, file, cb) => {
-			cb(null, `${sanitiseFileName(file.originalname.replace(new RegExp(`\.${req.fileSubtype as string}$`), ""), 16)}_${Date.now().valueOf()}`);
+			cb(null, `${sanitiseFileName(file.originalname.replace(new RegExp(`\.${file.subType}$`), ""), 16)}_${Date.now().valueOf()}`);
 		}
 	})
 }).single("media");
