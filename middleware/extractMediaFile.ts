@@ -2,14 +2,12 @@
 
 import * as multer from "multer";
 import * as path from "path";
-import { validMimeTypes, megaByte, sanitiseFileName, standardiseFileName } from "../library";
+import { validMimeTypes, megaByte, standardiseFileName } from "../library";
 
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
-		const [type, subType] = file.mimetype.split("/");
-		file.type = type;
-		file.subType = subType;
-		const isValid = validMimeTypes.some(mimeType => mimeType === type);
+		[file.type, file.subType] = file.mimetype.split("/");
+		const isValid = validMimeTypes.some(mimeType => mimeType === file.type);
 		isValid ? cb(null, true) : cb(new Error("Invalid file type"));
 	},
 	limits: {
@@ -20,7 +18,7 @@ const extractMediaFile = multer({
 			cb(null, path.join("public", `${file.type}s`));
 		},
 		filename: (req, file, cb) => {
-			cb(null, standardiseFileName(file.originalname, file.subType));
+			cb(null, standardiseFileName(file.originalname));
 		}
 	})
 }).single("media");
