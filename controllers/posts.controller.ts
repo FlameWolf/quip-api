@@ -246,7 +246,7 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 			res.status(422).send("Post was edited once and cannot be edited again");
 			return;
 		}
-		const { poll, mediaFile, post: quotedPostId } = post.attachments as AttachmentsModel & Dictionary;
+		const { poll = undefined, mediaFile = undefined, post: quotedPostId } = post.attachments || ({} as AttachmentsModel & Dictionary);
 		if (poll) {
 			res.status(422).send("Cannot edit a post that includes a poll");
 			return;
@@ -268,10 +268,10 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 			}
 			const model = {
 				content,
-				...(mediaFile && {
+				...((mediaFile as MediaFileModel) && {
 					attachments: {
 						mediaFile: {
-							description: mediaFile.description
+							description: (mediaFile as MediaFileModel).description
 						}
 					}
 				}),
