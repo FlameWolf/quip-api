@@ -1,5 +1,18 @@
 "use strict";
 
+import { ObjectId } from "bson";
+import * as cld from "cld";
+import { v2 as cloudinary } from "cloudinary";
+import Post from "./models/post.model";
+import Message from "./models/message.model";
+import User from "./models/user.model";
+import { InferSchemaType } from "mongoose";
+
+type ContentModel = InferSchemaType<typeof Post.schema> | InferSchemaType<typeof Message.schema>;
+export type UserModel = InferSchemaType<typeof User.schema>;
+export type MentionEntry = InferArrayElementType<ContentModel["mentions"]>;
+export type HashtagEntry = InferArrayElementType<ContentModel["hashtags"]>;
+
 export const invalidHandles = ["auth", "home", "search", "user", "users", "post", "posts", "quip", "quips", "favourite", "favourites", "unfavourite", "repeat", "repeats", "unrepeat", "reply", "replies", "profile", "profiles", "setting", "settings", "follow", "followed", "follows", "following", "follower", "followers", "unfollow", "mute", "muted", "unmute", "block", "blocked", "unblock", "filter", "filters", "list", "lists", "bookmark", "bookmarks", "unbookmark", "hashtag", "hashtags", "notification", "notifications", "message", "messages", "account", "accounts", "security", "privacy", "admin"];
 export const handleRegExp = /^[A-Za-z][\w]{3,31}$/;
 export const passwordRegExp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
@@ -69,3 +82,47 @@ export const sanitiseFileName = (value: string, maxLength?: number) =>
 		.substring(0, maxLength)
 		.replace(/[^\p{L}\p{M}\d]/gu, "_");
 export const standardiseFileName = (name: string) => `${sanitiseFileName(name.replace(fileExtensionRegExp, ""), 16)}_${Date.now().valueOf()}${name.match(fileExtensionRegExp)?.[0]}`;
+export const detectLanguages = async (value: string) => {
+	if (value.trim()) {
+		try {
+			return (await cld.detect(value)).languages.map(language => language.code);
+		} finally {
+		}
+	}
+	return ["xx"];
+};
+export const uploadFile = async (file: MulterFile) => {
+	const fileType = file.type;
+	const response = await cloudinary.uploader.upload(file.path, {
+		resource_type: fileType as any,
+		folder: `${fileType}s/`,
+		use_filename: true
+	});
+	return response;
+};
+export const updateMentionsAndHashtags = async (content: string, post: Partial<ContentModel> | DeepPartial<ContentModel>) => {
+	const postMentions = new Set(post.mentions?.map(mention => mention?.toString()));
+	const postHashtags = new Set(post.hashtags);
+	const contentMentions = content.match(/\B@\w+/g);
+	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
+	if (contentMentions) {
+		const users = await User.find(
+			{
+				handle: {
+					$in: contentMentions.map(mention => mention.substring(1))
+				},
+				deactivated: false,
+				deleted: false
+			},
+			{
+				_id: 1
+			}
+		);
+		users.map(user => user._id).forEach(userId => postMentions.add(userId.toString()));
+	}
+	if (contentHashtags) {
+		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => postHashtags.add(hashtag as HashtagEntry));
+	}
+	post.mentions = postMentions.size > 0 ? [...postMentions].map(mention => new ObjectId(mention) as MentionEntry) : undefined;
+	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
+};

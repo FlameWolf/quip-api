@@ -16,7 +16,26 @@ const conversationSchema = new Schema(
 				}
 			}
 		],
-		messages: [{ type: ObjectId, ref: "Message", required: true }]
+		messages: [
+			{
+				type: {
+					oneOf: [
+						{ type: ObjectId, ref: "Message", required: true },
+						{
+							type: new Schema({
+								user: { type: ObjectId, ref: "User", required: true },
+								event: {
+									type: String,
+									enum: ["joined", "left"],
+									required: true
+								}
+							})
+						}
+					]
+				}
+			}
+		],
+		deletedFor: [{ type: ObjectId, ref: "User" }]
 	},
 	{
 		timestamps: true,

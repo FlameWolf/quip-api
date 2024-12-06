@@ -7,6 +7,7 @@ import { maxMessageLength, getUnicodeClusterCount } from "../library";
 const { Url, Point } = SchemaTypes;
 const messageSchema = new Schema(
 	{
+		conversation: { type: ObjectId, ref: "Conversation", required: true },
 		content: {
 			type: String,
 			trim: true,
@@ -49,7 +50,8 @@ const messageSchema = new Schema(
 		hashtags: {
 			type: [{ type: String }],
 			default: undefined
-		}
+		},
+		deletedFor: [{ type: ObjectId, ref: "User" }]
 	},
 	{
 		timestamps: true,

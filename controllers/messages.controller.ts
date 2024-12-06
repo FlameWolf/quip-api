@@ -2,26 +2,20 @@
 
 import { ObjectId } from "bson";
 import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
-import * as cld from "cld";
-import { v2 as cloudinary } from "cloudinary";
-import { maxMessageLength, getUnicodeClusterCount } from "../library";
+import { getUnicodeClusterCount, maxMessageLength, detectLanguages, uploadFile, updateMentionsAndHashtags } from "../library";
 import messageAggregationPipeline from "../db/pipelines/message";
+import * as conversationsController from "./conversations.controller";
 import * as postsController from "./posts.controller";
+import Conversation from "../models/conversation.model";
 import Message from "../models/message.model";
-import User from "../models/user.model";
 import { RequestHandler } from "express";
 
 type MessageModel = InferSchemaType<typeof Message.schema>;
 type AttachmentsModel = Required<MessageModel>["attachments"];
 type MediaFileModel = (AttachmentsModel & Dictionary)["mediaFile"];
 type LanguageEntry = InferArrayElementType<MessageModel["languages"]>;
-type MentionEntry = InferArrayElementType<MessageModel["mentions"]>;
-type HashtagEntry = InferArrayElementType<MessageModel["hashtags"]>;
 
-export const findMessageById = async (messageId: string | ObjectId): Promise<HydratedDocument<MessageModel>> => {
-	return (await Message.findById(messageId)) as HydratedDocument<MessageModel>;
-};
-export const validateContent = (content: string, media?: MulterFile, postId?: string | ObjectId) => {
+const validateContent = (content: string, media?: MulterFile, postId?: string | ObjectId) => {
 	if (!content.trim()) {
 		if (!media && !postId) {
 			throw new Error("No content");
@@ -31,17 +25,7 @@ export const validateContent = (content: string, media?: MulterFile, postId?: st
 		throw new Error("Content too long");
 	}
 };
-export const detectLanguages = async (value: string) => {
-	if (value.trim()) {
-		try {
-			return (await cld.detect(value)).languages.map(language => language.code);
-		} catch {
-			return ["xx"];
-		}
-	}
-	return [];
-};
-export const updateLanguages = async (message: Partial<MessageModel> | DeepPartial<MessageModel>) => {
+const updateLanguages = async (message: Partial<MessageModel> | DeepPartial<MessageModel>) => {
 	const languages = new Set(message.languages);
 	const promises = [];
 	const { content, attachments } = message;
@@ -60,68 +44,21 @@ export const updateLanguages = async (message: Partial<MessageModel> | DeepParti
 	}
 	message.languages = [...languages];
 };
-export const updateMentionsAndHashtags = async (content: string, message: Partial<MessageModel> | DeepPartial<MessageModel>) => {
-	const messageMentions = new Set(message.mentions?.map(mention => mention?.toString()));
-	const messageHashtags = new Set(message.hashtags);
-	const contentMentions = content.match(/\B@\w+/g);
-	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
-	if (contentMentions) {
-		const users = await User.find(
-			{
-				handle: {
-					$in: contentMentions.map(mention => mention.substring(1))
-				},
-				deactivated: false,
-				deleted: false
-			},
-			{
-				_id: 1
-			}
-		);
-		users.map(user => user._id).forEach(userId => messageMentions.add(userId.toString()));
-	}
-	if (contentHashtags) {
-		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => messageHashtags.add(hashtag as HashtagEntry));
-	}
-	message.mentions = messageMentions.size > 0 ? [...messageMentions].map(mention => new ObjectId(mention) as MentionEntry) : undefined;
-	message.hashtags = messageHashtags.size > 0 ? [...messageHashtags] : undefined;
-};
-export const uploadFile = async (file: MulterFile) => {
-	const fileType = file.type;
-	const response = await cloudinary.uploader.upload(file.path, {
-		resource_type: fileType as any,
-		folder: `${fileType}s/`,
-		use_filename: true
-	});
-	return response;
-};
-export const deleteMessageWithCascade = async (message: HydratedDocument<MessageModel>) => {
-	const session = await mongoose.startSession();
-	await session.withTransaction(async () => {
-		await Message.deleteOne(message as MessageModel).session(session);
-		await Promise.all([
-			User.findOneAndUpdate(
-				{
-					_id: message.author
-				},
-				{
-					$pull: {
-						messages: message._id
-					}
-				}
-			).session(session)
-		]);
-	});
-	await session.endSession();
+const findMessageById = async (messageId: string | ObjectId): Promise<HydratedDocument<MessageModel>> => {
+	return (await Message.findById(messageId)) as HydratedDocument<MessageModel>;
 };
 export const createMessage: RequestHandler = async (req, res, next) => {
-	const { content = "", "media-description": mediaDescription, location } = req.body;
+	const { conversation, content = "", "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
 		validateContent(content, media);
 	} catch (err) {
 		res.status(400).send(err);
+		return;
+	}
+	if (!(await conversationsController.findConversationById(conversation))) {
+		res.status(404).send("Conversation not found");
 		return;
 	}
 	const model = {
@@ -146,9 +83,9 @@ export const createMessage: RequestHandler = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
 		const message = await new Message(model).save({ session });
-		await User.findOneAndUpdate(
+		await Conversation.findOneAndUpdate(
 			{
-				_id: userId
+				_id: conversation
 			},
 			{
 				$addToSet: {
@@ -181,13 +118,17 @@ export const getMessage: RequestHandler = async (req, res, next) => {
 };
 export const quotePost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content = "", "media-description": mediaDescription, location } = req.body;
+	const { conversation, content = "", "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
 		validateContent(content, media, postId);
 	} catch (err) {
 		res.status(400).send(err);
+		return;
+	}
+	if (!(await conversationsController.findConversationById(conversation))) {
+		res.status(404).send("Conversation not found");
 		return;
 	}
 	const session = await mongoose.startSession();
@@ -220,9 +161,9 @@ export const quotePost: RequestHandler = async (req, res, next) => {
 			};
 			await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
 			const quote = await new Message(model).save({ session });
-			await User.findOneAndUpdate(
+			await Conversation.findOneAndUpdate(
 				{
-					_id: userId
+					_id: conversation
 				},
 				{
 					$addToSet: {
@@ -244,10 +185,19 @@ export const deleteMessage: RequestHandler = async (req, res, next) => {
 		res.status(404).send("Message not found");
 		return;
 	}
-	if (message.author.toString() !== userId) {
+	const conversationId = message.conversation;
+	const conversation = await Conversation.findOne({
+		id: conversationId,
+		participants: userId
+	});
+	if (!conversation) {
 		res.status(403).send("You are not allowed to perform this action");
 		return;
 	}
-	await deleteMessageWithCascade(message);
+	await Conversation.updateOne(conversation, {
+		$addToSet: {
+			deletedFor: userId
+		}
+	});
 	res.status(200).json({ deleted: message });
 };

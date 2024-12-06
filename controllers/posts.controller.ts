@@ -1,10 +1,8 @@
 "use strict";
 
 import { ObjectId } from "bson";
-import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
-import * as cld from "cld";
-import { v2 as cloudinary } from "cloudinary";
-import { maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore, getUnicodeClusterCount } from "../library";
+import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
+import { getUnicodeClusterCount, maxContentLength, detectLanguages, repeatScore, replyScore, quoteScore, uploadFile, updateMentionsAndHashtags, MentionEntry, nullId, voteScore } from "../library";
 import postAggregationPipeline from "../db/pipelines/post";
 import postQuotesAggregationPipeline from "../db/pipelines/post-quotes";
 import postRepliesAggregationPipeline from "../db/pipelines/post-replies";
@@ -22,15 +20,8 @@ type AttachmentsModel = Required<PostModel>["attachments"];
 type PollModel = (AttachmentsModel & Dictionary)["poll"];
 type MediaFileModel = (AttachmentsModel & Dictionary)["mediaFile"];
 type LanguageEntry = InferArrayElementType<PostModel["languages"]>;
-type MentionEntry = InferArrayElementType<PostModel["mentions"]>;
-type HashtagEntry = InferArrayElementType<PostModel["hashtags"]>;
 
-export const findPostById = async (postId: string | ObjectId): Promise<HydratedDocument<PostModel>> => {
-	const post = await Post.findById(postId);
-	const repeatPost = post?.repeatPost;
-	return repeatPost ? await findPostById(repeatPost as ObjectId) : (post as HydratedDocument<PostModel>);
-};
-export const validateContent = (content: string, poll?: string, media?: MulterFile, postId?: string | ObjectId) => {
+const validateContent = (content: string, poll?: string, media?: MulterFile, postId?: string | ObjectId) => {
 	if (!content.trim()) {
 		if (poll || !(media || postId)) {
 			throw new Error("No content");
@@ -40,17 +31,7 @@ export const validateContent = (content: string, poll?: string, media?: MulterFi
 		throw new Error("Content too long");
 	}
 };
-export const detectLanguages = async (value: string) => {
-	if (value.trim()) {
-		try {
-			return (await cld.detect(value)).languages.map(language => language.code);
-		} catch {
-			return ["xx"];
-		}
-	}
-	return [];
-};
-export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<PostModel>) => {
+const updateLanguages = async (post: Partial<PostModel> | DeepPartial<PostModel>) => {
 	const languages = new Set(post.languages);
 	const promises = [];
 	const { content, attachments } = post;
@@ -73,42 +54,7 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 	}
 	post.languages = [...languages];
 };
-export const updateMentionsAndHashtags = async (content: string, post: Partial<PostModel> | DeepPartial<PostModel>) => {
-	const postMentions = new Set(post.mentions?.map(mention => mention?.toString()));
-	const postHashtags = new Set(post.hashtags);
-	const contentMentions = content.match(/\B@\w+/g);
-	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
-	if (contentMentions) {
-		const users = await User.find(
-			{
-				handle: {
-					$in: contentMentions.map(mention => mention.substring(1))
-				},
-				deactivated: false,
-				deleted: false
-			},
-			{
-				_id: 1
-			}
-		);
-		users.map(user => user._id).forEach(userId => postMentions.add(userId.toString()));
-	}
-	if (contentHashtags) {
-		contentHashtags.map(hashtag => hashtag.substring(1)).forEach(hashtag => postHashtags.add(hashtag as HashtagEntry));
-	}
-	post.mentions = postMentions.size > 0 ? [...postMentions].map(mention => new ObjectId(mention) as MentionEntry) : undefined;
-	post.hashtags = postHashtags.size > 0 ? [...postHashtags] : undefined;
-};
-export const uploadFile = async (file: MulterFile) => {
-	const fileType = file.type;
-	const response = await cloudinary.uploader.upload(file.path, {
-		resource_type: fileType as any,
-		folder: `${fileType}s/`,
-		use_filename: true
-	});
-	return response;
-};
-export const deletePostWithCascade = async (post: HydratedDocument<PostModel>) => {
+const deletePostWithCascade = async (post: HydratedDocument<PostModel>) => {
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
 		const postId = post._id;
@@ -173,6 +119,11 @@ export const deletePostWithCascade = async (post: HydratedDocument<PostModel>) =
 		]);
 	});
 	await session.endSession();
+};
+export const findPostById = async (postId: string | ObjectId): Promise<HydratedDocument<PostModel>> => {
+	const post = await Post.findById(postId);
+	const repeatPost = post?.repeatPost;
+	return repeatPost ? await findPostById(repeatPost as ObjectId) : (post as HydratedDocument<PostModel>);
 };
 export const createPost: RequestHandler = async (req, res, next) => {
 	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
