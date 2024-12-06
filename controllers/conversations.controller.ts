@@ -21,7 +21,7 @@ type MentionEntry = InferArrayElementType<MessageModel["mentions"]>;
 type HashtagEntry = InferArrayElementType<MessageModel["hashtags"]>;
 
 export const findConversationById = async (conversationId: string | ObjectId): Promise<HydratedDocument<ConversationModel>> => {
-	return (await Message.findById(conversationId)) as HydratedDocument<ConversationModel>;
+	return (await Conversation.findById(conversationId)) as HydratedDocument<ConversationModel>;
 };
 export const createConversation: RequestHandler = async (req, res, next) => {};
 export const addParticipant: RequestHandler = async (req, res, next) => {};

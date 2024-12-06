@@ -48,7 +48,7 @@ const findMessageById = async (messageId: string | ObjectId): Promise<HydratedDo
 	return (await Message.findById(messageId)) as HydratedDocument<MessageModel>;
 };
 export const createMessage: RequestHandler = async (req, res, next) => {
-	const { conversation, content = "", "media-description": mediaDescription, location } = req.body;
+	const { conversationId, content = "", "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
@@ -57,7 +57,8 @@ export const createMessage: RequestHandler = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	if (!(await conversationsController.findConversationById(conversation))) {
+	const conversation = await conversationsController.findConversationById(conversationId);
+	if (!conversation) {
 		res.status(404).send("Conversation not found");
 		return;
 	}
@@ -83,16 +84,11 @@ export const createMessage: RequestHandler = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	await session.withTransaction(async () => {
 		const message = await new Message(model).save({ session });
-		await Conversation.findOneAndUpdate(
-			{
-				_id: conversation
-			},
-			{
-				$addToSet: {
-					messages: message._id
-				}
+		await Conversation.updateOne(conversation, {
+			$addToSet: {
+				messages: message._id
 			}
-		).session(session);
+		}).session(session);
 		res.status(201).send({ message });
 	});
 	await session.endSession();
@@ -118,7 +114,7 @@ export const getMessage: RequestHandler = async (req, res, next) => {
 };
 export const quotePost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { conversation, content = "", "media-description": mediaDescription, location } = req.body;
+	const { conversationId, content = "", "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
@@ -127,7 +123,8 @@ export const quotePost: RequestHandler = async (req, res, next) => {
 		res.status(400).send(err);
 		return;
 	}
-	if (!(await conversationsController.findConversationById(conversation))) {
+	const conversation = await conversationsController.findConversationById(conversationId);
+	if (!conversation) {
 		res.status(404).send("Conversation not found");
 		return;
 	}
@@ -161,16 +158,11 @@ export const quotePost: RequestHandler = async (req, res, next) => {
 			};
 			await Promise.all([updateLanguages(model), content.trim() && updateMentionsAndHashtags(content, model)]);
 			const quote = await new Message(model).save({ session });
-			await Conversation.findOneAndUpdate(
-				{
-					_id: conversation
-				},
-				{
-					$addToSet: {
-						messages: quote._id
-					}
+			await Conversation.updateOne(conversation, {
+				$addToSet: {
+					messages: quote._id
 				}
-			).session(session);
+			}).session(session);
 			res.status(201).json({ quote });
 		});
 	} finally {
@@ -185,9 +177,8 @@ export const deleteMessage: RequestHandler = async (req, res, next) => {
 		res.status(404).send("Message not found");
 		return;
 	}
-	const conversationId = message.conversation;
 	const conversation = await Conversation.findOne({
-		id: conversationId,
+		id: message.conversation,
 		participants: userId
 	});
 	if (!conversation) {
