@@ -47,14 +47,27 @@ const userSchema = new Schema(
 			select: false
 		},
 		posts: [{ type: ObjectId, ref: "Post" }],
+		messages: [{ type: ObjectId, ref: "Message" }],
 		pinnedPost: { type: ObjectId, ref: "Post" },
 		protected: { type: Boolean, default: false },
 		deactivated: { type: Boolean, default: false },
 		deleted: { type: Boolean, default: false },
-		follows: { type: [ObjectId], select: false },
-		blockedUsers: { type: [ObjectId], select: false },
-		mutedUsers: { type: [ObjectId], select: false },
-		mutedPosts: { type: [ObjectId], select: false },
+		follows: {
+			type: [{ type: ObjectId, ref: "User" }],
+			select: false
+		},
+		blockedUsers: {
+			type: [{ type: ObjectId, ref: "User" }],
+			select: false
+		},
+		mutedUsers: {
+			type: [{ type: ObjectId, ref: "User" }],
+			select: false
+		},
+		mutedPosts: {
+			type: [{ type: ObjectId, ref: "Post" }],
+			select: false
+		},
 		mutedWords: { type: [String], select: false }
 	},
 	{

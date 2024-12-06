@@ -1,12 +1,12 @@
 "use strict";
 
 import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
+import { batchSize } from "../library";
 import * as usersController from "./users.controller";
 import FollowRequest from "../models/follow-request.model";
 import Follow from "../models/follow.model";
 import { RequestHandler } from "express";
 
-const batchSize = 65536;
 type FollowRequestModel = InferSchemaType<typeof FollowRequest.schema>;
 
 export const acceptFollowRequest: RequestHandler = async (req, res, next) => {

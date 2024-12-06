@@ -2,42 +2,21 @@
 
 import { ObjectId } from "bson";
 import { PipelineStage } from "mongoose";
+import authorLookupAndUnwindPipeline from "./author";
 import interactionsAggregationPipeline from "./interactions";
 
-const authorLookupAndUnwind: Array<PipelineStage> = [
-	{
-		$lookup: {
-			from: "users",
-			localField: "author",
-			foreignField: "_id",
-			pipeline: [
-				{
-					$project: {
-						handle: {
-							$cond: ["$deleted", "[deleted]", "$handle"]
-						}
-					}
-				}
-			],
-			as: "author"
-		}
-	},
-	{
-		$unwind: "$author"
-	}
-];
 const postAggregationPipeline = (userId?: string | ObjectId): Array<PipelineStage> => {
 	return [
 		{
 			$unset: "score"
 		},
-		...(authorLookupAndUnwind as Array<any>),
+		...(authorLookupAndUnwindPipeline as Array<any>),
 		{
 			$lookup: {
 				from: "posts",
 				localField: "attachments.post",
 				foreignField: "_id",
-				pipeline: authorLookupAndUnwind,
+				pipeline: authorLookupAndUnwindPipeline,
 				as: "attachments.post"
 			}
 		},
