@@ -18,7 +18,7 @@ router.get("/block/:handle", requireAuthentication, blocksController.blockUser);
 router.get("/unblock/:handle", requireAuthentication, blocksController.unblockUser);
 router.get("/:handle", usersController.getUser);
 router.get("/:handle/posts", usersController.getUserPosts);
-router.get("/:handle/topmost/:period?", usersController.getUserTopmost);
+router.get("/:handle/topmost/{:period}", usersController.getUserTopmost);
 router.get("/:handle/favourites", requireAuthentication, usersController.getUserFavourites);
 router.get("/:handle/votes", requireAuthentication, usersController.getUserVotes);
 router.get("/:handle/bookmarks", requireAuthentication, usersController.getUserBookmarks);
