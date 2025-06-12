@@ -33,7 +33,7 @@ const updateLanguages = async (message: Partial<MessageModel> | DeepPartial<Mess
 	if (attachments) {
 		const { mediaFile } = attachments;
 		if (mediaFile) {
-			const mediaDescription = (mediaFile as MediaFileModel).description as string;
+			const mediaDescription = mediaFile.description as string;
 			promises.push(mediaDescription && (await detectLanguages(mediaDescription)));
 		}
 	}
