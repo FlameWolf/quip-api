@@ -17,8 +17,7 @@ import { RequestHandler } from "express";
 
 type PostModel = InferSchemaType<typeof Post.schema>;
 type AttachmentsModel = Required<PostModel>["attachments"];
-type PollModel = (AttachmentsModel & Dictionary)["poll"];
-type MediaFileModel = (AttachmentsModel & Dictionary)["mediaFile"];
+type PollModel = Required<AttachmentsModel & Dictionary>["poll"];
 type LanguageEntry = InferArrayElementType<PostModel["languages"]>;
 
 const validateContent = (content: string, poll?: string, media?: MulterFile, postId?: string | ObjectId) => {
@@ -39,11 +38,11 @@ const updateLanguages = async (post: Partial<PostModel> | DeepPartial<PostModel>
 	if (attachments) {
 		const { poll, mediaFile } = attachments;
 		if (poll) {
-			const { first, second, third, fourth } = poll as PollModel;
+			const { first, second, third, fourth } = poll;
 			promises.push(first && (await detectLanguages(first)), second && (await detectLanguages(second)), third && (await detectLanguages(third)), fourth && (await detectLanguages(fourth)));
 		}
 		if (mediaFile) {
-			const mediaDescription = (mediaFile as MediaFileModel).description as string;
+			const mediaDescription = mediaFile.description as string;
 			promises.push(mediaDescription && (await detectLanguages(mediaDescription)));
 		}
 	}
@@ -224,10 +223,10 @@ export const updatePost: RequestHandler = async (req, res, next) => {
 			}
 			const model = {
 				content,
-				...((mediaFile as MediaFileModel) && {
+				...(mediaFile && {
 					attachments: {
 						mediaFile: {
-							description: (mediaFile as MediaFileModel).description
+							description: mediaFile.description
 						}
 					}
 				}),
