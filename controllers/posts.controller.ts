@@ -419,7 +419,7 @@ export const repeatPost: RequestHandler = async (req, res, next) => {
 								$pull: {
 									posts: null
 								}
-						  }
+							}
 						: {}),
 					$addToSet: {
 						posts: repeated._id

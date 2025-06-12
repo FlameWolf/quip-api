@@ -13,8 +13,8 @@ router.get("/", async (req, res, next) => {
 	res.status(404).send();
 });
 router.get("/timeline", requireAuthentication, indexController.timeline);
-router.get("/activity/:period?", requireAuthentication, indexController.activity);
-router.get("/topmost/:period?", indexController.topmost);
+router.get("/activity/{:period}", requireAuthentication, indexController.activity);
+router.get("/topmost/{:period}", indexController.topmost);
 router.get("/hashtag/:name", indexController.hashtag);
 router.get("/reject-email/:token", indexController.rejectEmail);
 router.get("/verify-email/:token", indexController.verifyEmail);
