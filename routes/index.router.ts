@@ -15,10 +15,10 @@ router.get("/", async (req, res, next) => {
 router.get("/timeline", requireAuthentication, indexController.timeline);
 router.get("/activity/{:period}", requireAuthentication, indexController.activity);
 router.get("/topmost/{:period}", indexController.topmost);
-router.get("/hashtag/:name", indexController.hashtag);
-router.get("/reject-email/:token", indexController.rejectEmail);
-router.get("/verify-email/:token", indexController.verifyEmail);
+router.get("/hashtag/{:name}", indexController.hashtag);
+router.get("/reject-email/{:token}", indexController.rejectEmail);
+router.get("/verify-email/{:token}", indexController.verifyEmail);
 router.post("/forgot-password", indexController.forgotPassword);
-router.post("/reset-password/:token", indexController.resetPassword);
+router.post("/reset-password/{:token}", indexController.resetPassword);
 
 module.exports = router;
