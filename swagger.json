@@ -91,7 +91,9 @@
 									"type": {
 										"required": true,
 										"type": "string",
-										"enum": ["Point"]
+										"enum": [
+											"Point"
+										]
 									},
 									"coordinates": {
 										"required": true,
@@ -121,7 +123,12 @@
 							},
 							"match": {
 								"type": "string",
-								"enum": ["exact", "contains", "startsWith", "endsWith"]
+								"enum": [
+									"exact",
+									"contains",
+									"startsWith",
+									"endsWith"
+								]
 							}
 						}
 					}
@@ -172,7 +179,11 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": ["day", "week", "month"]
+										"enum": [
+											"day",
+											"week",
+											"month"
+										]
 									}
 								}
 							},
@@ -181,7 +192,13 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": ["day", "week", "month", "year", "all"]
+										"enum": [
+											"day",
+											"week",
+											"month",
+											"year",
+											"all"
+										]
 									}
 								}
 							},
@@ -338,12 +355,66 @@
 					}
 				}
 			}
+		},
+		"PostUpdate": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"content": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"Vote": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"option": {
+								"required": true,
+								"type": "string",
+								"enum": [
+									"first",
+									"second",
+									"third",
+									"fourth",
+									"nota"
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		"Email": {
+			"content": {
+				"application/json": {
+					"schema": {
+						"type": "object",
+						"properties": {
+							"email": {
+								"required": true,
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"paths": {
 		"/": {
 			"get": {
-				"tags": ["X-HIDDEN"]
+				"tags": [
+					"X-HIDDEN"
+				]
 			}
 		},
 		"/auth/sign-up": {
@@ -385,6 +456,18 @@
 				}
 			}
 		},
+		"/auth/revoke-token/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/forgot-password": {
 			"post": {
 				"requestBody": {
@@ -403,6 +486,30 @@
 				"requestBody": {
 					"$ref": "#/requestBodies/PasswordReset"
 				}
+			}
+		},
+		"/reject-email/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/verify-email/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
 			}
 		},
 		"/posts/create": {
@@ -497,7 +604,145 @@
 						"in": "query",
 						"required": true,
 						"type": "string",
-						"enum": ["first", "second", "third", "fourth", "nota"]
+						"enum": [
+							"first",
+							"second",
+							"third",
+							"fourth",
+							"nota"
+						]
+					}
+				]
+			}
+		},
+		"/posts/favourite/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/unfavourite/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/bookmark/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/unbookmark/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/repeat/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/unrepeat/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/mute/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/unmute/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/delete/{postId}": {
+			"delete": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/posts/{postId}/parent": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
 					}
 				]
 			}
@@ -530,6 +775,114 @@
 				}
 			}
 		},
+		"/settings/sent-reqs": {
+			"post": {
+				"responses": {
+					"200": {
+						"description": "List of sent follow requests"
+					}
+				}
+			}
+		},
+		"/settings/received-reqs": {
+			"post": {
+				"responses": {
+					"200": {
+						"description": "List of received follow requests"
+					}
+				}
+			}
+		},
+		"/settings/accept-req/{requestId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "requestId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/accept-all-reqs": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "All follow requests accepted"
+					}
+				}
+			}
+		},
+		"/settings/reject-req/{requestId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "requestId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/reject-all-reqs": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "All follow requests rejected"
+					}
+				}
+			}
+		},
+		"/settings/pin/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/settings/unpin": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Post unpinned"
+					}
+				}
+			}
+		},
+		"/settings/deactivate": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Account deactivated"
+					}
+				}
+			}
+		},
+		"/settings/activate": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Account activated"
+					}
+				}
+			}
+		},
+		"/settings/delete": {
+			"delete": {
+				"responses": {
+					"200": {
+						"description": "Account deleted"
+					}
+				}
+			}
+		},
 		"/timeline": {
 			"get": {
 				"parameters": [
@@ -553,11 +906,15 @@
 		},
 		"/activity/{period?}": {
 			"get": {
-				"tags": ["X-HIDDEN"],
+				"tags": [
+					"X-HIDDEN"
+				],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
+						"enum": [
+							"Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"
+						]
 					}
 				]
 			}
@@ -570,7 +927,12 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": ["?", "day", "week", "month"]
+						"enum": [
+							"?",
+							"day",
+							"week",
+							"month"
+						]
 					},
 					{
 						"name": "lastEntryId",
@@ -666,6 +1028,18 @@
 				]
 			}
 		},
+		"/lists/delete/{name}": {
+			"delete": {
+				"parameters": [
+					{
+						"name": "name",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/settings": {
 			"post": {
 				"requestBody": {
@@ -756,11 +1130,15 @@
 		},
 		"/topmost/{period?}": {
 			"get": {
-				"tags": ["X-HIDDEN"],
+				"tags": [
+					"X-HIDDEN"
+				],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
+						"enum": [
+							"Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"
+						]
 					}
 				]
 			}
@@ -773,7 +1151,14 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": ["?", "day", "week", "month", "year", "all"]
+						"enum": [
+							"?",
+							"day",
+							"week",
+							"month",
+							"year",
+							"all"
+						]
 					},
 					{
 						"name": "lastScore",
@@ -799,7 +1184,10 @@
 						"name": "sortBy",
 						"in": "query",
 						"type": "string",
-						"enum": ["date", "popular"]
+						"enum": [
+							"date",
+							"popular"
+						]
 					},
 					{
 						"name": "lastScore",
@@ -856,11 +1244,15 @@
 		},
 		"/users/{handle}/topmost/{period?}": {
 			"get": {
-				"tags": ["X-HIDDEN"],
+				"tags": [
+					"X-HIDDEN"
+				],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": ["Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"]
+						"enum": [
+							"Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"
+						]
 					}
 				]
 			}
@@ -877,7 +1269,14 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": ["?", "day", "week", "month", "year", "all"]
+						"enum": [
+							"?",
+							"day",
+							"week",
+							"month",
+							"year",
+							"all"
+						]
 					},
 					{
 						"name": "lastScore",
@@ -986,6 +1385,90 @@
 				]
 			}
 		},
+		"/users/follow/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/cancel-req/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/unfollow/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/mute/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/unmute/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/unblock/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/users/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"name": "handle",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/search": {
 			"get": {
 				"parameters": [
@@ -1023,19 +1506,29 @@
 						"name": "sort-by",
 						"in": "query",
 						"type": "string",
-						"enum": ["match", "date", "popular"]
+						"enum": [
+							"match",
+							"date",
+							"popular"
+						]
 					},
 					{
 						"name": "date-order",
 						"in": "query",
 						"type": "string",
-						"enum": ["desc", "asc"]
+						"enum": [
+							"desc",
+							"asc"
+						]
 					},
 					{
 						"name": "replies",
 						"in": "query",
 						"type": "string",
-						"enum": ["exclude", "only"]
+						"enum": [
+							"exclude",
+							"only"
+						]
 					},
 					{
 						"name": "langs",
@@ -1046,7 +1539,10 @@
 						"name": "langs-match",
 						"in": "query",
 						"type": "string",
-						"enum": ["any", "all"]
+						"enum": [
+							"any",
+							"all"
+						]
 					},
 					{
 						"name": "media-desc",
@@ -1122,13 +1618,21 @@
 						"name": "match",
 						"in": "query",
 						"type": "string",
-						"enum": ["exact", "contains", "startsWith", "endsWith"]
+						"enum": [
+							"exact",
+							"contains",
+							"startsWith",
+							"endsWith"
+						]
 					},
 					{
 						"name": "date-order",
 						"in": "query",
 						"type": "string",
-						"enum": ["desc", "asc"]
+						"enum": [
+							"desc",
+							"asc"
+						]
 					},
 					{
 						"name": "lastUserId",
