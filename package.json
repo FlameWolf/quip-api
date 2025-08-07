@@ -20,8 +20,8 @@
 		"helmet": "^8.1.0",
 		"image-thumbnail": "^1.0.17",
 		"jsonwebtoken": "^9.0.2",
-		"mongodb": "^6.17.0",
-		"mongoose": "^8.16.4",
+		"mongodb": "^6.18.0",
+		"mongoose": "^8.17.0",
 		"mongoose-unique-validator": "^5.0.1",
 		"multer": "^2.0.2",
 		"nodemailer": "^7.0.5"
@@ -37,13 +37,13 @@
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/mongoose-unique-validator": "^1.0.9",
 		"@types/multer": "^2.0.0",
-		"@types/node": "^24.0.14",
+		"@types/node": "^24.2.0",
 		"@types/nodemailer": "^6.4.17",
-		"dotenv": "^17.2.0",
+		"dotenv": "^17.2.1",
 		"express-oas-generator-v2": "^1.0.48",
 		"nodemon": "^3.1.10",
 		"postinstall-postinstall": "^2.1.0",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.8.3"
+		"typescript": "^5.9.2"
 	}
 }
