@@ -1,8 +1,8 @@
 "use strict";
 
-import * as express from "express";
-import * as http from "http";
-import * as jwt from "jsonwebtoken";
+import express from "express";
+import http from "http";
+import jwt from "jsonwebtoken";
 import "./schemaTypes/url";
 import "./schemaTypes/point";
 import { Request, Response, NextFunction } from "express-serve-static-core";

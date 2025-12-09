@@ -5,7 +5,6 @@
 		"outDir": "./dist",
 		"newLine": "lf",
 		"resolveJsonModule": true,
-		"esModuleInterop": false,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"noImplicitThis": false,
