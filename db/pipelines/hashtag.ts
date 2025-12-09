@@ -54,11 +54,11 @@ const hashtagAggregationPipeline = (hashtag: string, userId?: string | ObjectId,
 				? {
 						createdAt: -1,
 						score: -1
-				  }
+					}
 				: {
 						score: -1,
 						createdAt: -1
-				  }
+					}
 		},
 		{
 			$match: getPageConditions(sortByDate, lastScore, lastPostId) as Filter<any>

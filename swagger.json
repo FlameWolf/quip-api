@@ -91,9 +91,7 @@
 									"type": {
 										"required": true,
 										"type": "string",
-										"enum": [
-											"Point"
-										]
+										"enum": ["Point"]
 									},
 									"coordinates": {
 										"required": true,
@@ -123,12 +121,7 @@
 							},
 							"match": {
 								"type": "string",
-								"enum": [
-									"exact",
-									"contains",
-									"startsWith",
-									"endsWith"
-								]
+								"enum": ["exact", "contains", "startsWith", "endsWith"]
 							}
 						}
 					}
@@ -179,11 +172,7 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": [
-											"day",
-											"week",
-											"month"
-										]
+										"enum": ["day", "week", "month"]
 									}
 								}
 							},
@@ -192,13 +181,7 @@
 								"properties": {
 									"period": {
 										"type": "string",
-										"enum": [
-											"day",
-											"week",
-											"month",
-											"year",
-											"all"
-										]
+										"enum": ["day", "week", "month", "year", "all"]
 									}
 								}
 							},
@@ -380,13 +363,7 @@
 							"option": {
 								"required": true,
 								"type": "string",
-								"enum": [
-									"first",
-									"second",
-									"third",
-									"fourth",
-									"nota"
-								]
+								"enum": ["first", "second", "third", "fourth", "nota"]
 							}
 						}
 					}
@@ -412,9 +389,7 @@
 	"paths": {
 		"/": {
 			"get": {
-				"tags": [
-					"X-HIDDEN"
-				]
+				"tags": ["X-HIDDEN"]
 			}
 		},
 		"/auth/sign-up": {
@@ -438,17 +413,13 @@
 						"name": "X-Slug",
 						"in": "header",
 						"required": true,
-						"schema": {
-							"type": "string"
-						}
+						"type": "string"
 					},
 					{
 						"name": "X-UID",
 						"in": "header",
 						"required": true,
-						"schema": {
-							"type": "string"
-						}
+						"type": "string"
 					}
 				],
 				"requestBody": {
@@ -480,6 +451,8 @@
 				"parameters": [
 					{
 						"name": "token",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					}
 				],
@@ -521,6 +494,14 @@
 		},
 		"/posts/update/{postId}": {
 			"post": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				],
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -543,10 +524,13 @@
 				"parameters": [
 					{
 						"name": "postId",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
 						"name": "lastQuoteId",
+						"in": "query",
 						"type": "string"
 					}
 				]
@@ -557,10 +541,13 @@
 				"parameters": [
 					{
 						"name": "postId",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
 						"name": "lastReplyId",
+						"in": "query",
 						"type": "string"
 					}
 				]
@@ -571,6 +558,8 @@
 				"parameters": [
 					{
 						"name": "postId",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					}
 				],
@@ -584,6 +573,8 @@
 				"parameters": [
 					{
 						"name": "postId",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					}
 				],
@@ -597,6 +588,8 @@
 				"parameters": [
 					{
 						"name": "postId",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -604,13 +597,7 @@
 						"in": "query",
 						"required": true,
 						"type": "string",
-						"enum": [
-							"first",
-							"second",
-							"third",
-							"fourth",
-							"nota"
-						]
+						"enum": ["first", "second", "third", "fourth", "nota"]
 					}
 				]
 			}
@@ -906,15 +893,11 @@
 		},
 		"/activity/{period?}": {
 			"get": {
-				"tags": [
-					"X-HIDDEN"
-				],
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": [
-							"Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"
-						]
+						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
 					}
 				]
 			}
@@ -927,12 +910,7 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": [
-							"?",
-							"day",
-							"week",
-							"month"
-						]
+						"enum": ["?", "day", "week", "month"]
 					},
 					{
 						"name": "lastEntryId",
@@ -977,6 +955,8 @@
 				"parameters": [
 					{
 						"name": "name",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1006,6 +986,8 @@
 				"parameters": [
 					{
 						"name": "name",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1052,6 +1034,8 @@
 				"parameters": [
 					{
 						"name": "path",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					}
 				]
@@ -1130,15 +1114,11 @@
 		},
 		"/topmost/{period?}": {
 			"get": {
-				"tags": [
-					"X-HIDDEN"
-				],
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": [
-							"Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"
-						]
+						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
 					}
 				]
 			}
@@ -1151,14 +1131,7 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": [
-							"?",
-							"day",
-							"week",
-							"month",
-							"year",
-							"all"
-						]
+						"enum": ["?", "day", "week", "month", "year", "all"]
 					},
 					{
 						"name": "lastScore",
@@ -1178,16 +1151,15 @@
 				"parameters": [
 					{
 						"name": "name",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
 						"name": "sortBy",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"date",
-							"popular"
-						]
+						"enum": ["date", "popular"]
 					},
 					{
 						"name": "lastScore",
@@ -1207,6 +1179,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1222,6 +1196,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1244,15 +1220,11 @@
 		},
 		"/users/{handle}/topmost/{period?}": {
 			"get": {
-				"tags": [
-					"X-HIDDEN"
-				],
+				"tags": ["X-HIDDEN"],
 				"parameters": [
 					{
 						"name": "description",
-						"enum": [
-							"Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"
-						]
+						"enum": ["Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"]
 					}
 				]
 			}
@@ -1262,6 +1234,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1269,28 +1243,17 @@
 						"in": "path",
 						"required": false,
 						"type": "string",
-						"enum": [
-							"?",
-							"day",
-							"week",
-							"month",
-							"year",
-							"all"
-						]
+						"enum": ["?", "day", "week", "month", "year", "all"]
 					},
 					{
 						"name": "lastScore",
 						"in": "query",
-						"schema": {
-							"type": "integer"
-						}
+						"type": "integer"
 					},
 					{
 						"name": "lastPostId",
 						"in": "query",
-						"schema": {
-							"type": "string"
-						}
+						"type": "string"
 					}
 				]
 			}
@@ -1300,6 +1263,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1315,6 +1280,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1330,6 +1297,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1345,6 +1314,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1360,6 +1331,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1375,6 +1348,8 @@
 				"parameters": [
 					{
 						"name": "handle",
+						"in": "path",
+						"required": true,
 						"type": "string"
 					},
 					{
@@ -1506,29 +1481,19 @@
 						"name": "sort-by",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"match",
-							"date",
-							"popular"
-						]
+						"enum": ["match", "date", "popular"]
 					},
 					{
 						"name": "date-order",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"desc",
-							"asc"
-						]
+						"enum": ["desc", "asc"]
 					},
 					{
 						"name": "replies",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"exclude",
-							"only"
-						]
+						"enum": ["exclude", "only"]
 					},
 					{
 						"name": "langs",
@@ -1539,10 +1504,7 @@
 						"name": "langs-match",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"any",
-							"all"
-						]
+						"enum": ["any", "all"]
 					},
 					{
 						"name": "media-desc",
@@ -1618,21 +1580,13 @@
 						"name": "match",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"exact",
-							"contains",
-							"startsWith",
-							"endsWith"
-						]
+						"enum": ["exact", "contains", "startsWith", "endsWith"]
 					},
 					{
 						"name": "date-order",
 						"in": "query",
 						"type": "string",
-						"enum": [
-							"desc",
-							"asc"
-						]
+						"enum": ["desc", "asc"]
 					},
 					{
 						"name": "lastUserId",
