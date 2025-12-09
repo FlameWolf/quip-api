@@ -1,6 +1,6 @@
 "use strict";
 
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Schema, SchemaTypes, model, ValidateOpts, Model, InferSchemaType } from "mongoose";
 import { maxContentLength, maxPollOptionLength, minPollDuration, maxPollDuration, getUnicodeClusterCount } from "../library";
 

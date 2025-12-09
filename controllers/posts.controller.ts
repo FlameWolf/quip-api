@@ -1,6 +1,6 @@
 "use strict";
 
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
 import * as cld from "cld";
 import { v2 as cloudinary } from "cloudinary";

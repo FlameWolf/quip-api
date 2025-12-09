@@ -1,6 +1,6 @@
 "use strict";
 
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
 import * as bcrypt from "bcrypt";
 import { noReplyEmail, emailTemplates, passwordRegExp, rounds } from "../library";

@@ -1,6 +1,6 @@
 "use strict";
 
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { setProperty, getProperty } from "../library";
 import Settings from "../models/settings.model";
 import { RequestHandler } from "express";
