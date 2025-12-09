@@ -1,11 +1,12 @@
 "use strict";
 
 import { ObjectId } from "bson";
-import { FilterQuery, PipelineStage } from "mongoose";
+import { PipelineStage } from "mongoose";
+import { Filter } from "mongodb";
 import { maxRowsPerFetch } from "../../library";
 import postAggregationPipeline from "./post";
 
-const getPageConditions = (sortByDate: boolean, lastScore?: string, lastPostId?: string | ObjectId): FilterQuery<any> | undefined => {
+const getPageConditions = (sortByDate: boolean, lastScore?: string, lastPostId?: string | ObjectId): Filter<any> | undefined => {
 	if (lastPostId) {
 		const lastPostObjectId = new ObjectId(lastPostId);
 		if (sortByDate) {
@@ -53,14 +54,14 @@ const hashtagAggregationPipeline = (hashtag: string, userId?: string | ObjectId,
 				? {
 						createdAt: -1,
 						score: -1
-					}
+				  }
 				: {
 						score: -1,
 						createdAt: -1
-					}
+				  }
 		},
 		{
-			$match: getPageConditions(sortByDate, lastScore, lastPostId) as FilterQuery<any>
+			$match: getPageConditions(sortByDate, lastScore, lastPostId) as Filter<any>
 		},
 		{
 			$limit: maxRowsPerFetch
