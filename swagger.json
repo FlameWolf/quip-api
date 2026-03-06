@@ -1514,7 +1514,8 @@
 					{
 						"name": "lastScore",
 						"in": "query",
-						"type": "integer"
+						"type": "number",
+						"format": "float"
 					},
 					{
 						"name": "lastPostId",

@@ -86,11 +86,11 @@ const getSortConditions = (sortByDate: boolean, dateSort: number): Record<string
 		? {
 				createdAt: dateSort,
 				score: -1
-			}
+		  }
 		: {
 				score: -1,
 				createdAt: dateSort
-			};
+		  };
 const getPageConditions = (sortByDate: boolean, idCompare: string, lastScore?: string, lastPostId?: string | ObjectId): Filter<any> => {
 	const pageConditions: Filter<any> = {};
 	if (lastPostId) {
@@ -99,21 +99,23 @@ const getPageConditions = (sortByDate: boolean, idCompare: string, lastScore?: s
 			pageConditions._id[idCompare] = lastPostObjectId;
 		} else if (lastScore) {
 			const parsedLastScore = parseFloat(lastScore);
-			pageConditions.$expr!.$or = [
-				{
-					$and: [
-						{
-							$eq: ["$score", parsedLastScore]
-						},
-						{
-							[idCompare]: ["$_id", lastPostObjectId]
-						}
-					]
-				},
-				{
-					$lt: ["$score", parsedLastScore]
-				}
-			];
+			pageConditions.$expr = {
+				$or: [
+					{
+						$and: [
+							{
+								$eq: ["$score", parsedLastScore]
+							},
+							{
+								[idCompare]: ["$_id", lastPostObjectId]
+							}
+						]
+					},
+					{
+						$lt: ["$score", parsedLastScore]
+					}
+				]
+			};
 		}
 	}
 	return pageConditions;
