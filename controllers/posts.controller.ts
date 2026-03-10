@@ -628,7 +628,7 @@ export const castVote: RequestHandler = async (req, res, next) => {
 			if (!isOptionNota) {
 				await Post.findByIdAndUpdate(post._id, {
 					$inc: {
-						[`poll.votes.${option}`]: 1,
+						[`attachments.poll.votes.${option}`]: 1,
 						score: voteScore
 					}
 				}).session(session);
