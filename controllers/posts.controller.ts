@@ -431,6 +431,7 @@ export const quotePost: RequestHandler = async (req, res, next) => {
 					score: quoteScore
 				}
 			}).session(session);
+			quote.attachments!.post = originalPost;
 			res.status(201).json({ quote });
 		});
 	} finally {
@@ -468,7 +469,7 @@ export const repeatPost: RequestHandler = async (req, res, next) => {
 								$pull: {
 									posts: null
 								}
-							}
+						  }
 						: {}),
 					$addToSet: {
 						posts: repeated._id
