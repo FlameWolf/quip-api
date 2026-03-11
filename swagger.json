@@ -392,6 +392,15 @@
 				"tags": ["X-HIDDEN"]
 			}
 		},
+		"/health": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK"
+					}
+				}
+			}
+		},
 		"/auth/sign-up": {
 			"post": {
 				"requestBody": {
