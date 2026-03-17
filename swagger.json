@@ -1413,6 +1413,11 @@
 						"in": "path",
 						"required": true,
 						"type": "string"
+					},
+					{
+						"name": "reason",
+						"in": "query",
+						"type": "string"
 					}
 				]
 			}

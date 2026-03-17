@@ -23,6 +23,7 @@ const getMutedWordRegExp = (word: string, match: string) => {
 };
 export const muteUser: RequestHandler = async (req, res, next) => {
 	const muteeHandle = req.params.handle;
+	const muteReason = req.query.reason;
 	const { handle: muterHandle, userId: muterUserId } = req.userInfo as UserInfo;
 	if (muteeHandle === muterHandle) {
 		res.status(422).send("User cannot mute themselves");
@@ -37,7 +38,11 @@ export const muteUser: RequestHandler = async (req, res, next) => {
 	try {
 		await session.withTransaction(async () => {
 			const muteeUserId = mutee._id;
-			const muted = await new MutedUser({ user: muteeUserId, mutedBy: muterUserId }).save({ session });
+			const muted = await new MutedUser({
+				user: muteeUserId,
+				mutedBy: muterUserId,
+				reason: muteReason
+			}).save({ session });
 			await User.findByIdAndUpdate(muterUserId, {
 				$addToSet: {
 					mutedUsers: muteeUserId
