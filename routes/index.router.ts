@@ -13,7 +13,7 @@ router.get("/", async (req, res, next) => {
 	res.status(404).send();
 });
 router.get("/health", async (req, res, next) => {
-	res.status(200).send("OK");
+	res.type("text/plain").status(200).send("OK");
 });
 router.get("/timeline", requireAuthentication, indexController.timeline);
 router.get("/activity/{:period}", requireAuthentication, indexController.activity);
