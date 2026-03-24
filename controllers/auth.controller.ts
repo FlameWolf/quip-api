@@ -22,6 +22,7 @@ const validatePassword = (password: string) => {
 const authSuccess = async (handle: string, userId: string, includeRefreshToken = true) => {
 	const payload: Dictionary = {
 		userId,
+		handle,
 		authToken: generateAuthToken(handle, userId),
 		createdAt: Date.now(),
 		expiresIn: authTokenLife
@@ -49,7 +50,7 @@ export const signUp: RequestHandler = async (req, res, next) => {
 	const passwordHash = bcrypt.hashSync(password, rounds);
 	const user = await new User({ handle, password: passwordHash }).save();
 	const userId = user._id;
-	res.status(201).json(await authSuccess(handle, userId.toString()));
+	res.status(201).json(await authSuccess(user.handle, userId.toString()));
 };
 export const signIn: RequestHandler = async (req, res, next) => {
 	const { handle, password } = req.body;
@@ -64,7 +65,7 @@ export const signIn: RequestHandler = async (req, res, next) => {
 		return;
 	}
 	const userId = user._id;
-	res.status(200).json(await authSuccess(handle, userId.toString()));
+	res.status(200).json(await authSuccess(user.handle, userId.toString()));
 };
 export const refreshAuthToken: RequestHandler = async (req, res, next) => {
 	const { refreshToken } = req.body;
