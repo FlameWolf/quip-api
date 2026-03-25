@@ -10,7 +10,7 @@ const requireAuthentication = require("../middleware/requireAuthentication");
 const extractMediaFile = require("../middleware/extractMediaFile");
 const router = express.Router();
 router.post("/create", requireAuthentication, extractMediaFile, postsController.createPost);
-router.post("/update/{:postId}", requireAuthentication, postsController.updatePost);
+router.patch("/update/{:postId}", requireAuthentication, postsController.updatePost);
 router.get("/favourite/{:postId}", requireAuthentication, favouritesController.addFavourite);
 router.get("/unfavourite/{:postId}", requireAuthentication, favouritesController.removeFavourite);
 router.get("/bookmark/{:postId}", requireAuthentication, bookmarksController.addBookmark);
