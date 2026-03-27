@@ -5,6 +5,7 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import "./schemaTypes/url";
 import "./schemaTypes/point";
+import { emptyString } from "./library";
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { AddressInfo } from "node:net";
 
@@ -32,11 +33,11 @@ require("cloudinary").v2.config({
 	api_secret: process.env.CLOUD_API_SECRET
 });
 
-const allowedOrigins = process.env.ALLOW_ORIGINS || "";
+const allowedOrigins = process.env.ALLOW_ORIGINS || emptyString;
 const app = express();
 app.use(require("helmet")());
 app.use(async (req, res, next) => {
-	const origin = req.headers.origin || "";
+	const origin = req.headers.origin || emptyString;
 	res.setHeader("Access-Control-Allow-Origin", (allowedOrigins.indexOf(`${origin};`) > -1 && origin) || "*");
 	res.setHeader("Access-Control-Allow-Credentials", "true");
 	res.setHeader("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
@@ -59,9 +60,9 @@ if (isNotProdEnv) {
 }
 app.use(async (req, res, next) => {
 	try {
-		const authToken = req.headers.authorization?.replace(/^bearer\s+/i, "");
+		const authToken = req.headers.authorization?.replace(/^bearer\s+/i, emptyString);
 		req.userInfo = authToken && jwt.verify(authToken, process.env.JWT_AUTH_SECRET as string);
-	} catch (err) {}
+	} catch {}
 	next();
 });
 app.use("/", require("./routes/index.router"));

@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
 import * as cld from "cld";
 import { v2 as cloudinary } from "cloudinary";
-import { maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore, getUnicodeClusterCount } from "../library";
+import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore } from "../library";
 import postAggregationPipeline from "../db/pipelines/post";
 import postQuotesAggregationPipeline from "../db/pipelines/post-quotes";
 import postRepliesAggregationPipeline from "../db/pipelines/post-replies";
@@ -174,7 +174,7 @@ export const deletePostWithCascade = async (post: HydratedDocument<PostModel>) =
 	await session.endSession();
 };
 export const createPost: RequestHandler = async (req, res, next) => {
-	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
+	const { content = emptyString, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
@@ -224,7 +224,7 @@ export const createPost: RequestHandler = async (req, res, next) => {
 };
 export const updatePost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const content = req.body.content || "";
+	const content = req.body.content || emptyString;
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
@@ -374,7 +374,7 @@ export const getPostParent: RequestHandler = async (req, res, next) => {
 };
 export const quotePost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
+	const { content = emptyString, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
@@ -469,7 +469,7 @@ export const repeatPost: RequestHandler = async (req, res, next) => {
 								$pull: {
 									posts: null
 								}
-							}
+						  }
 						: {}),
 					$addToSet: {
 						posts: repeated._id
@@ -524,7 +524,7 @@ export const unrepeatPost: RequestHandler = async (req, res, next) => {
 };
 export const replyToPost: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const { content = "", poll, "media-description": mediaDescription, location } = req.body;
+	const { content = emptyString, poll, "media-description": mediaDescription, location } = req.body;
 	const media = req.file;
 	const userId = (req.userInfo as UserInfo).userId;
 	try {
