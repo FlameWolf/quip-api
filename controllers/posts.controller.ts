@@ -1,21 +1,21 @@
 "use strict";
 
 import { ObjectId } from "mongodb";
-import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
-import * as cld from "cld";
+import mongoose, { type HydratedDocument, type InferSchemaType } from "mongoose";
+import cld from "cld";
 import { v2 as cloudinary } from "cloudinary";
-import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore } from "../library";
-import postAggregationPipeline from "../db/pipelines/post";
-import postQuotesAggregationPipeline from "../db/pipelines/post-quotes";
-import postRepliesAggregationPipeline from "../db/pipelines/post-replies";
-import postParentAggregationPipeline from "../db/pipelines/post-parent";
-import Post from "../models/post.model";
-import Vote from "../models/vote.model";
-import User from "../models/user.model";
-import Favourite from "../models/favourite.model";
-import Bookmark from "../models/bookmark.model";
-import MutedPost from "../models/muted.post.model";
-import { RequestHandler } from "express";
+import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore } from "../library.ts";
+import postAggregationPipeline from "../db/pipelines/post.ts";
+import postQuotesAggregationPipeline from "../db/pipelines/post-quotes.ts";
+import postRepliesAggregationPipeline from "../db/pipelines/post-replies.ts";
+import postParentAggregationPipeline from "../db/pipelines/post-parent.ts";
+import Post from "../models/post.model.ts";
+import Vote from "../models/vote.model.ts";
+import User from "../models/user.model.ts";
+import Favourite from "../models/favourite.model.ts";
+import Bookmark from "../models/bookmark.model.ts";
+import MutedPost from "../models/muted.post.model.ts";
+import type { RequestHandler } from "express";
 
 type PostModel = InferSchemaType<typeof Post.schema>;
 type AttachmentsModel = Required<PostModel>["attachments"];
@@ -469,7 +469,7 @@ export const repeatPost: RequestHandler = async (req, res, next) => {
 								$pull: {
 									posts: null
 								}
-						  }
+							}
 						: {}),
 					$addToSet: {
 						posts: repeated._id

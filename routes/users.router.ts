@@ -1,13 +1,13 @@
 "use strict";
 
-import * as express from "express";
-import * as usersController from "../controllers/users.controller";
-import * as followsController from "../controllers/follows.controller";
-import * as followRequestsController from "../controllers/follow-requests.controller";
-import * as mutesController from "../controllers/mutes.controller";
-import * as blocksController from "../controllers/blocks.controller";
+import express from "express";
+import requireAuthentication from "../middleware/requireAuthentication.ts";
+import * as usersController from "../controllers/users.controller.ts";
+import * as followsController from "../controllers/follows.controller.ts";
+import * as followRequestsController from "../controllers/follow-requests.controller.ts";
+import * as mutesController from "../controllers/mutes.controller.ts";
+import * as blocksController from "../controllers/blocks.controller.ts";
 
-const requireAuthentication = require("../middleware/requireAuthentication");
 const router = express.Router();
 router.get("/follow/{:handle}", requireAuthentication, followsController.followUser);
 router.get("/cancel-req/{:handle}", requireAuthentication, followRequestsController.cancelFollowRequest);
@@ -26,4 +26,4 @@ router.get("/{:handle}/following", requireAuthentication, usersController.getUse
 router.get("/{:handle}/followers", requireAuthentication, usersController.getUserFollowers);
 router.get("/{:handle}/mentions", usersController.getUserMentions);
 
-module.exports = router;
+export default router;

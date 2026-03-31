@@ -1,10 +1,10 @@
 "use strict";
 
-import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
-import * as usersController from "./users.controller";
-import FollowRequest from "../models/follow-request.model";
-import Follow from "../models/follow.model";
-import { RequestHandler } from "express";
+import mongoose, { type InferSchemaType, type HydratedDocument } from "mongoose";
+import FollowRequest from "../models/follow-request.model.ts";
+import Follow from "../models/follow.model.ts";
+import * as usersController from "./users.controller.ts";
+import type { RequestHandler } from "express";
 
 const batchSize = 65536;
 type FollowRequestModel = InferSchemaType<typeof FollowRequest.schema>;

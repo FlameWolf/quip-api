@@ -1,13 +1,13 @@
 "use strict";
 
 import mongoose from "mongoose";
-import * as usersController from "./users.controller";
-import * as postsController from "./posts.controller";
-import User from "../models/user.model";
-import MutedUser from "../models/muted.user.model";
-import MutedPost from "../models/muted.post.model";
-import MutedWord from "../models/muted.word.model";
-import { RequestHandler } from "express";
+import User from "../models/user.model.ts";
+import MutedUser from "../models/muted.user.model.ts";
+import MutedPost from "../models/muted.post.model.ts";
+import MutedWord from "../models/muted.word.model.ts";
+import * as usersController from "./users.controller.ts";
+import * as postsController from "./posts.controller.ts";
+import type { RequestHandler } from "express";
 
 const getMutedWordRegExp = (word: string, match: string) => {
 	switch (match) {

@@ -1,19 +1,19 @@
 "use strict";
 
 import { ObjectId } from "mongodb";
-import mongoose, { InferSchemaType, HydratedDocument } from "mongoose";
-import * as bcrypt from "bcrypt";
-import { noReplyEmail, emailTemplates, passwordRegExp, rounds } from "../library";
-import timelineAggregationPipeline from "../db/pipelines/timeline";
-import activityAggregationPipeline from "../db/pipelines/activity";
-import topmostAggregationPipeline from "../db/pipelines/topmost";
-import hashtagAggregationPipeline from "../db/pipelines/hashtag";
-import * as emailController from "./email.controller";
-import User from "../models/user.model";
-import Post from "../models/post.model";
-import EmailVerification from "../models/email-verification.model";
-import PasswordReset from "../models/password-reset.model";
-import { RequestHandler } from "express";
+import mongoose, { type InferSchemaType, type HydratedDocument } from "mongoose";
+import bcrypt from "bcrypt";
+import { noReplyEmail, emailTemplates, passwordRegExp, rounds } from "../library.ts";
+import timelineAggregationPipeline from "../db/pipelines/timeline.ts";
+import activityAggregationPipeline from "../db/pipelines/activity.ts";
+import topmostAggregationPipeline from "../db/pipelines/topmost.ts";
+import hashtagAggregationPipeline from "../db/pipelines/hashtag.ts";
+import User from "../models/user.model.ts";
+import Post from "../models/post.model.ts";
+import EmailVerification from "../models/email-verification.model.ts";
+import PasswordReset from "../models/password-reset.model.ts";
+import * as emailController from "./email.controller.ts";
+import type { RequestHandler } from "express";
 
 type UserModel = InferSchemaType<typeof User.schema>;
 type EmailVerificationModel = InferSchemaType<typeof EmailVerification.schema>;

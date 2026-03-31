@@ -1,13 +1,14 @@
 "use strict";
 
-import * as express from "express";
-import * as settingsController from "../controllers/settings.controller";
-import * as mutesController from "../controllers/mutes.controller";
-import * as usersController from "../controllers/users.controller";
-import * as followRequestsController from "../controllers/follow-requests.controller";
+import express from "express";
+import requireAuthentication from "../middleware/requireAuthentication.ts";
+import * as settingsController from "../controllers/settings.controller.ts";
+import * as mutesController from "../controllers/mutes.controller.ts";
+import * as usersController from "../controllers/users.controller.ts";
+import * as followRequestsController from "../controllers/follow-requests.controller.ts";
 
 const router = express.Router();
-router.use(require("../middleware/requireAuthentication"));
+router.use(requireAuthentication);
 router.post("/", settingsController.updateSettings);
 router.get("/", settingsController.getSettings);
 router.post("/mute", mutesController.muteWord);
@@ -34,4 +35,4 @@ router.delete("/delete", usersController.deleteUser);
 router.put("/{:path}", settingsController.updateSettingByPath);
 router.get("/{:path}", settingsController.getSettingByPath);
 
-module.exports = router;
+export default router;

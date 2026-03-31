@@ -1,13 +1,13 @@
 "use strict";
 
-import * as express from "express";
-import * as postsController from "../controllers/posts.controller";
-import * as favouritesController from "../controllers/favourites.controller";
-import * as bookmarksController from "../controllers/bookmarks.controller";
-import * as mutesController from "../controllers/mutes.controller";
+import express from "express";
+import requireAuthentication from "../middleware/requireAuthentication.ts";
+import extractMediaFile from "../middleware/extractMediaFile.ts";
+import * as postsController from "../controllers/posts.controller.ts";
+import * as favouritesController from "../controllers/favourites.controller.ts";
+import * as bookmarksController from "../controllers/bookmarks.controller.ts";
+import * as mutesController from "../controllers/mutes.controller.ts";
 
-const requireAuthentication = require("../middleware/requireAuthentication");
-const extractMediaFile = require("../middleware/extractMediaFile");
 const router = express.Router();
 router.post("/create", requireAuthentication, extractMediaFile, postsController.createPost);
 router.patch("/update/{:postId}", requireAuthentication, postsController.updatePost);
@@ -28,4 +28,4 @@ router.get("/{:postId}/quotes", postsController.getPostQuotes);
 router.get("/{:postId}/replies", postsController.getPostReplies);
 router.get("/{:postId}/parent", postsController.getPostParent);
 
-module.exports = router;
+export default router;

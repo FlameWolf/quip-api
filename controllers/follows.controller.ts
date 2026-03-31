@@ -1,12 +1,12 @@
 "use strict";
 
 import mongoose from "mongoose";
-import * as usersController from "./users.controller";
-import Block from "../models/block.model";
-import User from "../models/user.model";
-import FollowRequest from "../models/follow-request.model";
-import Follow from "../models/follow.model";
-import { RequestHandler } from "express";
+import Block from "../models/block.model.ts";
+import User from "../models/user.model.ts";
+import FollowRequest from "../models/follow-request.model.ts";
+import Follow from "../models/follow.model.ts";
+import * as usersController from "./users.controller.ts";
+import type { RequestHandler } from "express";
 
 export const followUser: RequestHandler = async (req, res, next) => {
 	const followeeHandle = req.params.handle;

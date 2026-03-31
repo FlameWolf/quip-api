@@ -1,11 +1,11 @@
 "use strict";
 
-import searchPostsAggregationPipeline from "../db/pipelines/search-posts";
-import nearbyPostsAggregationPipeline from "../db/pipelines/nearby-posts";
-import searchUsersAggregationPipeline from "../db/pipelines/search-users";
-import Post from "../models/post.model";
-import User from "../models/user.model";
-import { RequestHandler } from "express";
+import searchPostsAggregationPipeline from "../db/pipelines/search-posts.ts";
+import nearbyPostsAggregationPipeline from "../db/pipelines/nearby-posts.ts";
+import searchUsersAggregationPipeline from "../db/pipelines/search-users.ts";
+import Post from "../models/post.model.ts";
+import User from "../models/user.model.ts";
+import type { RequestHandler } from "express";
 
 export const searchPosts: RequestHandler = async (req, res, next) => {
 	const { q: searchText, from, since, until, "has-media": hasMedia, "not-from": notFrom, "sort-by": sortBy, "date-order": dateOrder, replies, langs: languages, "langs-match": includeLanguages, "media-desc": mediaDescription, lastScore, lastPostId } = req.query as Dictionary<string>;

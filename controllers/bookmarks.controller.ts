@@ -1,8 +1,8 @@
 "use strict";
 
-import * as postsController from "./posts.controller";
-import Bookmark from "../models/bookmark.model";
-import { RequestHandler } from "express";
+import Bookmark from "../models/bookmark.model.ts";
+import * as postsController from "./posts.controller.ts";
+import type { RequestHandler } from "express";
 
 export const addBookmark: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;

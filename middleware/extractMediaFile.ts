@@ -2,7 +2,7 @@
 
 import multer from "multer";
 import path from "path";
-import { validMimeTypes, megaByte, standardiseFileName } from "../library";
+import { validMimeTypes, megaByte, standardiseFileName } from "../library.ts";
 
 const extractMediaFile = multer({
 	fileFilter: (req, file, cb) => {
@@ -23,4 +23,4 @@ const extractMediaFile = multer({
 	})
 }).single("media");
 
-module.exports = extractMediaFile;
+export default extractMediaFile;

@@ -1,9 +1,9 @@
 "use strict";
 
 import { ObjectId } from "mongodb";
-import { setProperty, getProperty } from "../library";
-import Settings from "../models/settings.model";
-import { RequestHandler } from "express";
+import { setProperty, getProperty } from "../library.ts";
+import Settings from "../models/settings.model.ts";
+import type { RequestHandler } from "express";
 
 export const getSettingsByUserId = async (userId: string | ObjectId) => {
 	const param = { user: userId };

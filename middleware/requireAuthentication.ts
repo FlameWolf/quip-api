@@ -1,6 +1,6 @@
 "use strict";
 
-import { RequestHandler } from "express-serve-static-core";
+import type { RequestHandler } from "express-serve-static-core";
 
 const requireAuthentication: RequestHandler = (req, res, next) => {
 	if (!req.userInfo) {
@@ -10,4 +10,4 @@ const requireAuthentication: RequestHandler = (req, res, next) => {
 	next();
 };
 
-module.exports = requireAuthentication;
+export default requireAuthentication;

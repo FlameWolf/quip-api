@@ -1,11 +1,11 @@
 "use strict";
 
 import mongoose from "mongoose";
-import { favouriteScore } from "../library";
-import * as postsController from "./posts.controller";
-import Post from "../models/post.model";
-import Favourite from "../models/favourite.model";
-import { RequestHandler } from "express";
+import { favouriteScore } from "../library.ts";
+import Post from "../models/post.model.ts";
+import Favourite from "../models/favourite.model.ts";
+import * as postsController from "./posts.controller.ts";
+import type { RequestHandler } from "express";
 
 export const addFavourite: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;

@@ -1,9 +1,9 @@
 "use strict";
 
-import * as express from "express";
-import * as indexController from "../controllers/index.controller";
+import express from "express";
+import requireAuthentication from "../middleware/requireAuthentication.ts";
+import * as indexController from "../controllers/index.controller.ts";
 
-const requireAuthentication = require("../middleware/requireAuthentication");
 const router = express.Router();
 router.get("/", async (req, res, next) => {
 	if (process.env.NODE_ENV !== "production") {
@@ -24,4 +24,4 @@ router.get("/verify-email/{:token}", indexController.verifyEmail);
 router.post("/forgot-password", indexController.forgotPassword);
 router.post("/reset-password/{:token}", indexController.resetPassword);
 
-module.exports = router;
+export default router;
