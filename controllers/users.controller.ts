@@ -394,7 +394,7 @@ export const deleteUser: RequestHandler = async (req, res, next) => {
 			]);
 			res.status(200).json({ deleted });
 			if (email) {
-				emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.activated(deleted.handle));
+				emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.deleted(deleted.handle));
 			}
 		});
 	} finally {
