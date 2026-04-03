@@ -39,8 +39,8 @@ export const followUser: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const followed = await new Follow({
+		const followed = await session.withTransaction(async () => {
+			const followedUser = await new Follow({
 				user: followeeUserId,
 				followedBy: followerUserId
 			}).save({ session });
@@ -49,8 +49,9 @@ export const followUser: RequestHandler = async (req, res, next) => {
 					follows: followeeUserId
 				}
 			}).session(session);
-			res.status(200).json({ followed });
+			return followedUser;
 		});
+		res.status(200).json({ followed });
 	} finally {
 		await session.endSession();
 	}
@@ -69,18 +70,19 @@ export const unfollowUser: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const unfollowed = await session.withTransaction(async () => {
 			const unfolloweeUserId = unfollowee._id;
-			const unfollowed = await Follow.findOneAndDelete({ user: unfolloweeUserId, followedBy: unfollowerUserId }).session(session);
-			if (unfollowed) {
+			const unfollowedUser = await Follow.findOneAndDelete({ user: unfolloweeUserId, followedBy: unfollowerUserId }).session(session);
+			if (unfollowedUser) {
 				await User.findByIdAndUpdate(unfollowerUserId, {
 					$pull: {
 						follows: unfolloweeUserId
 					}
 				}).session(session);
 			}
-			res.status(200).json({ unfollowed });
+			return unfollowedUser;
 		});
+		res.status(200).json({ unfollowed });
 	} finally {
 		await session.endSession();
 	}

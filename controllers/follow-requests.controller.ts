@@ -6,7 +6,6 @@ import Follow from "../models/follow.model.ts";
 import * as usersController from "./users.controller.ts";
 import type { RequestHandler } from "express";
 
-const batchSize = 65536;
 type FollowRequestModel = InferSchemaType<typeof FollowRequest.schema>;
 
 export const acceptFollowRequest: RequestHandler = async (req, res, next) => {
@@ -26,14 +25,15 @@ export const acceptFollowRequest: RequestHandler = async (req, res, next) => {
 		if (!followRequest) {
 			res.status(404).send(new Error("Follow request not found"));
 		}
-		await session.withTransaction(async () => {
+		const accepted = await session.withTransaction(async () => {
 			await FollowRequest.deleteOne(followRequest).session(session);
-			const accepted = await new Follow({
+			const acceptedRequest = await new Follow({
 				user: acceptorUserId,
 				followedBy: followRequest.requestedBy
 			}).save({ session });
-			res.status(200).json({ accepted });
+			return acceptedRequest;
 		});
+		res.status(200).json({ accepted });
 	} finally {
 		await session.endSession();
 	}
@@ -43,7 +43,7 @@ export const acceptSelectedFollowRequests: RequestHandler = async (req, res, nex
 	const acceptorUserId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const acceptedRequestsCount = await session.withTransaction(async () => {
 			const filter = {
 				user: acceptorUserId,
 				_id: {
@@ -61,8 +61,9 @@ export const acceptSelectedFollowRequests: RequestHandler = async (req, res, nex
 				).map(followRequest => new Follow(followRequest)),
 				{ session }
 			);
-			res.status(200).json({ acceptedRequestsCount: result.insertedCount });
+			return result.insertedCount;
 		});
+		res.status(200).json({ acceptedRequestsCount });
 	} finally {
 		await session.endSession();
 	}
@@ -71,9 +72,10 @@ export const acceptAllFollowRequests: RequestHandler = async (req, res, next) =>
 	const acceptorUserId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		let batchCount = 0;
-		let totalCount = 0;
-		await session.withTransaction(async () => {
+		const batchSize = 65536;
+		const acceptedRequestsCount = await session.withTransaction(async () => {
+			let batchCount = 0;
+			let totalCount = 0;
 			const filter = { user: acceptorUserId };
 			do {
 				const followRequests = await FollowRequest.find(filter, { user: acceptorUserId, followedBy: "$requestedBy" }).limit(batchSize).session(session);
@@ -92,8 +94,9 @@ export const acceptAllFollowRequests: RequestHandler = async (req, res, next) =>
 				batchCount = result.insertedCount;
 				totalCount += batchCount;
 			} while (batchCount === batchSize);
+			return totalCount;
 		});
-		res.status(200).json({ acceptedRequestsCount: totalCount });
+		res.status(200).json({ acceptedRequestsCount });
 	} finally {
 		await session.endSession();
 	}

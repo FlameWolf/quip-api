@@ -53,15 +53,16 @@ export const rejectEmail: RequestHandler = async (req, res, next) => {
 			res.status(404).send("Verification token not found or expired");
 			return;
 		}
-		await session.withTransaction(async () => {
-			const previousEmail = emailVerification.previousEmail;
-			const user = (await User.findByIdAndUpdate(emailVerification.user, { email: emailVerification.previousEmail }).session(session)) as UserModel;
+		const previousEmail = emailVerification.previousEmail;
+		const user = await session.withTransaction(async () => {
+			const updatedUser = (await User.findByIdAndUpdate(emailVerification.user, { email: emailVerification.previousEmail }).session(session)) as UserModel;
 			await EmailVerification.deleteOne(emailVerification as EmailVerificationModel).session(session);
-			res.status(200).send();
-			if (previousEmail) {
-				emailController.sendEmail(noReplyEmail, previousEmail, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email as string));
-			}
+			return updatedUser;
 		});
+		if (previousEmail) {
+			await emailController.sendEmail(noReplyEmail, previousEmail, "Email address change rejected", emailTemplates.notifications.emailRejected(user.handle, emailVerification.email as string));
+		}
+		res.status(200).send();
 	} finally {
 		await session.endSession();
 	}
@@ -75,8 +76,8 @@ export const verifyEmail: RequestHandler = async (req, res, next) => {
 	}
 	const email = emailVerification.email as string;
 	const user = (await User.findByIdAndUpdate(emailVerification.user, { email })) as HydratedDocument<UserModel>;
+	await emailController.sendEmail(noReplyEmail, email, "Email address change verified", emailTemplates.notifications.emailVerified(user.handle, email));
 	res.status(200).send();
-	emailController.sendEmail(noReplyEmail, email, "Email address change verified", emailTemplates.notifications.emailVerified(user.handle, email));
 };
 export const forgotPassword: RequestHandler = async (req, res, next) => {
 	const { handle, email } = req.body;
@@ -93,8 +94,8 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
 		user: user._id,
 		token: new ObjectId()
 	}).save();
+	await emailController.sendEmail(noReplyEmail, email, "Reset password", emailTemplates.actions.resetPassword(handle, `${process.env.ALLOW_ORIGIN}/reset-password/${passwordReset.token}`));
 	res.status(200).json({ passwordReset });
-	emailController.sendEmail(noReplyEmail, email, "Reset password", emailTemplates.actions.resetPassword(handle, `${process.env.ALLOW_ORIGIN}/reset-password/${passwordReset.token}`));
 };
 export const resetPassword: RequestHandler = async (req, res, next) => {
 	const token = req.params.token;
@@ -110,13 +111,14 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
 			res.status(400).send("Invalid password");
 			return;
 		}
-		await session.withTransaction(async () => {
+		const user = await session.withTransaction(async () => {
 			const passwordHash = bcrypt.hashSync(password, rounds);
-			const user = (await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).select("+email").session(session)) as UserModel;
+			const updatedUser = (await User.findByIdAndUpdate(passwordReset.user, { password: passwordHash }).select("+email").session(session)) as UserModel;
 			await PasswordReset.deleteOne(passwordReset as PasswordResetModel).session(session);
-			res.status(200).send();
-			emailController.sendEmail(noReplyEmail, user.email as string, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
+			return updatedUser;
 		});
+		await emailController.sendEmail(noReplyEmail, user.email as string, "Password reset", emailTemplates.notifications.passwordReset(user.handle));
+		res.status(200).send();
 	} finally {
 		await session.endSession();
 	}

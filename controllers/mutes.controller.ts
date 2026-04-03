@@ -36,9 +36,9 @@ export const muteUser: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const muted = await session.withTransaction(async () => {
 			const muteeUserId = mutee._id;
-			const muted = await new MutedUser({
+			const mutedUser = await new MutedUser({
 				user: muteeUserId,
 				mutedBy: muterUserId,
 				reason: muteReason
@@ -48,8 +48,9 @@ export const muteUser: RequestHandler = async (req, res, next) => {
 					mutedUsers: muteeUserId
 				}
 			}).session(session);
-			res.status(200).json({ muted });
+			return mutedUser;
 		});
+		res.status(200).json({ muted });
 	} finally {
 		await session.endSession();
 	}
@@ -68,18 +69,19 @@ export const unmuteUser: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const unmuted = await session.withTransaction(async () => {
 			const unmuteeUserId = unmutee._id;
-			const unmuted = await MutedUser.findOneAndDelete({ user: unmuteeUserId, mutedBy: unmuterUserId }).session(session);
-			if (unmuted) {
+			const unmutedUser = await MutedUser.findOneAndDelete({ user: unmuteeUserId, mutedBy: unmuterUserId }).session(session);
+			if (unmutedUser) {
 				await User.findByIdAndUpdate(unmuterUserId, {
 					$pull: {
 						mutedUsers: unmuteeUserId
 					}
 				}).session(session);
 			}
-			res.status(200).json({ unmuted });
+			return unmutedUser;
 		});
+		res.status(200).json({ unmuted });
 	} finally {
 		await session.endSession();
 	}
@@ -94,15 +96,16 @@ export const mutePost: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const muted = await new MutedPost({ post: postId, mutedBy: userId }).save({ session });
+		const muted = await session.withTransaction(async () => {
+			const mutedPost = await new MutedPost({ post: postId, mutedBy: userId }).save({ session });
 			await User.findByIdAndUpdate(userId, {
 				$addToSet: {
 					mutedPosts: postId
 				}
 			}).session(session);
-			res.status(200).json({ muted });
+			return mutedPost;
 		});
+		res.status(200).json({ muted });
 	} finally {
 		await session.endSession();
 	}
@@ -112,17 +115,18 @@ export const unmutePost: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const unmuted = await MutedPost.findOneAndDelete({ post: postId, mutedBy: userId }).session(session);
-			if (unmuted) {
+		const unmuted = await session.withTransaction(async () => {
+			const unmutedPost = await MutedPost.findOneAndDelete({ post: postId, mutedBy: userId }).session(session);
+			if (unmutedPost) {
 				await User.findByIdAndUpdate(userId, {
 					$pull: {
 						mutedPosts: postId
 					}
 				}).session(session);
 			}
-			res.status(200).json({ unmuted });
+			return unmutedPost;
 		});
+		res.status(200).json({ unmuted });
 	} finally {
 		await session.endSession();
 	}
@@ -132,15 +136,16 @@ export const muteWord: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const muted = await new MutedWord({ word, match, mutedBy: userId }).save({ session });
+		const muted = await session.withTransaction(async () => {
+			const mutedWord = await new MutedWord({ word, match, mutedBy: userId }).save({ session });
 			await User.findByIdAndUpdate(userId, {
 				$addToSet: {
 					mutedWords: getMutedWordRegExp(word, match)
 				}
 			}).session(session);
-			res.status(200).json({ muted });
+			return mutedWord;
 		});
+		res.status(200).json({ muted });
 	} finally {
 		await session.endSession();
 	}
@@ -150,17 +155,18 @@ export const unmuteWord: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const unmuted = await MutedWord.findOneAndDelete({ word, match, mutedBy: userId }).session(session);
-			if (unmuted) {
+		const unmuted = await session.withTransaction(async () => {
+			const unmutedWord = await MutedWord.findOneAndDelete({ word, match, mutedBy: userId }).session(session);
+			if (unmutedWord) {
 				await User.findByIdAndUpdate(userId, {
 					$pull: {
 						mutedWords: getMutedWordRegExp(word, match)
 					}
 				}).session(session);
 			}
-			res.status(200).json({ unmuted });
+			return unmutedWord;
 		});
+		res.status(200).json({ unmuted });
 	} finally {
 		await session.endSession();
 	}

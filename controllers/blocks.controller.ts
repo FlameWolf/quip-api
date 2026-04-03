@@ -25,9 +25,9 @@ export const blockUser: RequestHandler = async (req, res, next) => {
 			res.status(404).send("User not found");
 			return;
 		}
-		await session.withTransaction(async () => {
+		const blocked = await session.withTransaction(async () => {
 			const blockeeUserId = blockee._id;
-			const blocked = await new Block({
+			const blockedUser = await new Block({
 				user: blockeeUserId,
 				blockedBy: blockerUserId,
 				reason: blockReason
@@ -82,8 +82,9 @@ export const blockUser: RequestHandler = async (req, res, next) => {
 					}
 				).session(session)
 			]);
-			res.status(200).json({ blocked });
+			return blockedUser;
 		});
+		res.status(200).json({ blocked });
 	} finally {
 		await session.endSession();
 	}
@@ -102,18 +103,19 @@ export const unblockUser: RequestHandler = async (req, res, next) => {
 	}
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const unblocked = await session.withTransaction(async () => {
 			const unblockeeUserId = unblockee._id;
-			const unblocked = await Block.findOneAndDelete({ user: unblockeeUserId, blockedBy: unblockerUserId }).session(session);
-			if (unblocked) {
+			const unblockedUser = await Block.findOneAndDelete({ user: unblockeeUserId, blockedBy: unblockerUserId }).session(session);
+			if (unblockedUser) {
 				await User.findByIdAndUpdate(unblockerUserId, {
 					$pull: {
 						blockedUsers: unblockeeUserId
 					}
 				}).session(session);
 			}
-			res.status(200).json({ unblocked });
+			return unblockedUser;
 		});
+		res.status(200).json({ unblocked });
 	} finally {
 		await session.endSession();
 	}

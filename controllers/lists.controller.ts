@@ -63,8 +63,8 @@ export const addMember: RequestHandler = async (req, res, next) => {
 	const session = await mongoose.startSession();
 	try {
 		const listId = list._id;
-		await session.withTransaction(async () => {
-			const added = await new ListMember({
+		const added = await session.withTransaction(async () => {
+			const addedMember = await new ListMember({
 				list: listId,
 				user: memberId
 			}).save({ session });
@@ -73,8 +73,9 @@ export const addMember: RequestHandler = async (req, res, next) => {
 					members: memberId
 				}
 			}).session(session);
-			res.status(200).json({ added });
+			return addedMember;
 		});
+		res.status(200).json({ added });
 	} finally {
 		await session.endSession();
 	}
@@ -96,8 +97,8 @@ export const removeMember: RequestHandler = async (req, res, next) => {
 	try {
 		const listId = list._id;
 		const memberId = member._id;
-		await session.withTransaction(async () => {
-			const removed = await ListMember.findOneAndDelete({
+		const removed = await session.withTransaction(async () => {
+			const removedMember = await ListMember.findOneAndDelete({
 				list: listId,
 				user: memberId
 			}).session(session);
@@ -106,8 +107,9 @@ export const removeMember: RequestHandler = async (req, res, next) => {
 					members: memberId
 				}
 			}).session(session);
-			res.status(200).json({ removed });
+			return removedMember;
 		});
+		res.status(200).json({ removed });
 	} finally {
 		await session.endSession();
 	}
@@ -124,13 +126,14 @@ export const deleteList: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
-			const deleted = await List.findOneAndDelete({ name, owner: userId }).session(session);
-			if (deleted) {
-				await ListMember.deleteMany({ list: deleted._id }).session(session);
+		const deleted = await session.withTransaction(async () => {
+			const deletedList = await List.findOneAndDelete({ name, owner: userId }).session(session);
+			if (deletedList) {
+				await ListMember.deleteMany({ list: deletedList._id }).session(session);
 			}
-			res.status(200).json({ deleted });
+			return deletedList;
 		});
+		res.status(200).json({ deleted });
 	} finally {
 		await session.endSession();
 	}

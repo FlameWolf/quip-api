@@ -294,11 +294,11 @@ export const updateEmail: RequestHandler = async (req, res, next) => {
 		previousEmail: currentEmail,
 		token: new ObjectId()
 	}).save();
-	res.status(200).json({ emailVerification });
 	if (currentEmail) {
-		emailController.sendEmail(noReplyEmail, currentEmail, "Email address changed", emailTemplates.actions.rejectEmail(handle, currentEmail, `${process.env.ALLOW_ORIGIN}/reject-email/${emailVerification.token}`));
+		await emailController.sendEmail(noReplyEmail, currentEmail, "Email address changed", emailTemplates.actions.rejectEmail(handle, currentEmail, `${process.env.ALLOW_ORIGIN}/reject-email/${emailVerification.token}`));
 	}
-	emailController.sendEmail(noReplyEmail, newEmail, "Verify email address", emailTemplates.actions.verifyEmail(handle, newEmail, `${process.env.ALLOW_ORIGIN}/verify-email/${emailVerification.token}`));
+	await emailController.sendEmail(noReplyEmail, newEmail, "Verify email address", emailTemplates.actions.verifyEmail(handle, newEmail, `${process.env.ALLOW_ORIGIN}/verify-email/${emailVerification.token}`));
+	res.status(200).json({ emailVerification });
 };
 export const changePassword: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
@@ -316,24 +316,25 @@ export const changePassword: RequestHandler = async (req, res, next) => {
 	}
 	const passwordHash = bcrypt.hashSync(newPassword, rounds);
 	await User.findByIdAndUpdate(user._id, { password: passwordHash });
-	res.status(200).send();
 	if (email) {
-		emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
+		await emailController.sendEmail(noReplyEmail, email, "Password changed", emailTemplates.notifications.passwordChanged(user.handle));
 	}
+	res.status(200).send();
 };
 export const deactivateUser: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const { deactivated, email } = await session.withTransaction(async () => {
 			const deactivated = (await User.findByIdAndUpdate(userId, { deactivated: true }, { new: true }).select("+email").session(session)) as HydratedDocument<UserModel>;
 			const email = deactivated.email;
 			await RefreshToken.deleteMany({ user: userId }).session(session);
-			res.status(200).json({ deactivated });
-			if (email) {
-				emailController.sendEmail(noReplyEmail, email, "Account deactivated", emailTemplates.notifications.deactivated(deactivated.handle));
-			}
+			return { deactivated, email };
 		});
+		if (email) {
+			await emailController.sendEmail(noReplyEmail, email, "Account deactivated", emailTemplates.notifications.deactivated(deactivated.handle));
+		}
+		res.status(200).json({ deactivated });
 	} finally {
 		await session.endSession();
 	}
@@ -350,16 +351,16 @@ export const activateUser: RequestHandler = async (req, res, next) => {
 		}
 	).select("+email")) as HydratedDocument<UserModel>;
 	const email = activated.email;
-	res.status(200).json({ activated });
 	if (email) {
-		emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(activated.handle));
+		await emailController.sendEmail(noReplyEmail, email, "Account activated", emailTemplates.notifications.activated(activated.handle));
 	}
+	res.status(200).json({ activated });
 };
 export const deleteUser: RequestHandler = async (req, res, next) => {
 	const userId = (req.userInfo as UserInfo).userId;
 	const session = await mongoose.startSession();
 	try {
-		await session.withTransaction(async () => {
+		const { deleted, email } = await session.withTransaction(async () => {
 			const userFilter = { user: userId };
 			const ownerFilter = { owner: userId };
 			const mutedByFilter = { mutedBy: userId };
@@ -392,11 +393,12 @@ export const deleteUser: RequestHandler = async (req, res, next) => {
 				PasswordReset.deleteMany(userFilter).session(session),
 				Settings.deleteMany(userFilter).session(session)
 			]);
-			res.status(200).json({ deleted });
-			if (email) {
-				emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.deleted(deleted.handle));
-			}
+			return { deleted, email };
 		});
+		if (email) {
+			await emailController.sendEmail(noReplyEmail, email, `Goodbye, ${deleted.handle}`, emailTemplates.notifications.deleted(deleted.handle));
+		}
+		res.status(200).json({ deleted });
 	} finally {
 		await session.endSession();
 	}
