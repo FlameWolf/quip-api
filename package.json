@@ -20,30 +20,30 @@
 		"helmet": "^8.1.0",
 		"image-thumbnail": "^1.0.17",
 		"jsonwebtoken": "^9.0.3",
-		"mongodb": "^7.1.0",
-		"mongoose": "^9.2.4",
-		"mongoose-unique-validator": "^6.1.0",
+		"mongodb": "^7.1.1",
+		"mongoose": "^9.4.1",
+		"mongoose-unique-validator": "^6.1.1",
 		"multer": "^2.1.1",
-		"nodemailer": "^8.0.1"
+		"nodemailer": "^8.0.4"
 	},
 	"devDependencies": {
 		"@types/babel__core": "^7.20.5",
 		"@types/bcrypt": "^10.0.28-alpha",
 		"@types/cookie-parser": "~1.4.10",
-		"@types/debug": "^4.1.12",
+		"@types/debug": "^4.1.13",
 		"@types/express": "^5.0.6",
 		"@types/fluent-ffmpeg": "^2.1.28",
 		"@types/image-thumbnail": "^1.0.4",
 		"@types/jsonwebtoken": "^9.0.10",
-		"@types/mongoose-unique-validator": "^1.0.9",
-		"@types/multer": "^2.0.0",
-		"@types/node": "^25.3.3",
-		"@types/nodemailer": "^7.0.11",
-		"dotenv": "^17.3.1",
+		"@types/mongoose-unique-validator": "^6.1.0",
+		"@types/multer": "^2.1.0",
+		"@types/node": "^25.5.2",
+		"@types/nodemailer": "^8.0.0",
+		"dotenv": "^17.4.1",
 		"express-oas-generator-v2": "^1.0.48",
 		"postinstall-postinstall": "^2.1.0",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.21.0",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.2"
 	}
 }
