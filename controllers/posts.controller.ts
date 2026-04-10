@@ -73,7 +73,7 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 	post.languages = Array.from(languages);
 };
 export const updateMentionsAndHashtags = async (content: string, post: Partial<PostModel> | DeepPartial<PostModel>) => {
-	const postMentions = new Set(post.mentions?.map((mention: MentionEntry) => mention?.toString()));
+	const postMentions = new Set(post.mentions?.map((mention) => mention?.toString()));
 	const postHashtags = new Set(post.hashtags);
 	const contentMentions = content.match(/\B@\w+/g);
 	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
