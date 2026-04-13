@@ -9,6 +9,10 @@ import * as bookmarksController from "../controllers/bookmarks.controller.ts";
 import * as mutesController from "../controllers/mutes.controller.ts";
 
 const router = express.Router();
+router.get("/{:postId}", postsController.getPost);
+router.get("/{:postId}/quotes", postsController.getPostQuotes);
+router.get("/{:postId}/replies", postsController.getPostReplies);
+router.get("/{:postId}/parent", postsController.getPostParent);
 router.post("/create", requireAuthentication, extractMediaFile, postsController.createPost);
 router.patch("/update/{:postId}", requireAuthentication, postsController.updatePost);
 router.get("/favourite/{:postId}", requireAuthentication, favouritesController.addFavourite);
@@ -23,9 +27,5 @@ router.get("/mute/{:postId}", requireAuthentication, mutesController.mutePost);
 router.get("/unmute/{:postId}", requireAuthentication, mutesController.unmutePost);
 router.get("/vote/{:postId}", requireAuthentication, postsController.castVote);
 router.delete("/delete/{:postId}", requireAuthentication, postsController.deletePost);
-router.get("/{:postId}", postsController.getPost);
-router.get("/{:postId}/quotes", postsController.getPostQuotes);
-router.get("/{:postId}/replies", postsController.getPostReplies);
-router.get("/{:postId}/parent", postsController.getPostParent);
 
 export default router;
