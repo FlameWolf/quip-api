@@ -12,6 +12,7 @@ const router = express.Router();
 router.get("/{:postId}", postsController.getPost);
 router.get("/{:postId}/quotes", postsController.getPostQuotes);
 router.get("/{:postId}/replies", postsController.getPostReplies);
+router.get("/{:postId}/thread", postsController.getPostThread);
 router.get("/{:postId}/parent", postsController.getPostParent);
 router.post("/create", requireAuthentication, extractMediaFile, postsController.createPost);
 router.patch("/update/{:postId}", requireAuthentication, postsController.updatePost);

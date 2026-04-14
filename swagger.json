@@ -562,6 +562,23 @@
 				]
 			}
 		},
+		"/posts/{postId}/thread": {
+			"get": {
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "lastReplyId",
+						"in": "query",
+						"type": "string"
+					}
+				]
+			}
+		},
 		"/posts/quote/{postId}": {
 			"post": {
 				"parameters": [

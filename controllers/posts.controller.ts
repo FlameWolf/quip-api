@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 import mongoose, { type HydratedDocument, type InferSchemaType } from "mongoose";
 import cld from "cld";
 import { v2 as cloudinary } from "cloudinary";
-import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore } from "../library.ts";
+import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteScore, replyScore, voteScore, repeatScore, maxRowsPerFetch } from "../library.ts";
 import postAggregationPipeline from "../db/pipelines/post.ts";
 import postQuotesAggregationPipeline from "../db/pipelines/post-quotes.ts";
 import postRepliesAggregationPipeline from "../db/pipelines/post-replies.ts";
@@ -73,7 +73,7 @@ export const updateLanguages = async (post: Partial<PostModel> | DeepPartial<Pos
 	post.languages = Array.from(languages);
 };
 export const updateMentionsAndHashtags = async (content: string, post: Partial<PostModel> | DeepPartial<PostModel>) => {
-	const postMentions = new Set(post.mentions?.map((mention) => mention?.toString()));
+	const postMentions = new Set(post.mentions?.map(mention => mention?.toString()));
 	const postHashtags = new Set(post.hashtags);
 	const contentMentions = content.match(/\B@\w+/g);
 	const contentHashtags = content.match(/\B#(\p{L}\p{M}?)+/gu);
@@ -295,6 +295,42 @@ export const getPostReplies: RequestHandler = async (req, res, next) => {
 		return;
 	}
 	const replies = await Post.aggregate(postRepliesAggregationPipeline(post._id, (req.userInfo as UserInfo)?.userId, lastReplyId as string));
+	res.status(200).json({ replies });
+};
+export const getPostThread: RequestHandler = async (req, res, next) => {
+	const postId = req.params.postId;
+	const userId = (req.userInfo as UserInfo)?.userId;
+	const post = await findPostById(postId);
+	if (!post) {
+		res.status(404).send("Post not found");
+		return;
+	}
+	let nextPost = post;
+	const thread = [];
+	while (thread.length < maxRowsPerFetch) {
+		nextPost = (await Post.findOne({
+			replyTo: nextPost._id,
+			author: nextPost.author
+		})) as HydratedDocument<PostModel>;
+		if (!nextPost) {
+			break;
+		}
+		thread.push(nextPost);
+	}
+	const replies = (
+		await Promise.all(
+			thread.map(x =>
+				Post.aggregate([
+					{
+						$match: {
+							_id: x._id
+						}
+					},
+					...postAggregationPipeline(userId)
+				])
+			)
+		)
+	).flat();
 	res.status(200).json({ replies });
 };
 export const getPostParent: RequestHandler = async (req, res, next) => {
