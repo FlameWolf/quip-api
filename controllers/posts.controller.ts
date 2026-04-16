@@ -8,6 +8,7 @@ import { emptyString, getUnicodeClusterCount, maxContentLength, nullId, quoteSco
 import postAggregationPipeline from "../db/pipelines/post.ts";
 import postQuotesAggregationPipeline from "../db/pipelines/post-quotes.ts";
 import postRepliesAggregationPipeline from "../db/pipelines/post-replies.ts";
+import postThreadAggregationPipeline from "../db/pipelines/post-thread.ts";
 import postParentAggregationPipeline from "../db/pipelines/post-parent.ts";
 import Post from "../models/post.model.ts";
 import Vote from "../models/vote.model.ts";
@@ -299,38 +300,12 @@ export const getPostReplies: RequestHandler = async (req, res, next) => {
 };
 export const getPostThread: RequestHandler = async (req, res, next) => {
 	const postId = req.params.postId;
-	const userId = (req.userInfo as UserInfo)?.userId;
 	const post = await findPostById(postId);
 	if (!post) {
 		res.status(404).send("Post not found");
 		return;
 	}
-	let nextPost = post;
-	const thread = [];
-	while (thread.length < maxRowsPerFetch) {
-		nextPost = (await Post.findOne({
-			replyTo: nextPost._id,
-			author: nextPost.author
-		})) as HydratedDocument<PostModel>;
-		if (!nextPost) {
-			break;
-		}
-		thread.push(nextPost);
-	}
-	const replies = (
-		await Promise.all(
-			thread.map(x =>
-				Post.aggregate([
-					{
-						$match: {
-							_id: x._id
-						}
-					},
-					...postAggregationPipeline(userId)
-				])
-			)
-		)
-	).flat();
+	const replies = await Post.aggregate(postThreadAggregationPipeline(post._id, post.author, (req.userInfo as UserInfo)?.userId));
 	res.status(200).json({ replies });
 };
 export const getPostParent: RequestHandler = async (req, res, next) => {
