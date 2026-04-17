@@ -40,7 +40,7 @@
 		"@types/node": "^25.5.2",
 		"@types/nodemailer": "^8.0.0",
 		"dotenv": "^17.4.1",
-		"express-oas-generator-v2": "^1.0.48",
+		"express-oas-generator-v2": "^1.2.0",
 		"postinstall-postinstall": "^2.1.0",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.21.0",

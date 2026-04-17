@@ -12,886 +12,12 @@
 			"Bearer": []
 		}
 	],
-	"requestBodies": {
-		"Credentials": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"handle": {
-								"type": "string"
-							},
-							"password": {
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"RefreshToken": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"refreshToken": {
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"Post": {
-			"content": {
-				"multipart/form-data": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"content": {
-								"type": "string"
-							},
-							"poll": {
-								"type": "object",
-								"properties": {
-									"first": {
-										"required": true,
-										"type": "string"
-									},
-									"second": {
-										"required": true,
-										"type": "string"
-									},
-									"third": {
-										"type": "string"
-									},
-									"fourth": {
-										"type": "string"
-									},
-									"duration": {
-										"type": "integer",
-										"format": "int64",
-										"minimum": 1800000,
-										"maximum": 604800000,
-										"default": 86400000
-									}
-								}
-							},
-							"media": {
-								"type": "file"
-							},
-							"media-description": {
-								"type": "string"
-							},
-							"location": {
-								"type": "object",
-								"properties": {
-									"type": {
-										"required": true,
-										"type": "string",
-										"enum": ["Point"]
-									},
-									"coordinates": {
-										"required": true,
-										"type": "array",
-										"items": {
-											"required": true,
-											"type": "integer",
-											"minimum": -180,
-											"maximum": 180
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"WordMute": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"word": {
-								"type": "string"
-							},
-							"match": {
-								"type": "string",
-								"enum": ["exact", "contains", "startsWith", "endsWith"]
-							}
-						}
-					}
-				}
-			}
-		},
-		"FollowRequests": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"requestIds": {
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"Settings": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"user": {
-								"type": "string"
-							},
-							"timeline": {
-								"type": "object",
-								"properties": {
-									"includeRepeats": {
-										"type": "boolean",
-										"default": true
-									},
-									"includeReplies": {
-										"type": "boolean",
-										"default": true
-									}
-								}
-							},
-							"activity": {
-								"type": "object",
-								"properties": {
-									"period": {
-										"type": "string",
-										"enum": ["day", "week", "month"]
-									}
-								}
-							},
-							"topmost": {
-								"type": "object",
-								"properties": {
-									"period": {
-										"type": "string",
-										"enum": ["day", "week", "month", "year", "all"]
-									}
-								}
-							},
-							"profile": {
-								"type": "object",
-								"properties": {
-									"includeRepeats": {
-										"type": "boolean",
-										"default": false
-									},
-									"includeReplies": {
-										"type": "boolean",
-										"default": false
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"EmailUpdate": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"email": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"PasswordUpdate": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"oldPassword": {
-								"required": true,
-								"type": "string"
-							},
-							"newPassword": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"ForgotPassword": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"handle": {
-								"required": true,
-								"type": "string"
-							},
-							"email": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"PasswordReset": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"password": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"List": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"name": {
-								"required": true,
-								"type": "string"
-							},
-							"includeRepeats": {
-								"type": "boolean",
-								"default": true
-							},
-							"includeReplies": {
-								"type": "boolean",
-								"default": true
-							}
-						}
-					}
-				}
-			}
-		},
-		"ListUpdate": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"name": {
-								"required": true,
-								"type": "string"
-							},
-							"newName": {
-								"type": "string"
-							},
-							"includeRepeats": {
-								"type": "boolean",
-								"default": true
-							},
-							"includeReplies": {
-								"type": "boolean",
-								"default": true
-							}
-						}
-					}
-				}
-			}
-		},
-		"ListMember": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"name": {
-								"required": true,
-								"type": "string"
-							},
-							"handle": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"PostUpdate": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"content": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		"Vote": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"option": {
-								"required": true,
-								"type": "string",
-								"enum": ["first", "second", "third", "fourth", "nota"]
-							}
-						}
-					}
-				}
-			}
-		},
-		"Email": {
-			"content": {
-				"application/json": {
-					"schema": {
-						"type": "object",
-						"properties": {
-							"email": {
-								"required": true,
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		}
-	},
 	"paths": {
-		"/": {
-			"get": {
-				"tags": ["X-HIDDEN"]
-			}
-		},
 		"/health": {
 			"get": {
 				"responses": {
 					"200": {
-						"description": "OK"
-					}
-				}
-			}
-		},
-		"/auth/sign-up": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/Credentials"
-				}
-			}
-		},
-		"/auth/sign-in": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/Credentials"
-				}
-			}
-		},
-		"/auth/refresh-token": {
-			"post": {
-				"parameters": [
-					{
-						"name": "X-Slug",
-						"in": "header",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "X-UID",
-						"in": "header",
-						"required": true,
-						"type": "string"
-					}
-				],
-				"requestBody": {
-					"$ref": "#/requestBodies/RefreshToken"
-				}
-			}
-		},
-		"/auth/revoke-token/{token}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "token",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/forgot-password": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/ForgotPassword"
-				}
-			}
-		},
-		"/reset-password/{token}": {
-			"post": {
-				"parameters": [
-					{
-						"name": "token",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				],
-				"requestBody": {
-					"$ref": "#/requestBodies/PasswordReset"
-				}
-			}
-		},
-		"/reject-email/{token}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "token",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/verify-email/{token}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "token",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/create": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/Post"
-				}
-			}
-		},
-		"/posts/update/{postId}": {
-			"patch": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"content": {
-										"required": true,
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/posts/{postId}/quotes": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastQuoteId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/{postId}/replies": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastReplyId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/{postId}/thread": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastReplyId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/quote/{postId}": {
-			"post": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				],
-				"requestBody": {
-					"$ref": "#/requestBodies/Post"
-				}
-			}
-		},
-		"/posts/reply/{postId}": {
-			"post": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				],
-				"requestBody": {
-					"$ref": "#/requestBodies/Post"
-				}
-			}
-		},
-		"/posts/vote/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "option",
-						"in": "query",
-						"required": true,
-						"type": "string",
-						"enum": ["first", "second", "third", "fourth", "nota"]
-					}
-				]
-			}
-		},
-		"/posts/favourite/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/unfavourite/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/bookmark/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/unbookmark/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/repeat/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/unrepeat/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/mute/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/unmute/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/delete/{postId}": {
-			"delete": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/posts/{postId}/parent": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/settings/mute": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/WordMute"
-				}
-			}
-		},
-		"/settings/unmute": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/WordMute"
-				}
-			}
-		},
-		"/settings/accept-reqs": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/FollowRequests"
-				}
-			}
-		},
-		"/settings/reject-reqs": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/FollowRequests"
-				}
-			}
-		},
-		"/settings/sent-reqs": {
-			"post": {
-				"responses": {
-					"200": {
-						"description": "List of sent follow requests"
-					}
-				}
-			}
-		},
-		"/settings/received-reqs": {
-			"post": {
-				"responses": {
-					"200": {
-						"description": "List of received follow requests"
-					}
-				}
-			}
-		},
-		"/settings/accept-req/{requestId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "requestId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/settings/accept-all-reqs": {
-			"get": {
-				"responses": {
-					"200": {
-						"description": "All follow requests accepted"
-					}
-				}
-			}
-		},
-		"/settings/reject-req/{requestId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "requestId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/settings/reject-all-reqs": {
-			"get": {
-				"responses": {
-					"200": {
-						"description": "All follow requests rejected"
-					}
-				}
-			}
-		},
-		"/settings/pin/{postId}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "postId",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/settings/unpin": {
-			"get": {
-				"responses": {
-					"200": {
-						"description": "Post unpinned"
-					}
-				}
-			}
-		},
-		"/settings/deactivate": {
-			"get": {
-				"responses": {
-					"200": {
-						"description": "Account deactivated"
-					}
-				}
-			}
-		},
-		"/settings/activate": {
-			"get": {
-				"responses": {
-					"200": {
-						"description": "Account activated"
-					}
-				}
-			}
-		},
-		"/settings/delete": {
-			"delete": {
-				"responses": {
-					"200": {
-						"description": "Account deleted"
+						"description": "Default Response"
 					}
 				}
 			}
@@ -900,79 +26,949 @@
 			"get": {
 				"parameters": [
 					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
 						"name": "includeRepeats",
-						"in": "query",
-						"type": "boolean"
+						"required": false
 					},
 					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
 						"name": "includeReplies",
-						"in": "query",
-						"type": "boolean"
+						"required": false
 					},
 					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
 						"name": "lastPostId",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/activity/{period}?": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/activity/{period?}": {
-			"get": {
-				"tags": ["X-HIDDEN"],
-				"parameters": [
-					{
-						"name": "description",
-						"enum": ["Go to [/activity/{period}](/#/default/get_activity__period_) for the correct endpoint stub"]
-					}
-				]
-			}
-		},
-		"/activity/{period}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "period",
-						"in": "path",
-						"required": false,
-						"type": "string",
-						"enum": ["?", "day", "week", "month"]
-					},
-					{
 						"name": "lastEntryId",
-						"in": "query",
-						"type": "string"
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["?", "day", "week", "month"]
+						},
+						"in": "path",
+						"name": "period",
+						"required": true
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
-		"/lists": {
+		"/topmost/{period}?": {
 			"get": {
 				"parameters": [
 					{
-						"name": "memberHandle",
+						"schema": {
+							"type": "integer"
+						},
 						"in": "query",
-						"type": "string"
+						"name": "lastScore",
+						"required": false
 					},
 					{
-						"name": "lastListId",
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
+						"name": "lastPostId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["?", "day", "week", "month", "year", "all"]
+						},
+						"in": "path",
+						"name": "period",
+						"required": true
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/hashtag/{name}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["date", "popular"]
+						},
+						"in": "query",
+						"name": "sortBy",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "integer"
+						},
+						"in": "query",
+						"name": "lastScore",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastPostId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "name",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/reject-email/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "token",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/verify-email/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "token",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/forgot-password": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"handle": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									}
+								},
+								"required": ["handle", "email"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/reset-password/{token}": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"password": {
+										"type": "string"
+									}
+								},
+								"required": ["password"]
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "token",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/auth/sign-up": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"handle": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								},
+								"required": ["handle", "password"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/auth/sign-in": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"handle": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								},
+								"required": ["handle", "password"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/auth/refresh-token": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"refreshToken": {
+										"type": "string"
+									}
+								},
+								"required": ["refreshToken"]
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "header",
+						"name": "x-slug",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "header",
+						"name": "x-uid",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/auth/revoke-token/{token}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "token",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/posts": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
+						"name": "includeRepeats",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
+						"name": "includeReplies",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastPostId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/topmost/{period}?": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer"
+						},
+						"in": "query",
+						"name": "lastScore",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastPostId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["?", "day", "week", "month", "year", "all"]
+						},
+						"in": "path",
+						"name": "period",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/mentions": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastMentionId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/follow/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/cancel-req/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/unfollow/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/mute/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "reason",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/unmute/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/block/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "reason",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/unblock/{handle}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/favourites": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastFavouriteId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/votes": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastVoteId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/bookmarks": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastBookmarkId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/following": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastFollowId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/users/{handle}/followers": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastFollowId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "handle",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/lists/": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "memberHandle",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastListId",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
 		"/lists/create": {
 			"post": {
 				"requestBody": {
-					"$ref": "#/requestBodies/List"
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"includeRepeats": {
+										"type": "boolean",
+										"default": true
+									},
+									"includeReplies": {
+										"type": "boolean",
+										"default": true
+									}
+								},
+								"required": ["name"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
 		"/lists/update": {
 			"post": {
 				"requestBody": {
-					"$ref": "#/requestBodies/ListUpdate"
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"newName": {
+										"type": "string"
+									},
+									"includeRepeats": {
+										"type": "boolean",
+										"default": true
+									},
+									"includeReplies": {
+										"type": "boolean",
+										"default": true
+									}
+								},
+								"required": ["name"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/lists/add-member": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"handle": {
+										"type": "string"
+									}
+								},
+								"required": ["name", "handle"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/lists/remove-member": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"handle": {
+										"type": "string"
+									}
+								},
+								"required": ["name", "handle"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/lists/delete/{name}": {
+			"delete": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "name",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
@@ -980,30 +976,26 @@
 			"get": {
 				"parameters": [
 					{
-						"name": "name",
-						"in": "path",
-						"required": true,
-						"type": "string"
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastMemberId",
+						"required": false
 					},
 					{
-						"name": "lastMemberId",
-						"in": "query",
-						"type": "string"
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "name",
+						"required": true
 					}
-				]
-			}
-		},
-		"/lists/add-member": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/ListMember"
-				}
-			}
-		},
-		"/lists/remove-member": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/ListMember"
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
@@ -1011,86 +1003,1125 @@
 			"get": {
 				"parameters": [
 					{
-						"name": "name",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
 						"name": "includeRepeats",
-						"in": "query",
-						"type": "boolean",
-						"default": true
+						"required": false
 					},
 					{
+						"schema": {
+							"type": "boolean"
+						},
+						"in": "query",
 						"name": "includeReplies",
-						"in": "query",
-						"type": "boolean",
-						"default": true
+						"required": false
 					},
 					{
-						"name": "lastPostId",
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/lists/delete/{name}": {
-			"delete": {
-				"parameters": [
+						"name": "lastPostId",
+						"required": false
+					},
 					{
-						"name": "name",
+						"schema": {
+							"type": "string"
+						},
 						"in": "path",
-						"required": true,
-						"type": "string"
+						"name": "name",
+						"required": true
 					}
-				]
-			}
-		},
-		"/settings": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/Settings"
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
-		"/settings/{path}": {
+		"/posts/{postId}": {
 			"get": {
 				"parameters": [
 					{
-						"name": "path",
+						"schema": {
+							"type": "string"
+						},
 						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			},
-			"put": {
-				"parameters": [
-					{
-						"name": "path",
-						"type": "string"
-					},
-					{
-						"name": "value",
-						"in": "query",
+						"name": "postId",
 						"required": true
 					}
-				]
-			}
-		},
-		"/settings/update-email": {
-			"post": {
-				"requestBody": {
-					"$ref": "#/requestBodies/EmailUpdate"
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
-		"/settings/change-password": {
+		"/posts/{postId}/quotes": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastQuoteId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/{postId}/replies": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastReplyId",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/{postId}/thread": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/{postId}/parent": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/create": {
 			"post": {
 				"requestBody": {
-					"$ref": "#/requestBodies/PasswordUpdate"
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string"
+									},
+									"poll": {
+										"type": "object",
+										"properties": {
+											"first": {
+												"type": "string"
+											},
+											"second": {
+												"type": "string"
+											},
+											"third": {
+												"type": "string"
+											},
+											"fourth": {
+												"type": "string"
+											},
+											"duration": {
+												"type": "integer",
+												"format": "int64",
+												"minimum": 1800000,
+												"maximum": 604800000,
+												"default": 86400000
+											}
+										},
+										"required": ["first", "second", "duration"]
+									},
+									"media": {
+										"type": "string",
+										"format": "binary"
+									},
+									"media-description": {
+										"type": "string"
+									},
+									"location": {
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"enum": ["Point"]
+											},
+											"coordinates": {
+												"type": "array",
+												"items": {
+													"type": "integer",
+													"minimum": -180,
+													"maximum": 180
+												}
+											}
+										},
+										"required": ["type", "coordinates"]
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/update/{postId}": {
+			"patch": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string"
+									}
+								},
+								"required": ["content"]
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/favourite/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/unfavourite/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/bookmark/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/unbookmark/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/quote/{postId}": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string"
+									},
+									"poll": {
+										"type": "object",
+										"properties": {
+											"first": {
+												"type": "string"
+											},
+											"second": {
+												"type": "string"
+											},
+											"third": {
+												"type": "string"
+											},
+											"fourth": {
+												"type": "string"
+											},
+											"duration": {
+												"type": "integer",
+												"format": "int64",
+												"minimum": 1800000,
+												"maximum": 604800000,
+												"default": 86400000
+											}
+										},
+										"required": ["first", "second", "duration"]
+									},
+									"media": {
+										"type": "string",
+										"format": "binary"
+									},
+									"media-description": {
+										"type": "string"
+									},
+									"location": {
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"enum": ["Point"]
+											},
+											"coordinates": {
+												"type": "array",
+												"items": {
+													"type": "integer",
+													"minimum": -180,
+													"maximum": 180
+												}
+											}
+										},
+										"required": ["type", "coordinates"]
+									}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/repeat/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/unrepeat/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/reply/{postId}": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string"
+									},
+									"poll": {
+										"type": "object",
+										"properties": {
+											"first": {
+												"type": "string"
+											},
+											"second": {
+												"type": "string"
+											},
+											"third": {
+												"type": "string"
+											},
+											"fourth": {
+												"type": "string"
+											},
+											"duration": {
+												"type": "integer",
+												"format": "int64",
+												"minimum": 1800000,
+												"maximum": 604800000,
+												"default": 86400000
+											}
+										},
+										"required": ["first", "second", "duration"]
+									},
+									"media": {
+										"type": "string",
+										"format": "binary"
+									},
+									"media-description": {
+										"type": "string"
+									},
+									"location": {
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"enum": ["Point"]
+											},
+											"coordinates": {
+												"type": "array",
+												"items": {
+													"type": "integer",
+													"minimum": -180,
+													"maximum": 180
+												}
+											}
+										},
+										"required": ["type", "coordinates"]
+									}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/mute/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/unmute/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/vote/{postId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["first", "second", "third", "fourth", "nota"]
+						},
+						"in": "query",
+						"name": "option",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/posts/delete/{postId}": {
+			"delete": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "postId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/search/": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "q",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "from",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "since",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "until",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "has-media",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "not-from",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["match", "date", "popular"]
+						},
+						"in": "query",
+						"name": "sort-by",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["desc", "asc"]
+						},
+						"in": "query",
+						"name": "date-order",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["exclude", "only"]
+						},
+						"in": "query",
+						"name": "replies",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "langs",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["any", "all"]
+						},
+						"in": "query",
+						"name": "langs-match",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "media-desc",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "number",
+							"format": "float"
+						},
+						"in": "query",
+						"name": "lastScore",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastPostId",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/search/nearby": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "number",
+							"format": "float",
+							"minimum": -180,
+							"maximum": 180
+						},
+						"in": "query",
+						"name": "long",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "number",
+							"format": "float",
+							"minimum": -90,
+							"maximum": 90
+						},
+						"in": "query",
+						"name": "lat",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 50000
+						},
+						"in": "query",
+						"name": "max-dist",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "number",
+							"format": "double"
+						},
+						"in": "query",
+						"name": "lastDistance",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastPostId",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/search/users": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "q",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["exact", "contains", "startsWith", "endsWith"]
+						},
+						"in": "query",
+						"name": "match",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["desc", "asc"]
+						},
+						"in": "query",
+						"name": "date-order",
+						"required": false
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "lastUserId",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"user": {
+										"type": "string"
+									},
+									"timeline": {
+										"type": "object",
+										"properties": {
+											"includeRepeats": {
+												"type": "boolean",
+												"default": true
+											},
+											"includeReplies": {
+												"type": "boolean",
+												"default": true
+											}
+										}
+									},
+									"activity": {
+										"type": "object",
+										"properties": {
+											"period": {
+												"type": "string",
+												"enum": ["day", "week", "month"]
+											}
+										}
+									},
+									"topmost": {
+										"type": "object",
+										"properties": {
+											"period": {
+												"type": "string",
+												"enum": ["day", "week", "month", "year", "all"]
+											}
+										}
+									},
+									"profile": {
+										"type": "object",
+										"properties": {
+											"includeRepeats": {
+												"type": "boolean",
+												"default": false
+											},
+											"includeReplies": {
+												"type": "boolean",
+												"default": false
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			},
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/mute": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"word": {
+										"type": "string"
+									},
+									"match": {
+										"type": "string",
+										"enum": ["exact", "contains", "startsWith", "endsWith"]
+									}
+								},
+								"required": ["word", "match"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/unmute": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"word": {
+										"type": "string"
+									},
+									"match": {
+										"type": "string",
+										"enum": ["exact", "contains", "startsWith", "endsWith"]
+									}
+								},
+								"required": ["word", "match"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/sent-reqs": {
+			"post": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/received-reqs": {
+			"post": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/accept-req/{requestId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "requestId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/accept-reqs": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"requestIds": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									}
+								},
+								"required": ["requestIds"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/accept-all-reqs": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/reject-req/{requestId}": {
+			"get": {
+				"parameters": [
+					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "path",
+						"name": "requestId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/reject-reqs": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"requestIds": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									}
+								},
+								"required": ["requestIds"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/reject-all-reqs": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
 				}
 			}
 		},
@@ -1098,534 +2129,209 @@
 			"get": {
 				"parameters": [
 					{
-						"name": "lastBlockId",
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
+						"name": "lastBlockId",
+						"required": false
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
 		"/settings/muted/users": {
 			"get": {
 				"parameters": [
 					{
-						"name": "lastMuteId",
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
+						"name": "lastMuteId",
+						"required": false
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
 		"/settings/muted/posts": {
 			"get": {
 				"parameters": [
 					{
-						"name": "lastMuteId",
+						"schema": {
+							"type": "string"
+						},
 						"in": "query",
-						"type": "string"
+						"name": "lastMuteId",
+						"required": false
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
 		"/settings/muted/words": {
 			"get": {
 				"parameters": [
 					{
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
 						"name": "lastMuteId",
-						"in": "query",
-						"type": "string"
+						"required": false
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
-		"/topmost/{period?}": {
-			"get": {
-				"tags": ["X-HIDDEN"],
-				"parameters": [
-					{
-						"name": "description",
-						"enum": ["Go to [/topmost/{period}](/#/default/get_topmost__period_) for the correct endpoint stub"]
-					}
-				]
-			}
-		},
-		"/topmost/{period}": {
+		"/settings/pin/{postId}": {
 			"get": {
 				"parameters": [
 					{
-						"name": "period",
+						"schema": {
+							"type": "string"
+						},
 						"in": "path",
-						"required": false,
-						"type": "string",
-						"enum": ["?", "day", "week", "month", "year", "all"]
-					},
-					{
-						"name": "lastScore",
-						"in": "query",
-						"type": "integer"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
+						"name": "postId",
+						"required": true
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
 			}
 		},
-		"/hashtag/{name}": {
+		"/settings/unpin": {
 			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/update-email": {
+			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": {
+										"type": "string"
+									}
+								},
+								"required": ["email"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/change-password": {
+			"post": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/deactivate": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/activate": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/delete": {
+			"delete": {
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			}
+		},
+		"/settings/{path}": {
+			"put": {
 				"parameters": [
 					{
-						"name": "name",
+						"schema": {
+							"type": "string"
+						},
+						"in": "query",
+						"name": "value",
+						"required": true
+					},
+					{
+						"schema": {
+							"type": "string"
+						},
 						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "sortBy",
-						"in": "query",
-						"type": "string",
-						"enum": ["date", "popular"]
-					},
-					{
-						"name": "lastScore",
-						"in": "query",
-						"type": "integer"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
+						"name": "path",
+						"required": true
 					}
-				]
-			}
-		},
-		"/users/block/{handle}": {
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
+					}
+				}
+			},
 			"get": {
 				"parameters": [
 					{
-						"name": "handle",
+						"schema": {
+							"type": "string"
+						},
 						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "reason",
-						"in": "query",
-						"type": "string"
+						"name": "path",
+						"required": true
 					}
-				]
-			}
-		},
-		"/users/{handle}/posts": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "includeRepeats",
-						"in": "query",
-						"type": "boolean"
-					},
-					{
-						"name": "includeReplies",
-						"in": "query",
-						"type": "boolean"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
+				],
+				"responses": {
+					"200": {
+						"description": "Default Response"
 					}
-				]
-			}
-		},
-		"/users/{handle}/topmost/{period?}": {
-			"get": {
-				"tags": ["X-HIDDEN"],
-				"parameters": [
-					{
-						"name": "description",
-						"enum": ["Go to [/users/{handle}/topmost/{period}](/#/default/get_users__handle__topmost__period_) for the correct endpoint stub"]
-					}
-				]
-			}
-		},
-		"/users/{handle}/topmost/{period}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "period",
-						"in": "path",
-						"required": false,
-						"type": "string",
-						"enum": ["?", "day", "week", "month", "year", "all"]
-					},
-					{
-						"name": "lastScore",
-						"in": "query",
-						"type": "integer"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/favourites": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastFavouriteId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/votes": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastVoteId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/bookmarks": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastBookmarkId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/following": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastFollowId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/followers": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastFollowId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}/mentions": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "lastMentionId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/follow/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/cancel-req/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/unfollow/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/mute/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "reason",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/unmute/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/unblock/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/users/{handle}": {
-			"get": {
-				"parameters": [
-					{
-						"name": "handle",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/search": {
-			"get": {
-				"parameters": [
-					{
-						"name": "q",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "from",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "since",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "until",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "has-media",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "not-from",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "sort-by",
-						"in": "query",
-						"type": "string",
-						"enum": ["match", "date", "popular"]
-					},
-					{
-						"name": "date-order",
-						"in": "query",
-						"type": "string",
-						"enum": ["desc", "asc"]
-					},
-					{
-						"name": "replies",
-						"in": "query",
-						"type": "string",
-						"enum": ["exclude", "only"]
-					},
-					{
-						"name": "langs",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "langs-match",
-						"in": "query",
-						"type": "string",
-						"enum": ["any", "all"]
-					},
-					{
-						"name": "media-desc",
-						"in": "query",
-						"type": "string"
-					},
-					{
-						"name": "lastScore",
-						"in": "query",
-						"type": "number",
-						"format": "float"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/search/nearby": {
-			"get": {
-				"parameters": [
-					{
-						"name": "long",
-						"in": "query",
-						"required": true,
-						"type": "number",
-						"format": "float",
-						"minimum": -180,
-						"maximum": 180
-					},
-					{
-						"name": "lat",
-						"in": "query",
-						"required": true,
-						"type": "number",
-						"format": "float",
-						"minimum": -90,
-						"maximum": 90
-					},
-					{
-						"name": "max-dist",
-						"in": "query",
-						"required": true,
-						"type": "integer",
-						"minimum": 0,
-						"maximum": 50000
-					},
-					{
-						"name": "lastDistance",
-						"in": "query",
-						"type": "number",
-						"format": "double"
-					},
-					{
-						"name": "lastPostId",
-						"in": "query",
-						"type": "string"
-					}
-				]
-			}
-		},
-		"/search/users": {
-			"get": {
-				"parameters": [
-					{
-						"name": "q",
-						"in": "query",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "match",
-						"in": "query",
-						"type": "string",
-						"enum": ["exact", "contains", "startsWith", "endsWith"]
-					},
-					{
-						"name": "date-order",
-						"in": "query",
-						"type": "string",
-						"enum": ["desc", "asc"]
-					},
-					{
-						"name": "lastUserId",
-						"in": "query",
-						"type": "string"
-					}
-				]
+				}
 			}
 		}
 	}

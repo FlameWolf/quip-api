@@ -3,6 +3,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { emptyString } from "./library.ts";
+import type { HandleResponsesOptions } from "express-oas-generator-v2";
 import type { Request, Response, NextFunction } from "express-serve-static-core";
 import type { AddressInfo } from "node:net";
 
@@ -49,11 +50,8 @@ app.use(express.json());
 if (isNotProdEnv) {
 	expressOasGenerator?.handleResponses(app, {
 		predefinedSpec: (await import("./swagger.json", { with: { type: "json" } })).default,
-		specOutputFileBehavior: "RECREATE",
-		swaggerDocumentOptions: {
-			customCss: ".wrapper > .block > div > span:first-child, section.models.is-open { display: none; }"
-		}
-	});
+		specOutputFileBehavior: "RECREATE"
+	} as HandleResponsesOptions);
 }
 app.use(async (req, res, next) => {
 	try {
