@@ -23,11 +23,13 @@ export const addFavourite: RequestHandler = async (req, res, next) => {
 				post: originalPostId,
 				favouritedBy: userId
 			}).save({ session });
-			await Post.findByIdAndUpdate(originalPostId, {
-				$inc: {
-					score: favouriteScore
-				}
-			}).session(session);
+			if (post.author.toString() !== userId) {
+				await Post.findByIdAndUpdate(originalPostId, {
+					$inc: {
+						score: favouriteScore
+					}
+				}).session(session);
+			}
 			return favouritedPost;
 		});
 		res.status(200).json({ favourited });
@@ -46,11 +48,19 @@ export const removeFavourite: RequestHandler = async (req, res, next) => {
 				favouritedBy: userId
 			}).session(session);
 			if (unfavouritedPost) {
-				await Post.findByIdAndUpdate(postId, {
-					$inc: {
-						score: -favouriteScore
+				await Post.findOneAndUpdate(
+					{
+						_id: postId,
+						author: {
+							$ne: userId
+						}
+					},
+					{
+						$inc: {
+							score: -favouriteScore
+						}
 					}
-				}).session(session);
+				).session(session);
 			}
 			return unfavouritedPost;
 		});
