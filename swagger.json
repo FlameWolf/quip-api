@@ -1,11 +1,19 @@
 {
-	"securityDefinitions": {
-		"Bearer": {
-			"type": "apiKey",
-			"name": "Authorization",
-			"in": "header",
-			"description": "Enter your bearer token in the format **Bearer &#x3C;token&#x3E;**"
-		}
+	"openapi": "3.0.3",
+	"info": {
+		"title": "Quip API",
+		"version": "1.0.0"
+	},
+	"components": {
+		"securitySchemes": {
+			"Bearer": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header",
+				"description": "Enter your bearer token in the format **Bearer &#x3C;token&#x3E;**"
+			}
+		},
+		"schemas": {}
 	},
 	"security": [
 		{
@@ -57,7 +65,7 @@
 				}
 			}
 		},
-		"/activity/{period}?": {
+		"/activity/{period}": {
 			"get": {
 				"parameters": [
 					{
@@ -85,7 +93,7 @@
 				}
 			}
 		},
-		"/topmost/{period}?": {
+		"/topmost/{period}": {
 			"get": {
 				"parameters": [
 					{
@@ -446,7 +454,7 @@
 				}
 			}
 		},
-		"/users/{handle}/topmost/{period}?": {
+		"/users/{handle}/topmost/{period}": {
 			"get": {
 				"parameters": [
 					{

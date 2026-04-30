@@ -3,7 +3,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { emptyString } from "./library.ts";
-import type { HandleResponsesOptions } from "express-oas-generator-v2";
 import type { Request, Response, NextFunction } from "express-serve-static-core";
 import type { AddressInfo } from "node:net";
 
@@ -26,11 +25,6 @@ await import("./schemaTypes/point.ts");
 	api_key: process.env.CLOUD_API_KEY,
 	api_secret: process.env.CLOUD_API_SECRET
 });
-const expressOasGenerator = await (async () => {
-	if (isNotProdEnv) {
-		return await import("express-oas-generator-v2");
-	}
-})();
 const allowedOrigins = process.env.ALLOW_ORIGINS || emptyString;
 const app = express();
 app.use((await import("helmet")).default());
@@ -48,10 +42,25 @@ app.use(async (req, res, next) => {
 });
 app.use(express.json());
 if (isNotProdEnv) {
-	expressOasGenerator?.handleResponses(app, {
-		predefinedSpec: (await import("./swagger.json", { with: { type: "json" } })).default,
-		specOutputFileBehavior: "RECREATE"
-	} as HandleResponsesOptions);
+	const swaggerUi = await import("swagger-ui-express");
+	app.use(
+		"/api-docs",
+		swaggerUi.serve,
+		swaggerUi.setup(
+			(
+				await import("./swagger.json", {
+					with: {
+						type: "json"
+					}
+				})
+			).default,
+			{
+				swaggerOptions: {
+					persistAuthorization: true
+				}
+			}
+		)
+	);
 }
 app.use(async (req, res, next) => {
 	try {
@@ -70,9 +79,6 @@ app.use("/settings", (await import("./routes/settings.router.ts")).default);
 app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
 	res.status(500).send(err);
 });
-if (isNotProdEnv) {
-	expressOasGenerator?.handleRequests();
-}
 const server = (await import("http")).createServer(app);
 server.listen(+(process.env.PORT as string) || 4096, () => {
 	console.log(`Listening on ${(server.address() as AddressInfo).port}`);
