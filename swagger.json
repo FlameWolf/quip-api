@@ -2264,6 +2264,25 @@
 		},
 		"/settings/change-password": {
 			"post": {
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"oldPassword": {
+										"type": "string"
+									},
+									"newPassword": {
+										"type": "string"
+									}
+								},
+								"required": ["oldPassword", "newPassword"]
+							}
+						}
+					}
+				},
 				"responses": {
 					"200": {
 						"description": "Default Response"
